@@ -11,7 +11,7 @@ export const AIRPORT_LABEL: Record<Destination, string> = {
 
 export type ChartMode = 'both' | 'milhas' | 'brl'
 
-/** Default is dry-run-only until legacy smiles_web purge. `live` = exclude_dry_run. */
+/** Default is dry-run-only (`*_dry_run`) until legacy smiles_web purge. `live` = exclude_dry_run. */
 export type DryMode = 'live' | 'include' | 'only'
 
 export type DashboardQuery = {

@@ -62,7 +62,7 @@ Dados (select **Dados** / query):
 
 | Modo                                | UI                         | Query                  | API                                                                                 |
 | ----------------------------------- | -------------------------- | ---------------------- | ----------------------------------------------------------------------------------- |
-| **Só dry-run (padrão até o purge)** | Só dry-run                 | `?dry_run=1` (default) | sem exclude; só `*_dry_run`. Evita `smiles_web` legado (amount_brl=248.5) nas KPIs. |
+| **Só dry-run (padrão até o purge)** | Só dry-run (padrão)        | `?dry_run=1` (default) | sem `exclude_dry_run`; só `*_dry_run`. Evita `smiles_web` legado (`amount_brl=248.5`) nas KPIs/stats. |
 | Incluir dry-run                     | Incluir dry-run            | `?dry=1`               | live + fixtures                                                                     |
 | Produção                            | Produção (exclude dry-run) | `?live=1`              | `exclude_dry_run=1` — ligar depois do purge                                         |
 
@@ -79,13 +79,13 @@ Dados (select **Dados** / query):
 
 ## D-2 + shadcn (FE-1.1)
 
-Tokens semânticos em `src/index.css` (`:root` HSL). Primitivos em `src/components/ui/`. O gráfico de barras continua custom (SVG): fills D-2.1 por destino (`--airline-azul` / `--airline-gol` / `--airline-latam` + softs) e Tooltip no chrome.
+Tokens semânticos em `src/index.css` (`:root` HSL). Primitivos em `src/components/ui/`. O gráfico de barras continua custom (SVG): fills D-2.1 da **cia vencedora do dia** (`--airline-azul` / `--airline-gol` / `--airline-latam` + softs; hex do Designer) e Tooltip no chrome.
 
 - Topbar: logo, **Viagens do Pé**, Badge success/soft `Origem fixa · PET · ida`, Button outline Entrar/Sair, Avatar+Fallback.
 - Abas **GRU | CGH | VCP** (Tabs) trocam KPIs, gráfico e tabela na hora. Persistido em `?to=GRU`.
 - Filtros (batch no **Aplicar**): Input date (janela futura) + Select da fonte. **Limpar** (outline) reseta a janela/fonte. Query: `from`, `until`, `fonte`.
 - KPIs (Card): menor milhas, menor BRL (cash), melhor milheiro — `text-2xl font-semibold tracking-tight tabular-nums`.
-- Gráfico: barras agrupadas **só em datas futuras**; ToggleGroup Milhas+BRL / Só milhas / Só BRL (`bars`); clique na barra filtra a tabela (`dia`). Cores D-2.1 por aba: **VCP→Azul**, **CGH→GOL**, **GRU→LATAM**.
+- Gráfico: barras agrupadas **só em datas futuras**; ToggleGroup Milhas+BRL / Só milhas / Só BRL (`bars`); clique na barra filtra a tabela (`dia`). Cor = **cia vencedora daquele dia na métrica** (não empilha 3 cias). Tokens D-2.1: Azul `#0078B8`, GOL `#E65C00`, LATAM `#752B5C`. Fallback da aba: VCP→Azul, CGH→GOL, GRU→LATAM.
 - Tabela (Table, thead sticky): Data, Cia/programa, Fonte, Milhas, Taxas (BRL), Cash (BRL), Milheiro. Só voos futuros. Vazio: _Sem ofertas futuras nesta aba_.
 - Loading: Skeleton enquanto o fetch roda (e `?ui=loading` para forçar).
 - Erro de API: faixa inline com **Tentar de novo** (sem Dialog).

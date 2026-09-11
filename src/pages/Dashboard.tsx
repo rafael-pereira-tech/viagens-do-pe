@@ -58,7 +58,9 @@ export function Dashboard() {
   const useApiStats = live && applied.dryMode !== 'only'
   const kpis = kpisFromOffers(tabRows, useApiStats ? remote.windowStats : undefined)
   const chart =
-    useApiStats && remote.routeDay.length > 0 ? chartFromRouteDayStats(remote.routeDay) : chartFromOffers(tabRows)
+    useApiStats && remote.routeDay.length > 0
+      ? chartFromRouteDayStats(remote.routeDay, tabRows, applied.to)
+      : chartFromOffers(tabRows, applied.to)
   const isLoading = applied.ui === 'loading' || (live && remote.isLoading)
 
   function commit(next: DashboardQuery) {

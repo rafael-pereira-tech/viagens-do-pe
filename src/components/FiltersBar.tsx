@@ -21,7 +21,7 @@ const ALL_FONTES = 'todas'
 const dateInputClass = 'h-10 bg-card tabular-nums'
 
 const DRY_MODES: { value: DryMode; label: string }[] = [
-  { value: 'only', label: 'Só dry-run' },
+  { value: 'only', label: 'Só dry-run (padrão)' },
   { value: 'include', label: 'Incluir dry-run' },
   { value: 'live', label: 'Produção (exclude dry-run)' },
 ]
