@@ -2,11 +2,14 @@
 
 Dashboard FE-1 (Vite + React + TypeScript) alinhado ao wireframe **D-1 v2 MVP**. Origem fixa **PET**, só ida, abas de destino **GRU | CGH | VCP**. O backend (Workers + Supabase) fica em outro lugar — este app não inventa APIs.
 
+Ingest BE-2: coleta agendada de preços em [`workers/`](workers/) (stubs até BE-3/4/5).
+
 ## Stack
 
 - Vite + React + TypeScript
 - Tailwind CSS v4
 - Cloudflare Pages (`npm run build` → `dist`, SPA fallback)
+- Cloudflare Workers (ingest) + Supabase Postgres
 
 ## Desenvolvimento
 
@@ -58,6 +61,20 @@ npx wrangler pages deploy dist
 
 `wrangler.toml` aponta `pages_build_output_dir = "dist"`. Defina `VITE_API_URL` nos build settings quando o Workers existir.
 
+## Ingest worker (BE-2)
+
+Scheduled collection lives in [`workers/`](workers/). Collectors for Smiles, TudoAzul, and LATAM Pass are stubs until BE-3/4/5.
+
+- Cron: 00:00, 06:00, 12:00, 18:00 **UTC** (21:00, 03:00, 09:00, 15:00 America/Sao_Paulo)
+- Local: `cd workers && npm install && npm run dev` — see [`workers/README.md`](workers/README.md)
+
+## Schema
+
+- [`supabase/migrations/20260911174910_price_snapshots.sql`](supabase/migrations/20260911174910_price_snapshots.sql) (BE-1, merged)
+- [`supabase/migrations/20260911180100_ingest_runs.sql`](supabase/migrations/20260911180100_ingest_runs.sql)
+- [`supabase/migrations/20260911180101_price_snapshots_nonneg_check.sql`](supabase/migrations/20260911180101_price_snapshots_nonneg_check.sql)
+- [`supabase/migrations/20260911180500_price_snapshots_ingest_run_id.sql`](supabase/migrations/20260911180500_price_snapshots_ingest_run_id.sql)
+
 ## Estrutura
 
 ```
@@ -67,4 +84,6 @@ src/
   lib/            query URL, filtros, formatação, VITE_API_URL
   pages/Dashboard.tsx
   types/priceSnapshot.ts
+workers/          ingest Worker (BE-2) + wrangler.toml
+supabase/         Postgres migrations
 ```
