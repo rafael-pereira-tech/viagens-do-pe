@@ -1,8 +1,20 @@
 # Copy to .dev.vars (gitignored) for `wrangler dev`. Do not put real credentials in git.
 #
-# Leave SUPABASE_* empty to run stub collectors without writing to Postgres.
+# Leave SUPABASE_* empty to run collectors without writing to Postgres.
 # Placeholder hosts (YOUR_PROJECT.supabase.co) are ignored on purpose: workerd
 # throws an uncatchable error if DNS lookup fails.
 SUPABASE_URL=
 SUPABASE_SERVICE_ROLE_KEY=
 INGEST_TRIGGER_SECRET=dev-only-trigger-secret
+
+# BE-3 Smiles. Dry-run uses bundled PET→CGH JSON (no live login).
+# For live guest search, copy x-api-key from DevTools on
+# api-air-flightsearch-blue.smiles.com.br/v1/airlines/search.
+SMILES_DRY_RUN=1
+SMILES_API_KEY=
+# SMILES_COOKIE=
+# SMILES_MEMBER_NUMBER=
+# SMILES_USER=
+# SMILES_PASS=
+# SMILES_REQUEST_DELAY_MS=400
+

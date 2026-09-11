@@ -1,5 +1,5 @@
 import { FLIGHT_WINDOW, INGEST_LEASE_MS, type Airline, type Program } from './config';
-import { getCollector } from './collectors';
+import { createCollectors } from './collectors';
 import type { CollectParams, CollectResult, Collector, Snapshot } from './collectors/types';
 import type { Env } from './env';
 import { isolateLock, type SkipIfRunningLock } from './lock';
@@ -115,9 +115,10 @@ export async function runIngest(deps: IngestDeps): Promise<IngestSummary> {
   const runId = newRunId();
   const window = resolveWindow(deps.env);
   const lock = deps.lock ?? isolateLock;
+  const registry = createCollectors(deps.env);
   const collect =
     deps.collect ??
-    ((params: CollectParams) => getCollector(params.program).collect(params));
+    ((params: CollectParams) => registry[params.program].collect(params));
   const store = deps.store === undefined ? createSupabase(deps.env) : deps.store;
 
   if (!lock.tryAcquire(runId)) {
