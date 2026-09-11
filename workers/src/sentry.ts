@@ -1,9 +1,24 @@
-import * as Sentry from '@sentry/cloudflare';
-import type { CloudflareOptions } from '@sentry/cloudflare';
 import type { Env } from './env';
 import type { IngestSummary } from './scheduler';
 
 const MAX_FAILURES = 25;
+
+/** Subset of @sentry/cloudflare CloudflareOptions used by withSentry. No SDK import so root CI tests resolve. */
+export type WorkerSentryOptions = {
+  dsn: string;
+  environment: string;
+  release?: string;
+  enabled: boolean;
+  sendDefaultPii: boolean;
+  tracesSampleRate: number;
+  dataCollection: {
+    userInfo: boolean;
+    cookies: boolean;
+    httpBodies: [];
+    httpHeaders: { request: boolean; response: boolean };
+    stackFrameVariables: boolean;
+  };
+};
 
 function sanitizeIngestError(detail: string | undefined): string | undefined {
   if (!detail) return detail;
@@ -16,7 +31,7 @@ function sanitizeIngestError(detail: string | undefined): string | undefined {
   return detail.length > 180 ? `${detail.slice(0, 180)}…` : detail;
 }
 
-export function sentryOptions(env: Env): CloudflareOptions | undefined {
+export function sentryOptions(env: Env): WorkerSentryOptions | undefined {
   const dsn = env.SENTRY_DSN?.trim();
   if (!dsn) return undefined;
 
@@ -83,19 +98,4 @@ export function ingestSentryEvent(summary: IngestSummary): {
       })),
     },
   };
-}
-
-/** Capture ingest WAF/auth failures. Collectors return statuses — they do not throw. */
-export function reportIngestToSentry(summary: IngestSummary): void {
-  const event = ingestSentryEvent(summary);
-  if (!event) return;
-  Sentry.withScope((scope) => {
-    scope.setLevel(event.level);
-    scope.setFingerprint(event.fingerprint);
-    for (const [key, value] of Object.entries(event.tags)) {
-      scope.setTag(key, value);
-    }
-    scope.setExtras(event.extra);
-    Sentry.captureMessage(event.message);
-  });
 }

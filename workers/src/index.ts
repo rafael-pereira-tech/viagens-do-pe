@@ -3,8 +3,23 @@ import { applyCors, corsPreflight } from './api/cors';
 import { handleReadApi } from './api/handlers';
 import { handleStagingProbe } from './api/probe';
 import type { Env } from './env';
-import { runIngest } from './scheduler';
-import { reportIngestToSentry, sentryOptions } from './sentry';
+import { runIngest, type IngestSummary } from './scheduler';
+import { ingestSentryEvent, sentryOptions } from './sentry';
+
+/** Capture ingest WAF/auth failures. Collectors return statuses — they do not throw. */
+function reportIngestToSentry(summary: IngestSummary): void {
+  const event = ingestSentryEvent(summary);
+  if (!event) return;
+  Sentry.withScope((scope) => {
+    scope.setLevel(event.level);
+    scope.setFingerprint(event.fingerprint);
+    for (const [key, value] of Object.entries(event.tags)) {
+      scope.setTag(key, value);
+    }
+    scope.setExtras(event.extra);
+    Sentry.captureMessage(event.message);
+  });
+}
 
 function authorizeManualRun(request: Request, env: Env): Response | null {
   const secret = env.INGEST_TRIGGER_SECRET;
