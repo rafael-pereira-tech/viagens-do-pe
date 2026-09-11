@@ -6,7 +6,10 @@ import {
   parseContentRangeTotal,
   parseSnapshotQuery,
   snapshotSelect,
+  STATS_CASH_WINDOW_SELECT,
+  STATS_WINDOW_SELECT,
   toPostgrestQuery,
+  toStatsAggregateQuery,
   toStatsRpcArgs,
 } from '../src/api/query.ts';
 
@@ -179,6 +182,37 @@ describe('toPostgrestQuery', () => {
     assert.equal(params.get('order'), null);
     assert.equal(params.get('select'), 'id.count()');
     assert.equal(params.get('origin'), 'eq.PET');
+  });
+});
+
+describe('toStatsAggregateQuery', () => {
+  it('builds the unfiltered CGH window query with a cash-companion source list', () => {
+    const parsed = parse('origin=PET&destination=CGH&group_by=window');
+    assert.equal(parsed.ok, true);
+    if (!parsed.ok) return;
+    const totals = new URLSearchParams(toStatsAggregateQuery(parsed.value, { select: STATS_WINDOW_SELECT }));
+    assert.equal(totals.get('origin'), 'eq.PET');
+    assert.equal(totals.get('destination'), 'eq.CGH');
+    assert.equal(totals.get('limit'), null);
+    assert.match(totals.get('select') ?? '', /id\.count\(\)/);
+
+    const cash = new URLSearchParams(
+      toStatsAggregateQuery(parsed.value, { select: STATS_CASH_WINDOW_SELECT, cashOnly: true }),
+    );
+    assert.match(cash.get('source') ?? '', /^in\.\(voegol,/);
+    assert.equal((cash.get('source') ?? '').includes('smiles_web'), false);
+    assert.equal((cash.get('source') ?? '').includes('voegol_dry_run'), true);
+    assert.equal(cash.get('limit'), null);
+  });
+
+  it('keeps an explicit voegol_dry_run source on both aggregate queries', () => {
+    const parsed = parse('origin=PET&destination=CGH&source=voegol_dry_run');
+    assert.equal(parsed.ok, true);
+    if (!parsed.ok) return;
+    const cash = new URLSearchParams(
+      toStatsAggregateQuery(parsed.value, { select: STATS_CASH_WINDOW_SELECT, cashOnly: true }),
+    );
+    assert.equal(cash.get('source'), 'eq.voegol_dry_run');
   });
 });
 

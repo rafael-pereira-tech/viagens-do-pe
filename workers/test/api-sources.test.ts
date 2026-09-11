@@ -1,6 +1,11 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { isAwardMilesSource, isCashCompanionSource, sourceBase } from '../src/api/sources.ts';
+import {
+  cashCompanionSourceIds,
+  isAwardMilesSource,
+  isCashCompanionSource,
+  sourceBase,
+} from '../src/api/sources.ts';
 
 describe('source families', () => {
   it('strips the dry-run suffix and classifies award vs cash', () => {
@@ -19,5 +24,8 @@ describe('source families', () => {
 
     assert.equal(isCashCompanionSource('smiles_web'), false);
     assert.equal(isAwardMilesSource('voegol'), false);
+    assert.deepEqual(cashCompanionSourceIds(false), ['voegol', 'voeazul', 'latam_web', 'latam']);
+    assert.ok(cashCompanionSourceIds(true).includes('voegol_dry_run'));
+    assert.equal(cashCompanionSourceIds(true).includes('smiles_web_dry_run'), false);
   });
 });

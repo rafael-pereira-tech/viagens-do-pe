@@ -28,3 +28,10 @@ export function isAwardMilesSource(source: string): boolean {
 export function isCashCompanionSource(source: string): boolean {
   return CASH.has(sourceBase(source));
 }
+
+/** Live cash ids, plus `*_dry_run` when fixture rows are in the window. */
+export function cashCompanionSourceIds(includeDryRun: boolean): string[] {
+  const live = [...CASH_COMPANION_SOURCE_BASES];
+  if (!includeDryRun) return live;
+  return [...live, ...live.map((source) => `${source}_dry_run`)];
+}

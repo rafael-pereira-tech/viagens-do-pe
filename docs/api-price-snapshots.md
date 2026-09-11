@@ -151,8 +151,12 @@ still returns that fixture source.
 ### Stats
 
 `GET /api/v1/snapshots/stats` aggregates **in SQL** over every row that
-matches the filters (`public.price_snapshot_stats`). It does **not** sample
-a 1000-row page. `meta.truncated` is `false` on that path.
+matches the filters. Primary path: unpaged PostgREST `COUNT` / `MIN` on
+`price_snapshots` (no row `limit` — that was the QA `snapshot_count=1000`
+cap). `min_amount_brl` is a second `MIN` restricted to cash companions, so
+legacy `smiles_web` copay (e.g. `248.5`) cannot win. Optional RPC
+`public.price_snapshot_stats` is a fallback. `meta.truncated` is `false`
+on those paths.
 
 `limit` / `offset` are ignored. `snapshot_count` is `COUNT(*)` of the
 filtered set (award + cash + any other matching source).
@@ -203,11 +207,12 @@ Null mins mean no numeric quote of that kind in the window (not a zero fare).
 }
 ```
 
-If the RPC is not applied yet, the Worker falls back to an in-memory sample
-(`meta.fallback: "in_memory_sample"`) with the same cash-vs-miles rules.
-`truncated` is then `true` when `Content-Range` total exceeds the page (or
-the page hits the fetch cap). Do not treat `snapshot_count=1000` +
-`truncated:false` as a complete set.
+If aggregates are disabled and the RPC is missing, the Worker falls back to
+an in-memory sample (`meta.fallback: "in_memory_sample"`) with the same
+cash-vs-miles rules. `truncated` is then `true` when `Content-Range` total
+exceeds the page, the page is a full 1000-row PostgREST `db-max-rows` page
+with no total, or the fetch cap is hit. Do not treat
+`snapshot_count=1000` + `truncated:false` as a complete set.
 
 ## Sources
 

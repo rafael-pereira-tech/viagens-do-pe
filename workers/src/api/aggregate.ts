@@ -1,3 +1,4 @@
+import { POSTGREST_MAX_ROWS } from './query';
 import { isAwardMilesSource, isCashCompanionSource } from './sources';
 import type { PriceSnapshot, SnapshotRouteDayStats, SnapshotWindowStats } from './types';
 
@@ -164,6 +165,27 @@ export function sumSnapshotCounts(rows: readonly Pick<SnapshotWindowStats, 'snap
   return rows.reduce((sum, row) => sum + row.snapshot_count, 0);
 }
 
+export function looksLikeTotalsAggregate(row: Record<string, unknown> | undefined): boolean {
+  if (!row) return false;
+  return 'snapshot_count' in row || 'min_miles' in row;
+}
+
+export function looksLikeCashAggregate(row: Record<string, unknown> | undefined): boolean {
+  if (!row) return false;
+  return 'min_amount_brl' in row;
+}
+
+export function mergeRouteDayCash(
+  totals: SnapshotRouteDayStats[],
+  cash: SnapshotRouteDayStats[],
+): SnapshotRouteDayStats[] {
+  const byKey = new Map(cash.map((row) => [routeDayKey(row), row.min_amount_brl]));
+  return totals.map((row) => ({
+    ...row,
+    min_amount_brl: byKey.has(routeDayKey(row)) ? (byKey.get(routeDayKey(row)) ?? null) : null,
+  }));
+}
+
 /**
  * A sample is truncated when PostgREST (or our cap) returned fewer rows than
  * the filtered set. `content-range` `/N` is the source of truth; falling back
@@ -175,5 +197,8 @@ export function statsSampleTruncated(
   cap: number,
 ): boolean {
   if (total != null && total > rowCount) return true;
-  return rowCount >= cap;
+  if (rowCount >= cap) return true;
+  // QA: unfiltered CGH returned exactly 1000 rows (db-max-rows) with no usable total.
+  if (rowCount >= POSTGREST_MAX_ROWS && total == null) return true;
+  return false;
 }

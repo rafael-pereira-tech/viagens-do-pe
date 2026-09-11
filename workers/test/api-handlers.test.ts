@@ -120,15 +120,87 @@ describe('handleReadApi', () => {
     assert.equal(fbBody.data[0]?.id, 'new');
   });
 
-  it('returns window mins from SQL aggregates over the full filtered set', async () => {
+  it('QA: PET+CGH window stats are a full SQL count, not a 1000-row sample with smiles_web cash', async () => {
+    const { rest, paths } = restMock((path) => {
+      if (path.startsWith('rpc/')) return { status: 404, rows: [] };
+      const qs = new URLSearchParams(path.split('?')[1] ?? '');
+      const select = qs.get('select') ?? '';
+      assert.equal(qs.get('limit'), null, 'stats must not send a PostgREST page limit');
+      assert.equal(qs.get('origin'), 'eq.PET');
+      assert.equal(qs.get('destination'), 'eq.CGH');
+      if (select.includes('id.count()')) {
+        return {
+          rows: [
+            {
+              min_miles: 7200,
+              snapshot_count: 1244,
+              latest_collected_at: '2026-09-11T18:00:00.000Z',
+            },
+          ],
+        };
+      }
+      if (select.includes('amount_brl.min()')) {
+        assert.match(qs.get('source') ?? '', /in\.\(.*voegol/);
+        assert.equal((qs.get('source') ?? '').includes('smiles_web'), false);
+        return { rows: [{ min_amount_brl: '548.90' }] };
+      }
+      return { status: 500, rows: [] };
+    });
+    const response = await get('/api/v1/snapshots/stats?origin=PET&destination=CGH&group_by=window', rest);
+    const body = (await response.json()) as {
+      data: { min_miles: number; min_amount_brl: number; snapshot_count: number };
+      meta: { snapshot_count: number; truncated: boolean; fallback?: string };
+    };
+    assert.equal(response.status, 200);
+    assert.equal(body.meta.truncated, false);
+    assert.equal(body.meta.fallback, undefined);
+    assert.equal(body.meta.snapshot_count, 1244);
+    assert.equal(body.data.snapshot_count, 1244);
+    assert.notEqual(body.data.snapshot_count, 1000);
+    assert.equal(body.data.min_miles, 7200);
+    assert.equal(body.data.min_amount_brl, 548.9);
+    assert.notEqual(body.data.min_amount_brl, 248.5);
+    assert.equal(paths.some((p) => p.startsWith('price_snapshots?')), true);
+  });
+
+  it('QA: source=voegol_dry_run stays under the cap and is cash-only', async () => {
+    const { rest, paths } = restMock((path) => {
+      const qs = new URLSearchParams(path.split('?')[1] ?? '');
+      const select = qs.get('select') ?? '';
+      assert.equal(qs.get('source'), 'eq.voegol_dry_run');
+      if (select.includes('id.count()')) {
+        return {
+          rows: [{ min_miles: null, snapshot_count: 244, latest_collected_at: '2026-09-11T18:00:00.000Z' }],
+        };
+      }
+      if (select.includes('amount_brl.min()')) {
+        return { rows: [{ min_amount_brl: '455.75' }] };
+      }
+      return { status: 500, rows: [] };
+    });
+    const response = await get(
+      '/api/v1/snapshots/stats?origin=PET&destination=CGH&source=voegol_dry_run&group_by=window',
+      rest,
+    );
+    const body = (await response.json()) as {
+      data: { min_miles: number | null; min_amount_brl: number; snapshot_count: number };
+      meta: { snapshot_count: number; truncated: boolean };
+    };
+    assert.equal(response.status, 200);
+    assert.equal(body.meta.truncated, false);
+    assert.equal(body.meta.snapshot_count, 244);
+    assert.equal(body.data.min_miles, null);
+    assert.equal(body.data.min_amount_brl, 455.75);
+    assert.equal(paths.length, 2);
+  });
+
+  it('falls back to the stats RPC when PostgREST aggregates are disabled', async () => {
     const { rest, paths, bodies } = restMock((path) => {
+      if (path.startsWith('price_snapshots?')) return { status: 400, rows: [] };
       if (path.startsWith('rpc/price_snapshot_stats')) {
         return {
           rows: [
             {
-              origin: null,
-              destination: null,
-              flight_date: null,
               min_miles: 7200,
               min_amount_brl: '529.90',
               snapshot_count: 5480,
@@ -144,25 +216,23 @@ describe('handleReadApi', () => {
       rest,
     );
     const body = (await response.json()) as {
-      data: { min_miles: number; min_amount_brl: number; snapshot_count: number };
-      meta: { group_by: string; snapshot_count: number; truncated: boolean; fallback?: string };
+      data: { min_amount_brl: number; snapshot_count: number };
+      meta: { truncated: boolean };
     };
     assert.equal(response.status, 200);
-    assert.equal(paths[0], 'rpc/price_snapshot_stats');
+    assert.equal(paths.some((p) => p === 'rpc/price_snapshot_stats'), true);
     assert.equal((bodies[0] as { p_exclude_dry_run: boolean }).p_exclude_dry_run, true);
-    assert.equal((bodies[0] as { p_origin: string }).p_origin, 'PET');
-    assert.equal(body.meta.group_by, 'window');
-    assert.equal(body.meta.snapshot_count, 5480);
     assert.equal(body.meta.truncated, false);
-    assert.equal(body.meta.fallback, undefined);
-    assert.equal(body.data.min_miles, 7200);
-    assert.equal(body.data.min_amount_brl, 529.9);
     assert.equal(body.data.snapshot_count, 5480);
+    assert.equal(body.data.min_amount_brl, 529.9);
   });
 
   it('does not treat legacy smiles_web amount_brl as cash on the sample fallback', async () => {
     const { rest } = restMock((path) => {
       if (path.startsWith('rpc/')) return { status: 404, rows: [] };
+      if (path.startsWith('price_snapshots?') && (path.includes('count()') || path.includes('amount_brl.min()'))) {
+        return { status: 400, rows: [] };
+      }
       return {
         rows: [
           { ...row(), miles: 18500, amount_brl: 248.5, source: 'smiles_web' },
@@ -192,6 +262,9 @@ describe('handleReadApi', () => {
     }));
     const { rest } = restMock((path) => {
       if (path.startsWith('rpc/')) return { status: 404, rows: [] };
+      if (path.startsWith('price_snapshots?') && (path.includes('count()') || path.includes('amount_brl.min()'))) {
+        return { status: 400, rows: [] };
+      }
       return { rows: page, total: 5480 };
     });
     const response = await get('/api/v1/snapshots/stats?origin=PET&group_by=window', rest);
@@ -207,7 +280,9 @@ describe('handleReadApi', () => {
 
   it('groups SQL stats by route/day', async () => {
     const { rest } = restMock((path) => {
-      if (path.startsWith('rpc/price_snapshot_stats')) {
+      const qs = new URLSearchParams(path.split('?')[1] ?? '');
+      const select = qs.get('select') ?? '';
+      if (select.includes('id.count()')) {
         return {
           rows: [
             {
@@ -215,7 +290,6 @@ describe('handleReadApi', () => {
               destination: 'CGH',
               flight_date: '2026-09-15',
               min_miles: 12000,
-              min_amount_brl: 890,
               snapshot_count: 4,
               latest_collected_at: '2026-09-11T18:00:00.000Z',
             },
@@ -224,9 +298,20 @@ describe('handleReadApi', () => {
               destination: 'VCP',
               flight_date: '2026-09-16',
               min_miles: 18500,
-              min_amount_brl: null,
               snapshot_count: 2,
               latest_collected_at: '2026-09-11T18:00:00.000Z',
+            },
+          ],
+        };
+      }
+      if (select.includes('amount_brl.min()')) {
+        return {
+          rows: [
+            {
+              origin: 'PET',
+              destination: 'CGH',
+              flight_date: '2026-09-15',
+              min_amount_brl: 890,
             },
           ],
         };

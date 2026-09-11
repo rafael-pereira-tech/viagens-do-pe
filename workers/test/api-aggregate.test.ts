@@ -125,5 +125,6 @@ describe('min aggregations', () => {
     assert.equal(statsSampleTruncated(1000, 1000, 10_000), false);
     assert.equal(statsSampleTruncated(1000, 5480, 10_000), true);
     assert.equal(statsSampleTruncated(10_000, null, 10_000), true);
+    assert.equal(statsSampleTruncated(1000, null, 10_000), true);
   });
 });

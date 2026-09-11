@@ -1,4 +1,8 @@
+import { cashCompanionSourceIds } from './sources';
 import { SNAPSHOT_COLUMNS, type SnapshotQuery } from './types';
+
+/** PostgREST `db-max-rows` default — the QA unfiltered CGH cap. */
+export const POSTGREST_MAX_ROWS = 1000;
 
 export const LIST_DEFAULT_LIMIT = 100;
 export const LIST_MAX_LIMIT = 500;
@@ -283,6 +287,32 @@ export function toStatsRpcArgs(query: SnapshotQuery): StatsRpcArgs {
   if (query.collectedAtFrom) args.p_collected_at_from = query.collectedAtFrom;
   if (query.collectedAtTo) args.p_collected_at_to = query.collectedAtTo;
   return args;
+}
+
+export const STATS_WINDOW_SELECT =
+  'min_miles:miles.min(),snapshot_count:id.count(),latest_collected_at:collected_at.max()';
+export const STATS_ROUTE_DAY_SELECT =
+  'origin,destination,flight_date,min_miles:miles.min(),snapshot_count:id.count(),latest_collected_at:collected_at.max()';
+export const STATS_CASH_WINDOW_SELECT = 'min_amount_brl:amount_brl.min()';
+export const STATS_CASH_ROUTE_DAY_SELECT = 'origin,destination,flight_date,min_amount_brl:amount_brl.min()';
+
+/**
+ * Unpaged PostgREST aggregate query on `price_snapshots`.
+ * `cashOnly` restricts `source` to cash companions so `amount_brl.min()`
+ * cannot pick up a legacy smiles_web copay.
+ */
+export function toStatsAggregateQuery(
+  query: SnapshotQuery,
+  options: { select: string; cashOnly?: boolean },
+): string {
+  const base: SnapshotQuery =
+    options.cashOnly && !query.source ? { ...query, excludeDryRun: false } : query;
+  const qs = toPostgrestQuery(base, { select: options.select, order: null, unpaged: true });
+  if (!options.cashOnly || query.source) return qs;
+
+  const params = new URLSearchParams(qs);
+  params.set('source', `in.(${cashCompanionSourceIds(!query.excludeDryRun).join(',')})`);
+  return params.toString();
 }
 
 export function parseContentRangeTotal(header: string | null): number | null {
