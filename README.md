@@ -39,6 +39,8 @@ npm run build
 npm run preview
 ```
 
+Pre-commit (Husky + lint-staged): `pnpm install` liga o hook via `prepare`. No commit, ESLint + Prettier rodam só nos arquivos staged (`src/**/*.{ts,tsx}` no ESLint; `workers/` continua fora). O hook tenta `nvm use` se o nvm estiver instalado.
+
 ## Variáveis de ambiente
 
 | Variável            | Obrigatória                                      | Uso                                                                                                                                                                                                                 |
