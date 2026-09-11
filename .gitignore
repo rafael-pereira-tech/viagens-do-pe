@@ -19,6 +19,9 @@ dist-ssr
 .wrangler/
 .dev.vars
 
+# Husky internals (hook scripts in .husky/ are committed)
+.husky/_
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
