@@ -222,28 +222,27 @@ Dashboard query today: `to`, `from`, `until`, `fonte` (see `src/lib/query.ts`).
 
 ```ts
 import { API_URL } from './lib/config.ts'
-import {
-  dashboardToSnapshotQuery,
-  fetchLatestSnapshots,
-  fetchSnapshotStats,
-  toOfferRow,
-} from './lib/api.ts'
+import { fetchLatestSnapshots, fetchSnapshotStats, liveDashboardQuery, toOfferRow } from './lib/api.ts'
 
 if (!API_URL) {
   // keep using src/data/placeholders.ts
 } else {
-  const filters = dashboardToSnapshotQuery(query)
-  const [latest, stats] = await Promise.all([
+  const filters = liveDashboardQuery(query) // PET, exclude_dry_run=1, from=today
+  const [latest, stats, byDay] = await Promise.all([
     fetchLatestSnapshots(filters),
     fetchSnapshotStats({ ...filters, group_by: 'window' }),
+    fetchSnapshotStats({ ...filters, group_by: 'route_day' }),
   ])
   const offers = latest.data.map(toOfferRow)
-  const minMiles = stats.data.min_miles
-  const minCash = stats.data.min_amount_brl
+  const minMiles = Array.isArray(stats.data) ? null : stats.data.min_miles
+  const minCash = Array.isArray(stats.data) ? null : stats.data.min_amount_brl
+  void byDay
 }
 ```
 
-Pages build setting: `VITE_API_URL=https://viagens-do-pe-ingest.<account>.workers.dev`
+Pages build setting (then **redeploy**):
+
+`VITE_API_URL=https://viagens-do-pe-ingest.rafaellimapereira.workers.dev`
 
 ## Env (Worker)
 
