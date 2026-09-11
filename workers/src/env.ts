@@ -52,15 +52,12 @@ export interface Env {
   /**
    * LATAM Pass / LATAM (BE-5). Never commit real values.
    *
-   * Frozen live secrets (placeholders only): `LATAM_LOGIN` + `LATAM_PASSWORD`.
-   * Optional `LATAM_COOKIE` / `LATAM_ACCESS_TOKEN` if password login is blocked
-   * by Akamai/captcha. `LATAM_DRY_RUN=1` parses bundled PET→GRU fixtures
-   * (no network). Optional host/path/delay overrides are non-secrets.
+   * Frozen live secrets (placeholders only): `LATAM_PASS_LOGIN` + `LATAM_PASS_PASSWORD`.
+   * Do not use `LATAM_LOGIN` / `LATAM_PASSWORD`. `LATAM_DRY_RUN=1` parses bundled
+   * PET→GRU fixtures (no network). Optional host/path/delay overrides are non-secrets.
    */
-  LATAM_LOGIN?: string;
-  LATAM_PASSWORD?: string;
-  LATAM_COOKIE?: string;
-  LATAM_ACCESS_TOKEN?: string;
+  LATAM_PASS_LOGIN?: string;
+  LATAM_PASS_PASSWORD?: string;
   LATAM_DRY_RUN?: string;
   LATAM_API_HOST?: string;
   LATAM_OFFERS_PATH?: string;

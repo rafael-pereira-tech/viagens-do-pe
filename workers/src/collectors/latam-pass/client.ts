@@ -151,7 +151,7 @@ export function createLatamClient(
           ok: false,
           status: 0,
           error:
-            'LATAM Pass collector is not configured (set LATAM_LOGIN and LATAM_PASSWORD, or LATAM_DRY_RUN=1)',
+            'LATAM Pass collector is not configured (set LATAM_PASS_LOGIN and LATAM_PASS_PASSWORD, or LATAM_DRY_RUN=1)',
           kind: 'auth_failed',
         };
       }

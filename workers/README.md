@@ -83,9 +83,8 @@ Do not commit credentials. Local: `workers/.dev.vars`. Production: `npx wrangler
 | `TUDOAZUL_DRY_RUN` | CI / local without Azul | `1` parses bundled PET→VCP and PET→POA JSON fixtures (no network). Accepted until live credentials are provided privately. |
 | `TUDOAZUL_API_HOST` | No | Default `https://b2c-api.voeazul.com.br`. |
 | `TUDOAZUL_REQUEST_DELAY_MS` | No | Default `400`. |
-| `LATAM_LOGIN` | Yes (live) | **Frozen** LATAM Pass / latamairlines.com login (placeholder only). |
-| `LATAM_PASSWORD` | Yes (live) | **Frozen** password (placeholder only). Never commit a real value. |
-| `LATAM_COOKIE` / `LATAM_ACCESS_TOKEN` | No | Practical member session if Auth0/captcha blocks password login. |
+| `LATAM_PASS_LOGIN` | Yes (live) | **Frozen** LATAM Pass / latamairlines.com login (placeholder only). Not `LATAM_LOGIN`. |
+| `LATAM_PASS_PASSWORD` | Yes (live) | **Frozen** password (placeholder only). Not `LATAM_PASSWORD`. Never commit a real value. |
 | `LATAM_DRY_RUN` | CI / local without LATAM | `1` parses bundled PET→GRU JSON fixtures (no network). Accepted until live credentials are provided privately. |
 | `LATAM_API_HOST` | No | Default `https://www.latamairlines.com`. |
 | `LATAM_OFFERS_PATH` | No | Default `/bff/air-offers/v2/offers/search`. |
@@ -164,7 +163,7 @@ cp .dev.vars.example .dev.vars
 # or:
 #   SMILES_API_KEY=<from DevTools>
 #   TUDOAZUL_LOGIN= / TUDOAZUL_PASSWORD=  (never commit real values)
-#   LATAM_LOGIN= / LATAM_PASSWORD=        (never commit real values)
+#   LATAM_PASS_LOGIN= / LATAM_PASS_PASSWORD=  (never commit real values)
 npm run dev
 ```
 
@@ -203,7 +202,7 @@ NDC / B2B LATAM Trade exists but needs an agency — skipped for v1.
 
 - UI: `https://www.latamairlines.com/br/pt/oferta-voos?origin=PET&outbound=YYYY-MM-DDT00:00:00.000Z&destination=GRU&adt=1&chd=0&inf=0&trip=OW&cabin=Economy&redemption=true&sort=RECOMMENDED`
 - Upstream: `GET https://www.latamairlines.com/bff/air-offers/v2/offers/search` (`redemption=true`)
-- Login first (best-effort): `POST …/bff/user-session/v1/session` with `LATAM_LOGIN` / `LATAM_PASSWORD`. Captcha/WAF likely — dry-run/fixtures or `LATAM_COOKIE` until secrets.
+- Login first (best-effort): `POST …/bff/user-session/v1/session` with `LATAM_PASS_LOGIN` / `LATAM_PASS_PASSWORD`. Captcha/WAF likely — dry-run/fixtures until secrets.
 - Params: `origin`, `destination`, `outFrom={YYYY-MM-DD}T00:00:00.000Z`, `adult=1`, `cabinType=Economy`, one-way (`inFrom=null`)
 - Headers: `x-latam-application-name: web-air-offers`, `x-latam-application-country: BR`, `x-latam-application-oc: br`, `x-latam-application-lang: pt`, browser `Accept` / `Origin` / `Referer` / `User-Agent`
 - Parses native `content[].summary.brands[]` (`price.currency=LOYALTY_POINTS`) and gecko-normalized `items[]`
@@ -224,8 +223,7 @@ NDC / B2B LATAM Trade exists but needs an agency — skipped for v1.
 
 Frozen secrets (placeholders only — no real credentials in git or CI):
 
-- `LATAM_LOGIN` / `LATAM_PASSWORD` — LATAM Pass / latamairlines.com member pair
-- `LATAM_COOKIE` / `LATAM_ACCESS_TOKEN` — optional browser session if password login is blocked
+- `LATAM_PASS_LOGIN` / `LATAM_PASS_PASSWORD` — LATAM Pass / latamairlines.com member pair (not `LATAM_LOGIN` / `LATAM_PASSWORD`)
 - `LATAM_DRY_RUN=1` parses bundled PET→GRU fixtures (no network) until those secrets are provided privately
 
 ### Rate / WAF
@@ -256,7 +254,7 @@ Frozen secrets (placeholders only — no real credentials in git or CI):
 
 **Live API discovery notes:** the SPA (`@smiles/flight-availability`) calls `ApiFlightSearch` → `v1/airlines/search` with `NOT_CREDENTIALS` plus `x-api-key` from remote constants (`x-api-key=flight-search` in LaunchDarkly). This environment's AWS egress received **HTTP 406** from Akamai on both blue and green search hosts even with the historical public key — Workers on Cloudflare IPs may succeed; if not, set `SMILES_COOKIE` from a real browser session or keep `SMILES_DRY_RUN=1` until the WAF allows the guest key.
 
-LATAM's SPA calls `GET /bff/air-offers/v2/offers/search` (`redemption=true|false`) with `x-latam-*` headers. Miles fields (`price.currency=LOYALTY_POINTS`, `priceWithOutTax`) typically need a logged-in session. This environment's AWS egress received **HTML 403 Access Denied** from Akamai — keep `LATAM_DRY_RUN=1` until private `LATAM_LOGIN` / `LATAM_PASSWORD` (or a browser `LATAM_COOKIE`) are provided.
+LATAM's SPA calls `GET /bff/air-offers/v2/offers/search` (`redemption=true|false`) with `x-latam-*` headers. Miles fields (`price.currency=LOYALTY_POINTS`, `priceWithOutTax`) typically need a logged-in session. This environment's AWS egress received **HTML 403 Access Denied** from Akamai — keep `LATAM_DRY_RUN=1` until private `LATAM_PASS_LOGIN` / `LATAM_PASS_PASSWORD` are provided.
 
 ## Run status and overlap
 
@@ -291,10 +289,8 @@ npx wrangler secret put SMILES_API_KEY
 npx wrangler secret put TUDOAZUL_LOGIN
 npx wrangler secret put TUDOAZUL_PASSWORD
 # BE-5 live LATAM Pass (omit if LATAM_DRY_RUN=1):
-npx wrangler secret put LATAM_LOGIN
-npx wrangler secret put LATAM_PASSWORD
-# optional member session if captcha blocks login:
-# npx wrangler secret put LATAM_COOKIE
+npx wrangler secret put LATAM_PASS_LOGIN
+npx wrangler secret put LATAM_PASS_PASSWORD
 ```
 
 Optional env overrides: `FLIGHT_WINDOW_START`, `FLIGHT_WINDOW_END` (YYYY-MM-DD), `SMILES_DRY_RUN`, `SMILES_ENV`, `SMILES_REQUEST_DELAY_MS`, `TUDOAZUL_DRY_RUN`, `TUDOAZUL_REQUEST_DELAY_MS`, `TUDOAZUL_API_HOST`, `LATAM_DRY_RUN`, `LATAM_REQUEST_DELAY_MS`, `LATAM_API_HOST`.

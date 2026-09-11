@@ -20,7 +20,8 @@ export const LATAM_OFFERS_PATH = '/bff/air-offers/v2/offers/search';
 
 /**
  * Member session. Password login is often blocked by Akamai/captcha —
- * `LATAM_COOKIE` / `LATAM_DRY_RUN=1` are the practical paths until secrets.
+ * `LATAM_DRY_RUN=1` is the accepted path until `LATAM_PASS_LOGIN` /
+ * `LATAM_PASS_PASSWORD` are provided privately.
  */
 export const LATAM_SESSION_PATH = '/bff/user-session/v1/session';
 

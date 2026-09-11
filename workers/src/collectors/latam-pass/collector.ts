@@ -100,7 +100,7 @@ export function createLatamPassCollector(env: Env, deps: LatamPassCollectorDeps 
           status: 'auth_failed',
           snapshots: [],
           error:
-            'LATAM Pass collector is not configured. Set LATAM_LOGIN and LATAM_PASSWORD, or LATAM_DRY_RUN=1 for fixtures.',
+            'LATAM Pass collector is not configured. Set LATAM_PASS_LOGIN and LATAM_PASS_PASSWORD, or LATAM_DRY_RUN=1 for fixtures.',
         };
       }
 

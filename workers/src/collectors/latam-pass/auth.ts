@@ -11,13 +11,9 @@ export function isDryRun(env: Env): boolean {
   return truthy(env.LATAM_DRY_RUN);
 }
 
-/** Frozen BE-5 secrets. Cookie/token is the practical member path if captcha blocks password. */
+/** Locked BE-5 secrets. Both must be present for live collection. Not `LATAM_LOGIN` / `LATAM_PASSWORD`. */
 export function hasLatamCredentials(env: Env): boolean {
-  return Boolean(
-    (env.LATAM_LOGIN?.trim() && env.LATAM_PASSWORD) ||
-      env.LATAM_COOKIE?.trim() ||
-      env.LATAM_ACCESS_TOKEN?.trim(),
-  );
+  return Boolean(env.LATAM_PASS_LOGIN?.trim() && env.LATAM_PASS_PASSWORD);
 }
 
 export function isLiveEnabled(env: Env): boolean {
@@ -71,25 +67,21 @@ interface SessionDeps {
 }
 
 /**
- * Member session via frozen `LATAM_LOGIN` / `LATAM_PASSWORD`, or an existing
- * `LATAM_COOKIE` / `LATAM_ACCESS_TOKEN`. Captcha/WAF may block password login —
- * `LATAM_DRY_RUN=1` is the accepted path until live credentials are provided privately.
+ * Member JWT/session via frozen `LATAM_PASS_LOGIN` / `LATAM_PASS_PASSWORD`.
+ * Captcha/WAF may block password login — `LATAM_DRY_RUN=1` is the accepted
+ * path until live credentials are provided privately.
  */
 export async function resolveSession(env: Env, deps: SessionDeps): Promise<LatamSession | { error: string }> {
-  const session: LatamSession = {
-    cookie: env.LATAM_COOKIE?.trim() || undefined,
-    accessToken: env.LATAM_ACCESS_TOKEN?.trim() || undefined,
-  };
-
-  const login = env.LATAM_LOGIN?.trim();
-  const password = env.LATAM_PASSWORD;
+  const login = env.LATAM_PASS_LOGIN?.trim();
+  const password = env.LATAM_PASS_PASSWORD;
   if (!login || !password) {
-    if (session.cookie || session.accessToken) return session;
     return {
       error:
-        'LATAM Pass collector is not configured. Set LATAM_LOGIN and LATAM_PASSWORD, or LATAM_DRY_RUN=1 for fixtures.',
+        'LATAM Pass collector is not configured. Set LATAM_PASS_LOGIN and LATAM_PASS_PASSWORD, or LATAM_DRY_RUN=1.',
     };
   }
+
+  const session: LatamSession = {};
 
   const url = `${apiHost(env)}${sessionPath(env)}`;
   let response: Response;
@@ -121,10 +113,10 @@ export async function resolveSession(env: Env, deps: SessionDeps): Promise<Latam
   }
 
   const cookie = cookieFromResponse(response);
-  if (cookie) session.cookie = session.cookie ? `${session.cookie}; ${cookie}` : cookie;
+  if (cookie) session.cookie = cookie;
 
   if (!text.trim()) {
-    if (session.cookie || session.accessToken) return session;
+    if (session.cookie) return session;
     return { error: 'LATAM login JSON missing access token' };
   }
 

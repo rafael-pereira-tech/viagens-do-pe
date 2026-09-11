@@ -26,8 +26,8 @@ const params: CollectParams = {
 };
 
 const LIVE = {
-  LATAM_LOGIN: 'member@example.com',
-  LATAM_PASSWORD: 'placeholder-password',
+  LATAM_PASS_LOGIN: 'member@example.com',
+  LATAM_PASS_PASSWORD: 'placeholder-password',
   LATAM_REQUEST_DELAY_MS: '0',
 };
 
@@ -56,15 +56,25 @@ describe('latam-pass collector', () => {
     const result = await collector.collect(params);
     assert.equal(result.status, 'auth_failed');
     assert.deepEqual(result.snapshots, []);
-    assert.match(String(result.error), /LATAM_LOGIN/);
-    assert.match(String(result.error), /LATAM_PASSWORD/);
+    assert.match(String(result.error), /LATAM_PASS_LOGIN/);
+    assert.match(String(result.error), /LATAM_PASS_PASSWORD/);
   });
 
-  it('returns auth_failed when only LATAM_LOGIN is set', async () => {
-    const collector = createLatamPassCollector({ LATAM_LOGIN: 'member@example.com' });
+  it('returns auth_failed when only LATAM_PASS_LOGIN is set', async () => {
+    const collector = createLatamPassCollector({ LATAM_PASS_LOGIN: 'member@example.com' });
     const result = await collector.collect(params);
     assert.equal(result.status, 'auth_failed');
     assert.deepEqual(result.snapshots, []);
+  });
+
+  it('ignores LATAM_LOGIN / LATAM_PASSWORD (frozen names are LATAM_PASS_*)', async () => {
+    const collector = createLatamPassCollector({
+      LATAM_LOGIN: 'member@example.com',
+      LATAM_PASSWORD: 'placeholder-password',
+    } as Record<string, string>);
+    const result = await collector.collect(params);
+    assert.equal(result.status, 'auth_failed');
+    assert.match(String(result.error), /LATAM_PASS_LOGIN/);
   });
 
   it('parses bundled PET→GRU fixtures in dry-run without fetching', async () => {
@@ -156,7 +166,7 @@ describe('latam-pass collector', () => {
     assert.deepEqual(result.snapshots, []);
   });
 
-  it('logs in with LATAM_LOGIN / LATAM_PASSWORD then searches miles and cash', async () => {
+  it('logs in with LATAM_PASS_LOGIN / LATAM_PASS_PASSWORD then searches miles and cash', async () => {
     const urls: string[] = [];
     const redemptions: string[] = [];
     const referers: string[] = [];
@@ -242,26 +252,5 @@ describe('latam-pass collector', () => {
     assert.equal(urls.length, 1);
     assert.match(urls[0]!, /user-session\/v1\/session/);
     assert.match(String(result.error), /auth_failed/);
-  });
-
-  it('skips password login when LATAM_COOKIE is set', async () => {
-    const urls: string[] = [];
-    const collector = createLatamPassCollector(
-      { LATAM_COOKIE: 'latam-session=abc', LATAM_REQUEST_DELAY_MS: '0' },
-      {
-        fetch: async (input) => {
-          urls.push(String(input));
-          const url = String(input);
-          const parsed = new URL(url);
-          const isMiles = parsed.searchParams.get('redemption') === 'true';
-          return jsonResponse(isMiles ? SEARCH_PET_GRU_MILES : SEARCH_PET_GRU_CASH);
-        },
-        sleep: async () => {},
-      },
-    );
-    const result = await collector.collect(params);
-    assert.equal(result.status, 'success');
-    assert.equal(urls.some((u) => u.includes(LATAM_SESSION_PATH)), false);
-    assert.equal(urls.length, 2);
   });
 });
