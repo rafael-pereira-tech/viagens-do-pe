@@ -1,13 +1,7 @@
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { FILTER_FONTES } from '../lib/filters.ts'
 import { todayIso, type DashboardQuery } from '../lib/query.ts'
 import { FIELD_LABEL } from '../lib/ui.ts'
@@ -65,14 +59,9 @@ export function FiltersBar({ draft, onDraftChange, onApply, onClear }: Props) {
               </span>
               <Select
                 value={draft.fonte || ALL_FONTES}
-                onValueChange={(fonte) =>
-                  onDraftChange({ fonte: fonte === ALL_FONTES ? '' : fonte })
-                }
+                onValueChange={(fonte) => onDraftChange({ fonte: fonte === ALL_FONTES ? '' : fonte })}
               >
-                <SelectTrigger
-                  aria-labelledby="fonte-label"
-                  className="h-10 w-full bg-card"
-                >
+                <SelectTrigger aria-labelledby="fonte-label" className="h-10 w-full bg-card">
                   <SelectValue placeholder="Todas" />
                 </SelectTrigger>
                 <SelectContent position="popper" align="start" className="w-(--radix-select-trigger-width)">

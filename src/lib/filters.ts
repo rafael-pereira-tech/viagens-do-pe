@@ -35,10 +35,6 @@ export function sortOffers(offers: OfferRow[]): OfferRow[] {
   })
 }
 
-export function applyQuery(
-  offers: OfferRow[],
-  query: DashboardQuery,
-  opts: { ignoreDay?: boolean } = {},
-): OfferRow[] {
+export function applyQuery(offers: OfferRow[], query: DashboardQuery, opts: { ignoreDay?: boolean } = {}): OfferRow[] {
   return sortOffers(filterOffers(offers, query, opts))
 }

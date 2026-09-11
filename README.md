@@ -6,7 +6,8 @@ Ingest BE-2/BE-4: coleta agendada de preços em [`workers/`](workers/). Smiles/G
 
 ## Stack
 
-- Vite + React + TypeScript
+- Vite + React + TypeScript (Node **24**, `.nvmrc` + `engines.node`)
+- ESLint 9+ (flat, ESLint 10) + typescript-eslint + Prettier
 - Tailwind CSS v4 + shadcn/ui (tokens D-2)
 - Cloudflare Pages (`npm run build` → `dist`, SPA fallback)
 - Cloudflare Workers (ingest) + Supabase Postgres
@@ -14,22 +15,34 @@ Ingest BE-2/BE-4: coleta agendada de preços em [`workers/`](workers/). Smiles/G
 ## Desenvolvimento
 
 ```bash
+nvm use          # Node 24 (Active LTS Krypton; ver `.nvmrc`)
 npm install
 cp .env.example .env   # opcional
 npm run dev
 ```
 
-Abre `http://localhost:5173`. Typecheck + bundle:
+Abre `http://localhost:5173`.
+
+### Ferramentas (lint / format / types)
+
+O app Vite usa ESLint 9+ (flat config + typescript-eslint) e Prettier. `eslint-config-prettier` desliga regras de estilo que brigam com o formatter. O worker de ingest (`workers/`) fica de fora do lint/format do FE — use `cd workers && npm run typecheck` / `npm test` lá.
 
 ```bash
+nvm use
+npm install
+npm run lint
+npm run lint:fix       # opcional
+npm run format         # opcional; não rode em massa no CI
+npm run format:check
+npm run typecheck
 npm run build
 npm run preview
 ```
 
 ## Variáveis de ambiente
 
-| Variável | Obrigatória | Uso |
-| --- | --- | --- |
+| Variável       | Obrigatória         | Uso                                                                                   |
+| -------------- | ------------------- | ------------------------------------------------------------------------------------- |
 | `VITE_API_URL` | Não (FE-1 / FE-1.1) | Base URL do Workers API. Vazia = stubs locais. Ex.: `https://api.exemplo.workers.dev` |
 
 Copie `.env.example` para `.env` ou `.env.local`. O Vite só expõe variáveis com prefixo `VITE_`. **Não há fetch neste milestone.**
@@ -43,7 +56,7 @@ Tokens semânticos em `src/index.css` (`:root` HSL). Primitivos em `src/componen
 - Filtros (batch no **Aplicar**): Input date (janela futura) + Select da fonte. **Limpar** (outline) reseta a janela/fonte. Query: `from`, `until`, `fonte`.
 - KPIs (Card): menor milhas, menor BRL (cash), melhor milheiro — `text-2xl font-semibold tracking-tight tabular-nums`.
 - Gráfico: barras agrupadas **só em datas futuras**; ToggleGroup Milhas+BRL / Só milhas / Só BRL (`bars`); clique na barra filtra a tabela (`dia`).
-- Tabela (Table, thead sticky): Data, Cia/programa, Fonte, Milhas, Taxas (BRL), Cash (BRL), Milheiro. Só voos futuros. Vazio: *Sem ofertas futuras nesta aba*.
+- Tabela (Table, thead sticky): Data, Cia/programa, Fonte, Milhas, Taxas (BRL), Cash (BRL), Milheiro. Só voos futuros. Vazio: _Sem ofertas futuras nesta aba_.
 - Loading: Skeleton (`?ui=loading`).
 
 ## D-1 v2 (comportamento)
@@ -57,7 +70,7 @@ Tokens semânticos em `src/index.css` (`:root` HSL). Primitivos em `src/componen
 1. Conecte o repositório em [Cloudflare Pages](https://developers.cloudflare.com/pages/).
 2. Build: `npm run build`
 3. Output: `dist`
-4. Node: `22` (veja `.nvmrc`)
+4. Node: `24` (veja `.nvmrc`)
 5. SPA: `public/_redirects` (`/* /index.html 200`) vai para `dist`.
 
 Ou Wrangler:

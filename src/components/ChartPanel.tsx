@@ -23,15 +23,7 @@ const MODES: { key: ChartMode; label: string }[] = [
   { key: 'brl', label: 'Só BRL' },
 ]
 
-export function ChartPanel({
-  points,
-  mode,
-  isLoading,
-  selectedDate,
-  destination,
-  onModeChange,
-  onSelectDate,
-}: Props) {
+export function ChartPanel({ points, mode, isLoading, selectedDate, destination, onModeChange, onSelectDate }: Props) {
   return (
     <Card size="sm" aria-label="Gráfico de ofertas futuras">
       <CardHeader>
@@ -43,8 +35,7 @@ export function ChartPanel({
               </CardTitle>
             </TooltipTrigger>
             <TooltipContent>
-              Barras agrupadas pelas menores milhas e menor cash do dia. Clique numa data para filtrar a
-              tabela.
+              Barras agrupadas pelas menores milhas e menor cash do dia. Clique numa data para filtrar a tabela.
             </TooltipContent>
           </Tooltip>
           <ToggleGroup
@@ -128,12 +119,7 @@ function GroupedBars({
 
   return (
     <div className="relative mt-1">
-      <svg
-        viewBox={`0 0 ${width} ${height}`}
-        className="pointer-events-none h-52 w-full"
-        role="img"
-        aria-hidden="true"
-      >
+      <svg viewBox={`0 0 ${width} ${height}`} className="pointer-events-none h-52 w-full" role="img" aria-hidden="true">
         {points.map((point, i) => {
           const gx = pad.left + i * groupW + gap / 2
           const selected = point.date === selectedDate
