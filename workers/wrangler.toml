@@ -7,6 +7,10 @@ workers_dev = true
 enabled = true
 head_sampling_rate = 1
 
+# Sentry release from Cloudflare deployment version (optional; DSN is a secret).
+[version_metadata]
+binding = "CF_VERSION_METADATA"
+
 # Cron triggers are always evaluated in UTC by Cloudflare.
 # 09:00 / 21:00 UTC = 06:00 / 18:00 America/Sao_Paulo (UTC-3).
 [triggers]
@@ -46,6 +50,7 @@ LATAM_PASS_POINTS_ENABLED = "0"
 #   SUPABASE_SERVICE_ROLE_KEY
 #   INGEST_TRIGGER_SECRET   (optional; required to authorize POST /run)
 #   READ_API_KEY            (required for GET /api/v1/snapshots*; not INGEST_TRIGGER_SECRET)
+#   SENTRY_DSN              (optional; ingest + uncaught Worker errors)
 #   SMILES_API_KEY          (BE-3 guest search; SPA x-api-key from DevTools)
 #   SMILES_COOKIE / SMILES_ACCESS_TOKEN / SMILES_USER / SMILES_PASS  (optional member)
 #   TUDOAZUL_LOGIN / TUDOAZUL_PASSWORD  (BE-4 frozen secrets; placeholders only)

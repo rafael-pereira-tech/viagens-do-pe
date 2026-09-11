@@ -91,4 +91,9 @@ export interface Env {
   LATAM_OFFERS_PATH?: string;
   LATAM_LOGIN_PATH?: string;
   LATAM_REQUEST_DELAY_MS?: string;
+
+  /** Sentry DSN (Worker secret). Empty = no events (local/CI). */
+  SENTRY_DSN?: string;
+  /** Wrangler version_metadata binding for Sentry release. */
+  CF_VERSION_METADATA?: { id: string; tag?: string; timestamp?: string };
 }
