@@ -48,4 +48,19 @@ export interface Env {
   TUDOAZUL_DRY_RUN?: string;
   TUDOAZUL_API_HOST?: string;
   TUDOAZUL_REQUEST_DELAY_MS?: string;
+
+  /**
+   * LATAM Pass / LATAM (BE-5). Never commit real values.
+   *
+   * Frozen live secrets (placeholders only): `LATAM_PASS_LOGIN` + `LATAM_PASS_PASSWORD`.
+   * Do not use `LATAM_LOGIN` / `LATAM_PASSWORD`. `LATAM_DRY_RUN=1` parses bundled
+   * PET→GRU fixtures (no network). Optional host/path/delay overrides are non-secrets.
+   */
+  LATAM_PASS_LOGIN?: string;
+  LATAM_PASS_PASSWORD?: string;
+  LATAM_DRY_RUN?: string;
+  LATAM_API_HOST?: string;
+  LATAM_OFFERS_PATH?: string;
+  LATAM_LOGIN_PATH?: string;
+  LATAM_REQUEST_DELAY_MS?: string;
 }
