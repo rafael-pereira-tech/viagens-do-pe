@@ -55,10 +55,14 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - name: FE tests (vitest)
         run: pnpm test -- --reporter=verbose
+      - name: FE coverage (thresholds 35/45)
+        run: pnpm test:coverage
       - name: Workers tests (node:test)
         run: node --import tsx --test workers/test/api-*.test.ts workers/test/dates.test.ts workers/test/dry-run.test.ts workers/test/jobs.test.ts workers/test/status.test.ts workers/test/supabase-stamp.test.ts workers/test/scheduler.test.ts workers/test/smiles-*.test.ts workers/test/tudoazul-*.test.ts workers/test/latam-pass-*.test.ts workers/test/stub-collector.test.ts
       - name: Build check
         run: pnpm build
+      - name: Bundle size (size-limit)
+        run: pnpm size
 
   secure:
     name: secure / audit
@@ -73,11 +77,22 @@ jobs:
           node-version: 24
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - name: pnpm audit (moderate+)
-        run: pnpm audit --audit-level=moderate || echo "::warning::audit found moderate+ issues"
+      - name: pnpm audit (high+)
+        run: pnpm audit --audit-level=high
       - name: dependency review (PR only)
         if: github.event_name == 'pull_request'
         uses: actions/dependency-review-action@v4
+        continue-on-error: true # TODO: enable Dependency Graph in Settings > Security to make required
+        with:
+          fail-on-severity: high
+      - name: gitleaks (secret scan)
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: osv-scanner (vuln scan)
+        uses: google/osv-scanner-action@v2
         continue-on-error: true
         with:
-          fail-on-severity: moderate
+          scan-args: |-
+            --recursive
+            .
