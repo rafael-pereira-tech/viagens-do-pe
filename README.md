@@ -12,6 +12,76 @@ Ingest BE-2/BE-5: coleta agendada de preços em [`workers/`](workers/). Smiles/G
 - Cloudflare Pages (`npm run build` → `dist`, SPA fallback)
 - Cloudflare Workers (ingest) + Supabase Postgres
 
+## Domínios e integrações
+
+### Produção
+
+- Frontend: [`https://viagens-do-pe.pages.dev`](https://viagens-do-pe.pages.dev)
+- Worker/API: [`https://viagens-do-pe-ingest.rafaellimapereira.workers.dev`](https://viagens-do-pe-ingest.rafaellimapereira.workers.dev)
+- Supabase: `https://<project>.supabase.co` (valor definido em `SUPABASE_URL`)
+
+### APIs upstream
+
+| Companhia/fonte | Domínio                                   | Uso                                                      |
+| --------------- | ----------------------------------------- | -------------------------------------------------------- |
+| Smiles          | `api-air-flightsearch-blue.smiles.com.br` | Milhas GOL via busca guest (`smiles_web`)                |
+| Smiles          | `www.smiles.com.br`                       | Origem/referer da aplicação Smiles                       |
+| GOL/VoeGol      | `b2c-api.voegol.com.br`                   | Tarifas em dinheiro (`voegol`)                           |
+| GOL/VoeGol      | `www.voegol.com.br`                       | Origem/referer da busca cash                             |
+| Azul            | `b2c-api.voeazul.com.br`                  | Pontos e tarifas em dinheiro (`tudoazul`, `voeazul`)     |
+| Azul            | `passagens.voeazul.com.br`                | Busca de pontos e origem/referer                         |
+| Azul            | `www.voeazul.com.br`                      | Busca cash e origem/referer                              |
+| LATAM           | `www.latamairlines.com`                   | Milhas e tarifas em dinheiro (`latam_pass`, `latam_web`) |
+
+## Funcionalidades
+
+### Frontend
+
+- Dashboard de voos só ida, com origem fixa `PET`.
+- Abas de destino `GRU`, `CGH` e `VCP`.
+- Filtros por janela de datas e fonte, preservados na URL.
+- KPIs de menor valor em milhas, menor tarifa em BRL e melhor milheiro.
+- Gráfico diário de milhas/BRL com modos combinados ou individuais.
+- Clique em uma barra do gráfico para filtrar a tabela pelo dia.
+- Cores por companhia vencedora da métrica (Azul, GOL e LATAM).
+- Tabela com data, companhia/programa, fonte, milhas, taxas, cash e milheiro.
+- Apenas voos futuros são exibidos.
+- Skeleton de loading, estado vazio, erro inline e botão de retry.
+- Aviso quando os dados estão desatualizados.
+- Modo de dados live, inclusão de fixtures (`?dry=1`) e somente fixtures (`?dry_run=1`).
+- `Entrar`/`Sair` são atualmente um stub visual; o usuário final não precisa fazer login para consultar os dados quando o build já contém o `VITE_READ_API_KEY`.
+
+### Backend e dados
+
+- Coleta agendada em janela móvel de 45 dias.
+- GOL/Smiles: PET → CGH, milhas e tarifa cash.
+- Azul/TudoAzul: PET → VCP e suporte a PET → POA, pontos e tarifa cash.
+- LATAM Pass/LATAM: PET → GRU, milhas e tarifa cash.
+- Persistência de snapshots e execuções no Supabase Postgres.
+- View de leitura com a oferta mais recente por rota/data/fonte.
+- Estatísticas SQL de menor quantidade de milhas e menor valor em BRL.
+- API read protegida por Bearer token, sem expor a service role key do Supabase.
+- Fixtures dry-run para desenvolvimento e testes sem chamadas externas.
+- Validação de valores nulos/positivos; tarifas ausentes nunca são convertidas em zero.
+
+### API pública do Worker
+
+- `GET /health` — liveness do Worker.
+- `GET /api/v1/health` — liveness da read API.
+- `GET /api/v1/snapshots` — histórico paginado com filtros.
+- `GET /api/v1/snapshots/latest` — última oferta por rota/data/fonte.
+- `GET /api/v1/snapshots/stats` — KPIs agregados (`window` ou `route_day`).
+- `POST /run` — execução manual protegida por `INGEST_TRIGGER_SECRET`.
+
+### Operação
+
+- Cron de produção às 09:00 e 21:00 UTC (06:00 e 18:00 em São Paulo).
+- Deploy automático via GitHub Actions após push na `main`.
+- Pipeline executa lint, typecheck, testes, build e publica Worker + Pages.
+- CORS liberado para o domínio do Pages, previews e desenvolvimento local.
+
+Na configuração atual de produção, `PET → POA` está desativado por `ROUTE_POA_ENABLED=0` e a coleta de pontos LATAM está desativada por `LATAM_PASS_POINTS_ENABLED=0`; os collectors continuam implementados para ativação posterior.
+
 ## Desenvolvimento
 
 ```bash
