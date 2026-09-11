@@ -1,172 +1,149 @@
+import { milheiroFromQuote } from '../lib/api.ts'
+import { programLabel } from '../lib/filters.ts'
 import { formatShortDate } from '../lib/format.ts'
-import { isoFromToday, ORIGIN, type Destination } from '../lib/query.ts'
+import { isoFromToday, ORIGIN, todayIso, type Destination } from '../lib/query.ts'
+import type { SnapshotRouteDayStats, SnapshotWindowStats } from '../types/api.ts'
 import type { OfferRow } from '../types/priceSnapshot.ts'
 
 function row(
   destination: Destination,
   offsetDays: number,
-  fields: Omit<OfferRow, 'origin' | 'destination' | 'flight_date' | 'currency' | 'collected_at'>,
+  fields: Omit<OfferRow, 'origin' | 'destination' | 'flight_date' | 'currency' | 'collected_at' | 'milheiro'> & {
+    milheiro?: number | null
+  },
 ): OfferRow {
+  const { milheiro, ...rest } = fields
   return {
     origin: ORIGIN,
     destination,
     flight_date: isoFromToday(offsetDays),
     currency: 'BRL',
     collected_at: `${isoFromToday(0)}T12:00:00Z`,
-    ...fields,
+    ...rest,
+    milheiro: milheiro !== undefined ? milheiro : milheiroFromQuote(rest),
   }
 }
 
 /** Local stubs only — PET one-way to GRU / CGH / VCP. Includes a past row per dest (filtered out). */
 export const PLACEHOLDER_OFFERS: OfferRow[] = [
   row('GRU', -4, {
-    airline: 'GOL',
-    program: 'Smiles',
+    airline: 'LATAM',
+    program: 'latam_pass',
     miles: 12_000,
-    amount_brl: 540,
     taxes_brl: 58,
-    source: 'Worker',
-    milheiro: 13.4,
-  }),
-  row('GRU', 6, {
-    airline: 'GOL',
-    program: 'Smiles',
-    departure_time: '06:40',
-    miles: 16_000,
-    amount_brl: 890,
-    taxes_brl: 72,
-    source: 'Seats.aero',
-    milheiro: 15.8,
+    source: 'latam_pass',
   }),
   row('GRU', 6, {
     airline: 'LATAM',
-    program: 'Latam Pass',
+    program: 'latam_pass',
+    departure_time: '06:40',
+    miles: 16_000,
+    taxes_brl: 72,
+    source: 'latam_pass',
+  }),
+  row('GRU', 6, {
+    airline: 'LATAM',
+    program: 'latam_pass',
     departure_time: '09:15',
-    miles: 14_500,
     amount_brl: 940,
     taxes_brl: 81,
-    source: 'Worker',
-    milheiro: 14.2,
+    source: 'latam_web',
   }),
   row('GRU', 13, {
     airline: 'AZUL',
-    program: 'TudoAzul',
+    program: 'tudoazul',
     departure_time: '18:20',
     miles: 18_000,
-    amount_brl: 760,
     taxes_brl: 69,
-    source: 'ExpertFlyer',
-    milheiro: 16.9,
+    source: 'tudoazul',
   }),
   row('GRU', 21, {
     airline: 'GOL',
-    program: 'Smiles',
+    program: 'smiles',
     departure_time: '07:05',
     miles: 13_800,
-    amount_brl: 1_120,
     taxes_brl: 64,
-    source: 'Seats.aero',
-    milheiro: 13.9,
+    source: 'smiles_web',
   }),
   row('GRU', 34, {
     airline: 'LATAM',
-    program: 'Latam Pass',
+    program: 'latam_pass',
     departure_time: '12:40',
-    miles: 17_200,
     amount_brl: 810,
     taxes_brl: 88,
-    source: 'Worker',
-    milheiro: 17.4,
+    source: 'latam_web',
   }),
 
   row('CGH', -3, {
     airline: 'GOL',
-    program: 'Smiles',
+    program: 'smiles',
     miles: 11_000,
-    amount_brl: 480,
     taxes_brl: 55,
-    source: 'Worker',
-    milheiro: 12.8,
+    source: 'smiles_web',
   }),
   row('CGH', 5, {
     airline: 'GOL',
-    program: 'Smiles',
+    program: 'smiles',
     departure_time: '08:10',
     miles: 12_400,
-    amount_brl: 720,
     taxes_brl: 61,
-    source: 'Seats.aero',
-    milheiro: 13.1,
+    source: 'smiles_web',
   }),
   row('CGH', 12, {
-    airline: 'LATAM',
-    program: 'Latam Pass',
+    airline: 'GOL',
+    program: 'smiles',
     departure_time: '15:30',
-    miles: 15_000,
     amount_brl: 690,
     taxes_brl: 77,
-    source: 'Worker',
-    milheiro: 14.8,
+    source: 'voegol',
   }),
   row('CGH', 19, {
     airline: 'GOL',
-    program: 'Smiles',
+    program: 'smiles',
     departure_time: '06:55',
     miles: 11_800,
-    amount_brl: 840,
     taxes_brl: 59,
-    source: 'ExpertFlyer',
-    milheiro: 12.6,
+    source: 'smiles_web',
   }),
   row('CGH', 28, {
     airline: 'AZUL',
-    program: 'TudoAzul',
+    program: 'tudoazul',
     departure_time: '19:45',
-    miles: 16_500,
     amount_brl: 910,
     taxes_brl: 70,
-    source: 'Seats.aero',
-    milheiro: 16.2,
+    source: 'voeazul',
   }),
 
   row('VCP', -2, {
     airline: 'AZUL',
-    program: 'TudoAzul',
+    program: 'tudoazul',
     miles: 13_000,
-    amount_brl: 610,
     taxes_brl: 62,
-    source: 'Worker',
-    milheiro: 14.0,
+    source: 'tudoazul',
   }),
   row('VCP', 8, {
     airline: 'AZUL',
-    program: 'TudoAzul',
+    program: 'tudoazul',
     departure_time: '10:25',
     miles: 14_200,
-    amount_brl: 650,
     taxes_brl: 66,
-    source: 'Seats.aero',
-    milheiro: 14.6,
+    source: 'tudoazul',
   }),
   row('VCP', 16, {
     airline: 'AZUL',
-    program: 'TudoAzul',
+    program: 'tudoazul',
     departure_time: '16:10',
-    miles: 19_000,
     amount_brl: 580,
     taxes_brl: 74,
-    source: 'Worker',
-    milheiro: 17.1,
+    source: 'voeazul',
   }),
   row('VCP', 27, {
     airline: 'GOL',
-    program: 'Smiles',
+    program: 'smiles',
     departure_time: '13:50',
     miles: 21_500,
-    amount_brl: 990,
     taxes_brl: 83,
-    source: 'ExpertFlyer',
-    milheiro: 18.8,
+    source: 'smiles_web',
   }),
 ]
 
@@ -176,30 +153,54 @@ export type KpiModel = {
   melhorMilheiro: { value: number; caption: string } | null
 }
 
-export function kpisFromOffers(rows: OfferRow[]): KpiModel {
-  if (rows.length === 0) {
-    return { menorMilhas: null, menorBrl: null, melhorMilheiro: null }
-  }
+function minBy<T>(rows: T[], value: (row: T) => number): T | null {
+  if (rows.length === 0) return null
+  return rows.reduce((acc, row) => (value(row) < value(acc) ? row : acc))
+}
 
-  const fewestMiles = rows.reduce((acc, row) => ((row.miles ?? Infinity) < (acc.miles ?? Infinity) ? row : acc))
-  const lowestCash = rows.reduce((acc, row) =>
-    (row.amount_brl ?? Infinity) < (acc.amount_brl ?? Infinity) ? row : acc,
+export function kpisFromOffers(rows: OfferRow[], stats?: SnapshotWindowStats | null): KpiModel {
+  const fewestMiles = minBy(
+    rows.filter((row): row is OfferRow & { miles: number } => row.miles != null),
+    (row) => row.miles,
   )
-  const bestMilheiro = rows.reduce((acc, row) => (row.milheiro < acc.milheiro ? row : acc))
+  const lowestCash = minBy(
+    rows.filter((row): row is OfferRow & { amount_brl: number } => row.amount_brl != null),
+    (row) => row.amount_brl,
+  )
+  const bestMilheiro = minBy(
+    rows.filter((row): row is OfferRow & { milheiro: number } => row.milheiro != null),
+    (row) => row.milheiro,
+  )
+
+  const minMiles = stats ? stats.min_miles : (fewestMiles?.miles ?? null)
+  const minCash = stats ? stats.min_amount_brl : (lowestCash?.amount_brl ?? null)
+
+  const milesRow = minMiles != null ? (rows.find((row) => row.miles === minMiles) ?? fewestMiles) : null
+  const cashRow = minCash != null ? (rows.find((row) => row.amount_brl === minCash) ?? lowestCash) : null
 
   return {
-    menorMilhas: {
-      value: fewestMiles.miles ?? 0,
-      caption: `${fewestMiles.program} · ${formatShortDate(fewestMiles.flight_date)}`,
-    },
-    menorBrl: {
-      value: lowestCash.amount_brl ?? 0,
-      caption: `${lowestCash.airline} · ${formatShortDate(lowestCash.flight_date)}`,
-    },
-    melhorMilheiro: {
-      value: bestMilheiro.milheiro,
-      caption: `${bestMilheiro.program} · ${formatShortDate(bestMilheiro.flight_date)}`,
-    },
+    menorMilhas:
+      minMiles == null
+        ? null
+        : {
+            value: minMiles,
+            caption: milesRow
+              ? `${programLabel(milesRow.program)} · ${formatShortDate(milesRow.flight_date)}`
+              : 'Na janela filtrada',
+          },
+    menorBrl:
+      minCash == null
+        ? null
+        : {
+            value: minCash,
+            caption: cashRow ? `${cashRow.airline} · ${formatShortDate(cashRow.flight_date)}` : 'Na janela filtrada',
+          },
+    melhorMilheiro: bestMilheiro
+      ? {
+          value: bestMilheiro.milheiro,
+          caption: `${programLabel(bestMilheiro.program)} · ${formatShortDate(bestMilheiro.flight_date)}`,
+        }
+      : null,
   }
 }
 
@@ -230,4 +231,16 @@ export function chartFromOffers(rows: OfferRow[]): ChartPoint[] {
         sampleSize: group.length,
       }
     })
+}
+
+export function chartFromRouteDayStats(days: SnapshotRouteDayStats[], today = todayIso()): ChartPoint[] {
+  return [...days]
+    .filter((day) => day.flight_date >= today)
+    .sort((a, b) => a.flight_date.localeCompare(b.flight_date))
+    .map((day) => ({
+      date: day.flight_date,
+      milhas: day.min_miles ?? 0,
+      brl: day.min_amount_brl ?? 0,
+      sampleSize: day.snapshot_count,
+    }))
 }

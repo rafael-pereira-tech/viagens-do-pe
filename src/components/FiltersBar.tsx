@@ -2,7 +2,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { FILTER_FONTES } from '../lib/filters.ts'
+import { FILTER_FONTES, sourceLabel } from '../lib/filters.ts'
 import { todayIso, type DashboardQuery } from '../lib/query.ts'
 import { FIELD_LABEL } from '../lib/ui.ts'
 
@@ -68,7 +68,7 @@ export function FiltersBar({ draft, onDraftChange, onApply, onClear }: Props) {
                   <SelectItem value={ALL_FONTES}>Todas</SelectItem>
                   {FILTER_FONTES.map((fonte) => (
                     <SelectItem key={fonte} value={fonte}>
-                      {fonte}
+                      {sourceLabel(fonte)}
                     </SelectItem>
                   ))}
                 </SelectContent>

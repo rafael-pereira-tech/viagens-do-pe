@@ -7,3 +7,6 @@ export const API_URL = import.meta.env.VITE_API_URL ?? ''
  * `INGEST_TRIGGER_SECRET`, and not the stub Entrar/Sair button.
  */
 export const READ_API_KEY = import.meta.env.VITE_READ_API_KEY ?? import.meta.env.VITE_API_TOKEN ?? ''
+
+/** Live Worker reads need both the base URL and the dedicated Bearer. */
+export const CAN_FETCH_SNAPSHOTS = Boolean(API_URL && READ_API_KEY)

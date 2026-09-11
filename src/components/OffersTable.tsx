@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import type { OfferRow } from '../types/priceSnapshot.ts'
+import { programLabel, sourceLabel } from '../lib/filters.ts'
 import { formatBrl, formatMiles, formatMilheiro, formatShortDate } from '../lib/format.ts'
 import { FIELD_LABEL } from '../lib/ui.ts'
 import { EmptyHint } from './EmptyHint.tsx'
@@ -38,17 +39,20 @@ export function OffersTable({ rows, isLoading, onResetFilters }: Props) {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {rows.map((row) => (
+              {rows.map((row, index) => (
                 <TableRow
-                  key={`${row.destination}-${row.program}-${row.flight_date}-${row.source}-${row.airline}`}
+                  key={
+                    row.id ??
+                    `${row.destination}-${row.program}-${row.flight_date}-${row.source}-${row.airline}-${row.departure_time ?? index}`
+                  }
                   className="odd:bg-muted/40"
                 >
                   <TableCell className="text-card-foreground">{formatShortDate(row.flight_date)}</TableCell>
                   <TableCell className="text-muted-foreground">
-                    {row.airline} · {row.program}
+                    {row.airline} · {programLabel(row.program)}
                   </TableCell>
                   <TableCell>
-                    <Badge variant="outline">{row.source}</Badge>
+                    <Badge variant="outline">{sourceLabel(row.source)}</Badge>
                   </TableCell>
                   <TableCell className="text-right tabular-nums text-card-foreground">
                     {row.miles != null ? formatMiles(row.miles) : '—'}
@@ -60,7 +64,7 @@ export function OffersTable({ rows, isLoading, onResetFilters }: Props) {
                     {row.amount_brl != null ? formatBrl(row.amount_brl, true) : '—'}
                   </TableCell>
                   <TableCell className="text-right tabular-nums font-medium text-card-foreground">
-                    {formatMilheiro(row.milheiro)}
+                    {row.milheiro != null ? formatMilheiro(row.milheiro) : '—'}
                   </TableCell>
                 </TableRow>
               ))}
