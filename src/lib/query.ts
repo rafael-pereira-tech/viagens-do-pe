@@ -11,6 +11,8 @@ export const AIRPORT_LABEL: Record<Destination, string> = {
 
 export type ChartMode = 'both' | 'milhas' | 'brl'
 
+export type UiState = '' | 'loading' | 'error' | 'empty'
+
 export type DashboardQuery = {
   to: Destination
   from: string
@@ -18,7 +20,7 @@ export type DashboardQuery = {
   fonte: string
   dia: string
   bars: ChartMode
-  ui: '' | 'loading'
+  ui: UiState
   /** When true (`?dry=1`), include `*_dry_run` snapshot sources. */
   dry: boolean
 }
@@ -32,6 +34,10 @@ export const defaultQuery: DashboardQuery = {
   bars: 'both',
   ui: '',
   dry: false,
+}
+
+function isUiState(value: string): value is UiState {
+  return value === 'loading' || value === 'error' || value === 'empty'
 }
 
 function isDestination(value: string): value is Destination {
@@ -55,7 +61,7 @@ export function parseQuery(params: URLSearchParams): DashboardQuery {
     fonte: params.get('fonte') ?? '',
     dia: params.get('dia') ?? '',
     bars: isChartMode(barsParam) ? barsParam : 'both',
-    ui: uiParam === 'loading' ? 'loading' : '',
+    ui: isUiState(uiParam) ? uiParam : '',
     dry: dryParam === '1' || dryParam === 'true',
   }
 }

@@ -13,12 +13,13 @@ type Props = {
   onDraftChange: (patch: Partial<Draft>) => void
   onApply: () => void
   onClear: () => void
+  isLoading?: boolean
 }
 
 const ALL_FONTES = 'todas'
 const dateInputClass = 'h-10 bg-card tabular-nums'
 
-export function FiltersBar({ draft, onDraftChange, onApply, onClear }: Props) {
+export function FiltersBar({ draft, onDraftChange, onApply, onClear, isLoading }: Props) {
   const minDate = todayIso()
 
   return (
@@ -42,6 +43,7 @@ export function FiltersBar({ draft, onDraftChange, onApply, onClear }: Props) {
                   value={draft.from}
                   onChange={(e) => onDraftChange({ from: e.target.value })}
                   aria-label="Início da janela"
+                  disabled={isLoading}
                 />
                 <Input
                   type="date"
@@ -50,6 +52,7 @@ export function FiltersBar({ draft, onDraftChange, onApply, onClear }: Props) {
                   value={draft.until}
                   onChange={(e) => onDraftChange({ until: e.target.value })}
                   aria-label="Fim da janela"
+                  disabled={isLoading}
                 />
               </div>
             </fieldset>
@@ -60,6 +63,7 @@ export function FiltersBar({ draft, onDraftChange, onApply, onClear }: Props) {
               <Select
                 value={draft.fonte || ALL_FONTES}
                 onValueChange={(fonte) => onDraftChange({ fonte: fonte === ALL_FONTES ? '' : fonte })}
+                disabled={isLoading}
               >
                 <SelectTrigger aria-labelledby="fonte-label" className="h-10 w-full bg-card">
                   <SelectValue placeholder="Todas" />
@@ -76,11 +80,11 @@ export function FiltersBar({ draft, onDraftChange, onApply, onClear }: Props) {
             </div>
           </div>
           <div className="flex shrink-0 justify-end gap-2">
-            <Button type="button" variant="outline" className="h-10 px-4" onClick={onClear}>
+            <Button type="button" variant="outline" className="h-10 px-4" onClick={onClear} disabled={isLoading}>
               Limpar
             </Button>
-            <Button type="submit" className="h-10 px-4">
-              Aplicar
+            <Button type="submit" className="h-10 px-4" disabled={isLoading} aria-busy={isLoading || undefined}>
+              {isLoading ? 'Carregando…' : 'Aplicar'}
             </Button>
           </div>
         </form>
