@@ -1,4 +1,5 @@
 import { useEffect, useState, type ReactNode } from 'react'
+import { Link, useLocation } from 'react-router-dom'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -23,6 +24,7 @@ function LogoMark() {
 }
 
 export function Shell({ children }: { children: ReactNode }) {
+  const location = useLocation()
   const [signedIn, setSignedIn] = useState(() => {
     try {
       return localStorage.getItem(AUTH_KEY) === '1'
@@ -50,6 +52,24 @@ export function Shell({ children }: { children: ReactNode }) {
           <Badge variant="success" className="h-auto px-3 py-1 text-xs font-medium">
             Origem fixa · PET · ida
           </Badge>
+          <nav className="flex items-center gap-1 text-xs" aria-label="Navegação">
+            <Button
+              asChild
+              variant={location.pathname === '/' ? 'secondary' : 'ghost'}
+              size="sm"
+              className="h-8 px-2.5"
+            >
+              <Link to="/">Dashboard</Link>
+            </Button>
+            <Button
+              asChild
+              variant={location.pathname === '/playground' ? 'secondary' : 'ghost'}
+              size="sm"
+              className="h-8 px-2.5"
+            >
+              <Link to="/playground">Playground</Link>
+            </Button>
+          </nav>
           <div className="ml-auto flex items-center gap-2">
             <Button
               type="button"

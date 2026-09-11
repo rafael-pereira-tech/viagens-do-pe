@@ -1,22 +1,26 @@
-import { Button } from '@/components/ui/button'
+import { StateView } from './StateView.tsx'
 
+/** @deprecated Prefer `StateView` with explicit `variant`. Kept for compat. */
 export function EmptyHint({
   title,
   actionLabel,
   onAction,
+  description,
+  variant = 'empty',
 }: {
   title: string
   actionLabel?: string
   onAction?: () => void
+  description?: string
+  variant?: 'empty' | 'filtered-empty' | 'error'
 }) {
   return (
-    <div className="flex h-full min-h-32 flex-col items-center justify-center gap-3 px-4 py-8 text-center">
-      <p className="text-sm text-muted-foreground">{title}</p>
-      {actionLabel && onAction ? (
-        <Button type="button" onClick={onAction}>
-          {actionLabel}
-        </Button>
-      ) : null}
-    </div>
+    <StateView
+      variant={variant}
+      title={title}
+      description={description}
+      actionLabel={actionLabel}
+      onAction={onAction}
+    />
   )
 }

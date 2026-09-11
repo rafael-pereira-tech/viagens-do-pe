@@ -15,6 +15,7 @@ type Props = {
   onDryModeChange: (mode: DryMode) => void
   onApply: () => void
   onClear: () => void
+  isLoading?: boolean
 }
 
 const ALL_FONTES = 'todas'
@@ -26,7 +27,7 @@ const DRY_MODES: { value: DryMode; label: string }[] = [
   { value: 'live', label: 'Produção (exclude dry-run)' },
 ]
 
-export function FiltersBar({ draft, dryMode, onDraftChange, onDryModeChange, onApply, onClear }: Props) {
+export function FiltersBar({ draft, dryMode, onDraftChange, onDryModeChange, onApply, onClear, isLoading }: Props) {
   const minDate = todayIso()
 
   return (
@@ -50,6 +51,7 @@ export function FiltersBar({ draft, dryMode, onDraftChange, onDryModeChange, onA
                   value={draft.from}
                   onChange={(e) => onDraftChange({ from: e.target.value })}
                   aria-label="Início da janela"
+                  disabled={isLoading}
                 />
                 <Input
                   type="date"
@@ -58,6 +60,7 @@ export function FiltersBar({ draft, dryMode, onDraftChange, onDryModeChange, onA
                   value={draft.until}
                   onChange={(e) => onDraftChange({ until: e.target.value })}
                   aria-label="Fim da janela"
+                  disabled={isLoading}
                 />
               </div>
             </fieldset>
@@ -68,6 +71,7 @@ export function FiltersBar({ draft, dryMode, onDraftChange, onDryModeChange, onA
               <Select
                 value={draft.fonte || ALL_FONTES}
                 onValueChange={(fonte) => onDraftChange({ fonte: fonte === ALL_FONTES ? '' : fonte })}
+                disabled={isLoading}
               >
                 <SelectTrigger aria-labelledby="fonte-label" className="h-10 w-full bg-card">
                   <SelectValue placeholder="Todas" />
@@ -86,7 +90,7 @@ export function FiltersBar({ draft, dryMode, onDraftChange, onDryModeChange, onA
               <span className={`${FIELD_LABEL} mb-1 block`} id="dados-label">
                 Dados
               </span>
-              <Select value={dryMode} onValueChange={(value) => onDryModeChange(value as DryMode)}>
+              <Select value={dryMode} onValueChange={(value) => onDryModeChange(value as DryMode)} disabled={isLoading}>
                 <SelectTrigger aria-labelledby="dados-label" className="h-10 w-full bg-card">
                   <SelectValue />
                 </SelectTrigger>
@@ -101,11 +105,11 @@ export function FiltersBar({ draft, dryMode, onDraftChange, onDryModeChange, onA
             </div>
           </div>
           <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">
-            <Button type="button" variant="outline" className="h-10 px-4" onClick={onClear}>
+            <Button type="button" variant="outline" className="h-10 px-4" onClick={onClear} disabled={isLoading}>
               Limpar
             </Button>
-            <Button type="submit" className="h-10 px-4">
-              Aplicar
+            <Button type="submit" className="h-10 px-4" disabled={isLoading} aria-busy={isLoading || undefined}>
+              {isLoading ? 'Carregando…' : 'Aplicar'}
             </Button>
           </div>
         </form>

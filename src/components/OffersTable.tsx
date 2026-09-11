@@ -6,15 +6,17 @@ import type { OfferRow } from '../types/priceSnapshot.ts'
 import { programLabel, sourceLabel } from '../lib/filters.ts'
 import { formatBrl, formatMiles, formatMilheiro, formatShortDate } from '../lib/format.ts'
 import { FIELD_LABEL } from '../lib/ui.ts'
-import { EmptyHint } from './EmptyHint.tsx'
+import { StateView } from './StateView.tsx'
 
 type Props = {
   rows: OfferRow[]
   isLoading: boolean
   onResetFilters: () => void
+  error?: string | null
+  onRetry?: () => void
 }
 
-export function OffersTable({ rows, isLoading, onResetFilters }: Props) {
+export function OffersTable({ rows, isLoading, onResetFilters, error, onRetry }: Props) {
   return (
     <Card size="sm" aria-label="Ofertas">
       <CardHeader>
@@ -23,8 +25,22 @@ export function OffersTable({ rows, isLoading, onResetFilters }: Props) {
       <CardContent>
         {isLoading ? (
           <TableSkeleton />
+        ) : error ? (
+          <StateView
+            variant="error"
+            title="Não foi possível carregar as ofertas"
+            description={error}
+            actionLabel={onRetry ? 'Tentar de novo' : undefined}
+            onAction={onRetry}
+          />
         ) : rows.length === 0 ? (
-          <EmptyHint title="Sem ofertas futuras nesta aba" actionLabel="Limpar filtros" onAction={onResetFilters} />
+          <StateView
+            variant="filtered-empty"
+            title="Sem ofertas futuras nesta aba"
+            description="Nenhuma oferta combina com os filtros atuais."
+            actionLabel="Limpar filtros"
+            onAction={onResetFilters}
+          />
         ) : (
           <Table className="min-w-[48rem]" containerClassName="max-h-[min(28rem,70vh)]">
             <TableHeader className="sticky top-0 z-10 bg-card">

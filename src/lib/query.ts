@@ -11,7 +11,9 @@ export const AIRPORT_LABEL: Record<Destination, string> = {
 
 export type ChartMode = 'both' | 'milhas' | 'brl'
 
-/** Default is dry-run-only (`*_dry_run`) until legacy smiles_web purge. `live` = exclude_dry_run. */
+export type UiState = '' | 'loading' | 'error' | 'empty'
+
+/** Production reads are live by default; QA can opt into `dry` or `dry_run`. */
 export type DryMode = 'live' | 'include' | 'only'
 
 export type DashboardQuery = {
@@ -21,7 +23,7 @@ export type DashboardQuery = {
   fonte: string
   dia: string
   bars: ChartMode
-  ui: '' | 'loading'
+  ui: UiState
   dryMode: DryMode
 }
 
@@ -33,7 +35,11 @@ export const defaultQuery: DashboardQuery = {
   dia: '',
   bars: 'both',
   ui: '',
-  dryMode: 'only',
+  dryMode: 'live',
+}
+
+function isUiState(value: string): value is UiState {
+  return value === 'loading' || value === 'error' || value === 'empty'
 }
 
 function isDestination(value: string): value is Destination {
@@ -65,7 +71,7 @@ export function parseQuery(params: URLSearchParams): DashboardQuery {
     fonte: params.get('fonte') ?? '',
     dia: params.get('dia') ?? '',
     bars: isChartMode(barsParam) ? barsParam : 'both',
-    ui: uiParam === 'loading' ? 'loading' : '',
+    ui: isUiState(uiParam) ? uiParam : '',
     dryMode: parseDryMode(params),
   }
 }

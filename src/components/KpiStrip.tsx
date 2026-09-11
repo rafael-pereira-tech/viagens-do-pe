@@ -1,15 +1,18 @@
-import { Card, CardHeader } from '@/components/ui/card'
+import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import type { KpiModel } from '../data/placeholders.ts'
 import { formatBrl, formatMiles, formatMilheiro } from '../lib/format.ts'
 import { FIELD_LABEL, KPI_VALUE } from '../lib/ui.ts'
+import { StateView } from './StateView.tsx'
 
 type Props = {
   kpis: KpiModel
   isLoading: boolean
+  error?: string | null
+  onRetry?: () => void
 }
 
-export function KpiStrip({ kpis, isLoading }: Props) {
+export function KpiStrip({ kpis, isLoading, error, onRetry }: Props) {
   if (isLoading) {
     return (
       <section className="grid grid-cols-1 gap-3 sm:grid-cols-3" aria-label="Indicadores" aria-busy="true">
@@ -22,6 +25,24 @@ export function KpiStrip({ kpis, isLoading }: Props) {
             </CardHeader>
           </Card>
         ))}
+      </section>
+    )
+  }
+
+  if (error) {
+    return (
+      <section aria-label="Indicadores">
+        <Card size="sm">
+          <CardContent>
+            <StateView
+              variant="error"
+              title="Não foi possível carregar os indicadores"
+              description={error}
+              actionLabel={onRetry ? 'Tentar de novo' : undefined}
+              onAction={onRetry}
+            />
+          </CardContent>
+        </Card>
       </section>
     )
   }

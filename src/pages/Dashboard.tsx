@@ -62,6 +62,13 @@ export function Dashboard() {
       ? chartFromRouteDayStats(remote.routeDay, tabRows, applied.to)
       : chartFromOffers(tabRows, applied.to)
   const isLoading = applied.ui === 'loading' || (live && remote.isLoading)
+  const forcedError = applied.ui === 'error' ? 'Erro simulado via ?ui=error — verifique o retry.' : null
+  const forcedEmpty = applied.ui === 'empty'
+  const effectiveError = forcedError ?? remote.error
+  const effectiveIsLoading = forcedEmpty ? false : isLoading
+  const effectiveRows = forcedEmpty ? [] : rows
+  const effectivePoints = forcedEmpty ? [] : chart
+  const effectiveKpis = forcedEmpty ? kpisFromOffers([], undefined) : kpis
 
   function commit(next: DashboardQuery) {
     setSearchParams(queryToSearchParams(next), { replace: true })
@@ -106,27 +113,30 @@ export function Dashboard() {
         onDryModeChange={(dryMode: DryMode) => commit({ ...applied, dryMode })}
         onApply={applyFilters}
         onClear={clearFilters}
+        isLoading={effectiveIsLoading}
       />
-      {remote.error ? (
+      {effectiveError ? (
         <div
           role="alert"
           className="flex flex-col gap-2 rounded-xl border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive sm:flex-row sm:items-center sm:justify-between"
         >
-          <p>{remote.error}</p>
+          <p>{effectiveError}</p>
           <Button type="button" variant="outline" size="sm" className="shrink-0" onClick={remote.refresh}>
             Tentar de novo
           </Button>
         </div>
       ) : null}
-      <KpiStrip kpis={kpis} isLoading={isLoading} />
+      <KpiStrip kpis={effectiveKpis} isLoading={effectiveIsLoading} error={effectiveError} onRetry={remote.refresh} />
       <ChartPanel
-        points={chart}
+        points={effectivePoints}
         mode={applied.bars}
-        isLoading={isLoading}
+        isLoading={effectiveIsLoading}
         selectedDate={applied.dia}
         destination={applied.to}
         onModeChange={onBars}
         onSelectDate={onSelectDate}
+        error={effectiveError}
+        onRetry={remote.refresh}
       />
       {applied.dryMode === 'only' ? (
         <p className="text-xs text-muted-foreground">
@@ -140,7 +150,13 @@ export function Dashboard() {
           Tabela filtrada por {formatShortDate(applied.dia)}. Clique de novo na barra para limpar o dia.
         </p>
       ) : null}
-      <OffersTable rows={isLoading ? [] : rows} isLoading={isLoading} onResetFilters={clearFilters} />
+      <OffersTable
+        rows={effectiveIsLoading ? [] : effectiveRows}
+        isLoading={effectiveIsLoading}
+        onResetFilters={clearFilters}
+        error={effectiveError}
+        onRetry={remote.refresh}
+      />
     </div>
   )
 }

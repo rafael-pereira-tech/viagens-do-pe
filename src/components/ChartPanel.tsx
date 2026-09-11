@@ -11,7 +11,7 @@ import {
 } from '../lib/airlines.ts'
 import { formatBrl, formatMiles, formatShortDate } from '../lib/format.ts'
 import type { ChartMode } from '../lib/query.ts'
-import { EmptyHint } from './EmptyHint.tsx'
+import { StateView } from './StateView.tsx'
 
 type Props = {
   points: ChartPoint[]
@@ -21,6 +21,8 @@ type Props = {
   destination: string
   onModeChange: (mode: ChartMode) => void
   onSelectDate: (isoDate: string) => void
+  error?: string | null
+  onRetry?: () => void
 }
 
 const MODES: { key: ChartMode; label: string }[] = [
@@ -29,7 +31,17 @@ const MODES: { key: ChartMode; label: string }[] = [
   { key: 'brl', label: 'Só BRL' },
 ]
 
-export function ChartPanel({ points, mode, isLoading, selectedDate, destination, onModeChange, onSelectDate }: Props) {
+export function ChartPanel({
+  points,
+  mode,
+  isLoading,
+  selectedDate,
+  destination,
+  onModeChange,
+  onSelectDate,
+  error,
+  onRetry,
+}: Props) {
   const fallbackFills = chartFillsForDestination(destination)
 
   return (
@@ -71,8 +83,20 @@ export function ChartPanel({ points, mode, isLoading, selectedDate, destination,
           <div aria-busy="true">
             <Skeleton className="h-52 w-full" />
           </div>
+        ) : error ? (
+          <StateView
+            variant="error"
+            title="Não foi possível carregar o gráfico"
+            description={error}
+            actionLabel={onRetry ? 'Tentar de novo' : undefined}
+            onAction={onRetry}
+          />
         ) : points.length === 0 ? (
-          <EmptyHint title="Sem ofertas futuras nesta aba" />
+          <StateView
+            variant="filtered-empty"
+            title="Sem ofertas futuras nesta aba"
+            description="Ajuste a janela ou a fonte e aplique novamente."
+          />
         ) : (
           <GroupedBars
             points={points}
