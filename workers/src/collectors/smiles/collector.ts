@@ -1,5 +1,6 @@
 import type { Env } from '../../env';
 import type { CollectParams, CollectResult, Collector, Snapshot } from '../types';
+import { stampDryRunResult } from '../dry-run';
 import { isDryRun, isLiveEnabled, resolveSession } from './auth';
 import { createSmilesClient, type SmilesClient } from './client';
 import { SEARCH_PET_CGH_CASH, SEARCH_PET_CGH_SUCCESS } from './fixtures';
@@ -119,7 +120,7 @@ export function createSmilesCollector(env: Env, deps: SmilesCollectorDeps = {}):
           { fareTypes: fareTypes({ includeClub: env.SMILES_INCLUDE_CLUB === '1' }) },
         );
         const cashParsed = parseVoegolFlights(shiftSearchDates(SEARCH_PET_CGH_CASH, params.flightDate), params);
-        return combine(resultFromParse(milesParsed), resultFromParse(cashParsed));
+        return stampDryRunResult(combine(resultFromParse(milesParsed), resultFromParse(cashParsed)));
       }
 
       if (!isLiveEnabled(env)) {

@@ -1,11 +1,13 @@
 /** Award / miles+money rows in `price_snapshots.source`. Distinct from `program: latam_pass`. */
 export const LATAM_PASS_SOURCE = 'latam_pass';
+export const LATAM_PASS_DRY_RUN_SOURCE = 'latam_pass_dry_run';
 
 /**
  * Full cash BRL from the official LATAM booking path (same BFF host,
  * `redemption=false`). Never mix this with LATAM Pass copay.
  */
 export const LATAMAIRLINES_SOURCE = 'latamairlines';
+export const LATAMAIRLINES_DRY_RUN_SOURCE = 'latamairlines_dry_run';
 
 export const LATAM_API_HOST = 'https://www.latamairlines.com';
 export const LATAM_ORIGIN = 'https://www.latamairlines.com';

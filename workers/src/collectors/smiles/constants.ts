@@ -1,11 +1,13 @@
 /** Award / Smiles+Money rows in `price_snapshots.source`. Distinct from `program: smiles`. */
 export const SMILES_SOURCE = 'smiles_web';
+export const SMILES_DRY_RUN_SOURCE = 'smiles_web_dry_run';
 
 /**
  * Full cash BRL from the official GOL booking path (VoeGol Sabre B2C).
  * Never mix this with Smiles `money` copay.
  */
 export const VOEGOL_SOURCE = 'voegol';
+export const VOEGOL_DRY_RUN_SOURCE = 'voegol_dry_run';
 
 export const VOEGOL_API_HOST = 'https://b2c-api.voegol.com.br';
 export const VOEGOL_ORIGIN = 'https://www.voegol.com.br';

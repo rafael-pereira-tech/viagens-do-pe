@@ -11,8 +11,10 @@ import {
 } from '../src/collectors/latam-pass/fixtures.ts';
 import {
   LATAM_OFFERS_PATH,
+  LATAM_PASS_DRY_RUN_SOURCE,
   LATAM_PASS_SOURCE,
   LATAM_SESSION_PATH,
+  LATAMAIRLINES_DRY_RUN_SOURCE,
   LATAMAIRLINES_SOURCE,
 } from '../src/collectors/latam-pass/constants.ts';
 import type { CollectParams } from '../src/collectors/types.ts';
@@ -92,9 +94,10 @@ describe('latam-pass collector', () => {
     assert.equal(fetches, 0);
     assert.equal(result.status, 'success');
     assert.ok(result.snapshots.every((row) => row.flight_date === '2026-11-20'));
-    assert.ok(result.snapshots.some((row) => row.source === LATAM_PASS_SOURCE && row.miles === 12500 && row.amount_brl == null));
-    assert.ok(result.snapshots.some((row) => row.source === LATAM_PASS_SOURCE && row.miles === 7200 && row.amount_brl == null));
-    assert.ok(result.snapshots.some((row) => row.source === LATAMAIRLINES_SOURCE && row.amount_brl === 429.9 && row.miles == null));
+    assert.ok(result.snapshots.some((row) => row.source === LATAM_PASS_DRY_RUN_SOURCE && row.miles === 12500 && row.amount_brl == null));
+    assert.ok(result.snapshots.some((row) => row.source === LATAM_PASS_DRY_RUN_SOURCE && row.miles === 7200 && row.amount_brl == null));
+    assert.ok(result.snapshots.some((row) => row.source === LATAMAIRLINES_DRY_RUN_SOURCE && row.amount_brl === 429.9 && row.miles == null));
+    assert.ok(result.snapshots.every((row) => row.source.endsWith('_dry_run')));
     const mix = result.snapshots.find((row) => row.miles === 7200);
     assert.equal((mix?.raw_payload as { copay_brl?: number }).copay_brl, 198.5);
     assert.equal(mix?.amount_brl, null);

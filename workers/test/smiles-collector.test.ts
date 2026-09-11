@@ -9,7 +9,14 @@ import {
   SEARCH_PET_CGH_EMPTY,
   SEARCH_PET_CGH_SUCCESS,
 } from '../src/collectors/smiles/fixtures.ts';
-import { SMILES_SOURCE, VOEGOL_FLIGHTS_PATH, VOEGOL_SOURCE } from '../src/collectors/smiles/constants.ts';
+import {
+  SMILES_DRY_RUN_SOURCE,
+  SMILES_SOURCE,
+  VOEGOL_DRY_RUN_SOURCE,
+  VOEGOL_FLIGHTS_PATH,
+  VOEGOL_SOURCE,
+} from '../src/collectors/smiles/constants.ts';
+import { rawPayloadHasCredentials } from '../src/collectors/dry-run.ts';
 import type { CollectParams } from '../src/collectors/types.ts';
 
 const params: CollectParams = {
@@ -56,22 +63,25 @@ describe('smiles collector', () => {
     assert.equal(result.status, 'success');
     assert.ok(result.snapshots.length >= 5);
     assert.ok(result.snapshots.every((row) => row.flight_date === '2026-11-21'));
-    assert.ok(
-      result.snapshots.some(
-        (row) => row.source === SMILES_SOURCE && row.miles === 18500 && row.amount_brl == null,
-      ),
+    const smilesWeb = result.snapshots.filter((row) => row.source === SMILES_DRY_RUN_SOURCE);
+    const voegol = result.snapshots.filter((row) => row.source === VOEGOL_DRY_RUN_SOURCE);
+    assert.ok(smilesWeb.length > 0, 'dry-run must emit smiles_web_dry_run award rows');
+    assert.ok(voegol.length > 0, 'dry-run must emit voegol_dry_run cash companion rows');
+    assert.equal(
+      result.snapshots.some((row) => row.source === SMILES_SOURCE || row.source === VOEGOL_SOURCE),
+      false,
+      'dry-run must not persist live source names',
     );
-    assert.ok(
-      result.snapshots.some((row) => row.source === SMILES_SOURCE && row.miles === 7200 && row.amount_brl == null),
-    );
-    assert.ok(
-      result.snapshots.some((row) => row.source === VOEGOL_SOURCE && row.amount_brl === 548.9 && row.miles == null),
-    );
+    assert.ok(smilesWeb.every((row) => row.source.endsWith('_dry_run') && row.amount_brl == null));
+    assert.ok(voegol.every((row) => row.source.endsWith('_dry_run') && row.miles == null && row.amount_brl != null));
+    assert.ok(smilesWeb.some((row) => row.miles === 18500 && row.amount_brl == null));
+    assert.ok(smilesWeb.some((row) => row.miles === 7200 && row.amount_brl == null));
+    assert.ok(voegol.some((row) => row.amount_brl === 548.9 && row.miles == null));
     const mix = result.snapshots.find((row) => row.miles === 7200);
     assert.equal((mix?.raw_payload as { copay_brl?: number }).copay_brl, 248.5);
     assert.equal((mix?.raw_payload as { smiles_money?: number }).smiles_money, 248.5);
     assert.equal(mix?.amount_brl, null);
-    assert.ok(result.snapshots.filter((row) => row.source === SMILES_SOURCE).every((row) => row.amount_brl == null));
+    assert.ok(result.snapshots.every((row) => !rawPayloadHasCredentials(row.raw_payload)));
   });
 
   it('maps 401/403 to auth_failed', async () => {

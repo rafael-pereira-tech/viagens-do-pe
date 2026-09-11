@@ -366,6 +366,58 @@ export const SEARCH_FLEXIBLE_DAYS_ONLY: AzulAvailabilityResponse = {
 };
 
 /**
+ * PET→VCP points with a connection before the 2026-10-26 nonstop launch.
+ * Dry-run must not invent nonstop (`stopsCount=0`) before that date.
+ */
+export const SEARCH_PET_VCP_POINTS_CONNECTING: AzulAvailabilityResponse = {
+  pricingMode: 'points',
+  trips: [
+    {
+      origin: 'PET',
+      destination: 'VCP',
+      date: '2026-09-14',
+      journeys: [
+        {
+          id: 'PET-CNF-VCP-20260914-AD4102',
+          journeyKey: 'PET|VCP|2026-09-14|AD4102|AD4108',
+          origin: 'PET',
+          destination: 'VCP',
+          departure: '2026-09-14T07:00:00',
+          arrival: '2026-09-14T12:30:00',
+          stopsCount: 1,
+          available: true,
+          segments: [
+            {
+              origin: 'PET',
+              destination: 'CNF',
+              flight: { carrierCode: 'AD', flightNumber: '4102' },
+            },
+            {
+              origin: 'CNF',
+              destination: 'VCP',
+              flight: { carrierCode: 'AD', flightNumber: '4108' },
+            },
+          ],
+          fares: [
+            {
+              key: 'PET-VCP-CONNECTING-POINTS',
+              productClass: { code: 'AZUL', category: 'ECONOMY', name: 'Azul' },
+              pointsOptions: [
+                {
+                  passengerType: 'ADT',
+                  points: 18500,
+                  taxesAndFees: { amount: 39.9, currency: 'BRL' },
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    },
+  ],
+};
+
+/**
  * PET→VCP with a connection before the 2026-10-26 nonstop launch.
  * Valid inventory — not scrape_failed.
  */

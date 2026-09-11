@@ -15,7 +15,8 @@ export interface Env {
    * `SMILES_ACCESS_TOKEN` + `SMILES_MEMBER_NUMBER`. Password login is best-effort
    * (`SMILES_USER` / `SMILES_PASS`) and usually blocked by Auth0/captcha.
    *
-   * `SMILES_DRY_RUN=1` parses bundled PET→CGH fixtures (no network).
+   * `SMILES_DRY_RUN=1` parses bundled PET→CGH fixtures (no network) and
+   * persists `smiles_web_dry_run` / `voegol_dry_run`.
    */
   SMILES_API_KEY?: string;
   SMILES_USER?: string;

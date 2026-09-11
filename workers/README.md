@@ -70,7 +70,7 @@ Each GOL (G3) flight emits public **SMILES** and **SMILES_MONEY** award rows (`s
 - Upstream: `POST https://b2c-api.voegol.com.br/api/sabre-default/flights?Flow=Issue&context=B2C`
 - Persist `itineraries[].offers[].total.amount` → `amount_brl`, currency BRL (`totalPrice.amount` fallback)
 - Same ingest job (companion), distinct `source=voegol`. Miles WAF vs cash WAF can independently yield `partial`.
-- `SMILES_DRY_RUN=1` parses bundled PET→CGH miles **and** VoeGol cash fixtures (no network)
+- `SMILES_DRY_RUN=1` parses bundled PET→CGH miles **and** VoeGol cash fixtures (no network) and persists `source` as `smiles_web_dry_run` / `voegol_dry_run` (live names stay unsuffixed). Never write credentials into `raw_payload`.
 
 Live credentials are env secrets only. Until Pereira sends them privately to PM, `SMILES_DRY_RUN=1` is the accepted path.
 
