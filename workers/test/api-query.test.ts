@@ -7,7 +7,11 @@ import {
   parseContentRangeTotal,
   parseSnapshotQuery,
   snapshotSelect,
+  STATS_CASH_WINDOW_SELECT,
+  STATS_WINDOW_SELECT,
   toPostgrestQuery,
+  toStatsAggregateQuery,
+  toStatsRpcArgs,
 } from '../src/api/query.ts';
 
 describe('locked source names', () => {
@@ -174,6 +178,80 @@ describe('toPostgrestQuery', () => {
     assert.equal(parsed.ok, true);
     if (!parsed.ok) return;
     assert.deepEqual(new URLSearchParams(toPostgrestQuery(parsed.value)).getAll('source'), ['eq.smiles_web']);
+  });
+
+  it('omits limit/offset/order when building an unpaged aggregate query', () => {
+    const parsed = parse('origin=PET&limit=20&offset=40');
+    assert.equal(parsed.ok, true);
+    if (!parsed.ok) return;
+    const params = new URLSearchParams(
+      toPostgrestQuery(parsed.value, { select: 'id.count()', order: null, unpaged: true }),
+    );
+    assert.equal(params.get('limit'), null);
+    assert.equal(params.get('offset'), null);
+    assert.equal(params.get('order'), null);
+    assert.equal(params.get('select'), 'id.count()');
+    assert.equal(params.get('origin'), 'eq.PET');
+  });
+});
+
+describe('toStatsAggregateQuery', () => {
+  it('builds the unfiltered CGH window query with a cash-companion source list', () => {
+    const parsed = parse('origin=PET&destination=CGH&group_by=window');
+    assert.equal(parsed.ok, true);
+    if (!parsed.ok) return;
+    const totals = new URLSearchParams(toStatsAggregateQuery(parsed.value, { select: STATS_WINDOW_SELECT }));
+    assert.equal(totals.get('origin'), 'eq.PET');
+    assert.equal(totals.get('destination'), 'eq.CGH');
+    assert.equal(totals.get('limit'), null);
+    assert.match(totals.get('select') ?? '', /id\.count\(\)/);
+
+    const cash = new URLSearchParams(
+      toStatsAggregateQuery(parsed.value, { select: STATS_CASH_WINDOW_SELECT, cashOnly: true }),
+    );
+    assert.match(cash.get('source') ?? '', /^in\.\(voegol,/);
+    assert.equal((cash.get('source') ?? '').includes('smiles_web'), false);
+    assert.equal((cash.get('source') ?? '').includes('voegol_dry_run'), true);
+    assert.equal(cash.get('limit'), null);
+  });
+
+  it('keeps an explicit voegol_dry_run source on both aggregate queries', () => {
+    const parsed = parse('origin=PET&destination=CGH&source=voegol_dry_run');
+    assert.equal(parsed.ok, true);
+    if (!parsed.ok) return;
+    const cash = new URLSearchParams(
+      toStatsAggregateQuery(parsed.value, { select: STATS_CASH_WINDOW_SELECT, cashOnly: true }),
+    );
+    assert.equal(cash.get('source'), 'eq.voegol_dry_run');
+  });
+});
+
+describe('toStatsRpcArgs', () => {
+  it('forwards filters, exclude_dry_run, and a civil collected_at day window', () => {
+    const parsed = parse(
+      'origin=PET&destination=CGH&exclude_dry_run=1&collected_at=2026-09-11&flight_date_from=2026-09-01&group_by=window',
+    );
+    assert.equal(parsed.ok, true);
+    if (!parsed.ok) return;
+    assert.deepEqual(toStatsRpcArgs(parsed.value), {
+      p_origin: 'PET',
+      p_destination: 'CGH',
+      p_flight_date_from: '2026-09-01',
+      p_collected_at_from: '2026-09-11',
+      p_collected_at_before: '2026-09-12',
+      p_exclude_dry_run: true,
+      p_group_by: 'window',
+    });
+  });
+
+  it('sends an explicit source and still flags exclude_dry_run (RPC ignores the flag then)', () => {
+    const parsed = parse('fonte=voegol_dry_run&exclude_dry_run=true&group_by=route_day');
+    assert.equal(parsed.ok, true);
+    if (!parsed.ok) return;
+    const args = toStatsRpcArgs(parsed.value);
+    assert.equal(args.p_source, 'voegol_dry_run');
+    assert.equal(args.p_exclude_dry_run, true);
+    assert.equal(args.p_group_by, 'route_day');
   });
 });
 

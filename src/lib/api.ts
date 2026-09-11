@@ -99,7 +99,7 @@ export function fetchSnapshots(query: SnapshotListQuery, init?: RequestInit): Pr
   return getJson<SnapshotListResponse>(snapshotsUrl(SNAPSHOTS_PATH, query), init)
 }
 
-/** KPI mins: `group_by=window` (default) or `route_day`. */
+/** KPI mins from SQL over the filtered set. `min_amount_brl` is cash-only. */
 export function fetchSnapshotStats(query: SnapshotListQuery, init?: RequestInit): Promise<SnapshotStatsResponse> {
   return getJson<SnapshotStatsResponse>(snapshotsUrl(SNAPSHOTS_STATS_PATH, query), init)
 }

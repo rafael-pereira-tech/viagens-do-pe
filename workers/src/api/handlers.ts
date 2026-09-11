@@ -1,20 +1,39 @@
 import type { Env } from '../env';
 import { createSupabaseRest, type SupabaseRest } from '../supabase';
-import { latestByRouteDay, minByRouteDay, minOverWindow } from './aggregate';
+import {
+  emptyWindowStats,
+  latestByRouteDay,
+  looksLikeCashAggregate,
+  looksLikeTotalsAggregate,
+  mergeRouteDayCash,
+  minByRouteDay,
+  minOverWindow,
+  parseStatsRow,
+  statsSampleTruncated,
+  sumSnapshotCounts,
+  toWindowStats,
+} from './aggregate';
 import { authorizeRead } from './auth';
 import { json, jsonError, publicErrorMessage } from './http';
 import { isDryRunSource, toPublicSnapshot } from './redact';
+import { isCashCompanionSource } from './sources';
 import {
   LATEST_DEFAULT_LIMIT,
   LATEST_MAX_LIMIT,
   LIST_DEFAULT_LIMIT,
   LIST_MAX_LIMIT,
+  STATS_CASH_ROUTE_DAY_SELECT,
+  STATS_CASH_WINDOW_SELECT,
   STATS_FETCH_CAP,
+  STATS_ROUTE_DAY_SELECT,
+  STATS_WINDOW_SELECT,
   parseContentRangeTotal,
   parseSnapshotQuery,
   toPostgrestQuery,
+  toStatsAggregateQuery,
+  toStatsRpcArgs,
 } from './query';
-import type { PriceSnapshot, SnapshotQuery } from './types';
+import type { PriceSnapshot, SnapshotQuery, SnapshotStatsResponse } from './types';
 
 export interface ReadApiDeps {
   rest?: SupabaseRest | null;
@@ -179,24 +198,118 @@ async function snapshotStats(url: URL, env: Env, deps: ReadApiDeps): Promise<Res
   if (rest instanceof Response) return rest;
 
   const query = { ...parsed.value, includeRaw: false };
-  const { rows } = await fetchSnapshots(rest, 'price_snapshots', query, {
+  // Prefer unpaged PostgREST COUNT/MIN on the existing table (no migration).
+  // That is the QA path: PET+CGH with no source, >1000 rows, legacy smiles_web copay.
+  const fromAggregate = await fetchPostgrestAggregateStats(rest, query);
+  if (fromAggregate) return json(fromAggregate);
+  const fromRpc = await fetchSqlStats(rest, query);
+  if (fromRpc) return json(fromRpc);
+  return json(await sampleStats(rest, query));
+}
+
+async function fetchPostgrestAggregateStats(
+  rest: SupabaseRest,
+  query: SnapshotQuery,
+): Promise<SnapshotStatsResponse | null> {
+  const routeDay = query.groupBy === 'route_day';
+  const totalsQs = toStatsAggregateQuery(query, {
+    select: routeDay ? STATS_ROUTE_DAY_SELECT : STATS_WINDOW_SELECT,
+  });
+  const totalsResponse = await rest(`price_snapshots?${totalsQs}`, { method: 'GET' }, [400, 404]);
+  if (!totalsResponse.ok) return null;
+  const totalsBody = await readRows(totalsResponse);
+  if (totalsBody.length > 0 && !looksLikeTotalsAggregate(totalsBody[0])) return null;
+
+  const wantCash = !query.source || isCashCompanionSource(query.source);
+  let cashBody: Record<string, unknown>[] = [];
+  if (wantCash) {
+    const cashQs = toStatsAggregateQuery(query, {
+      select: routeDay ? STATS_CASH_ROUTE_DAY_SELECT : STATS_CASH_WINDOW_SELECT,
+      cashOnly: true,
+    });
+    const cashResponse = await rest(`price_snapshots?${cashQs}`, { method: 'GET' }, [400, 404]);
+    if (!cashResponse.ok) return null;
+    cashBody = await readRows(cashResponse);
+    if (cashBody.length > 0 && !looksLikeCashAggregate(cashBody[0])) return null;
+  }
+
+  if (routeDay) {
+    const data = mergeRouteDayCash(totalsBody.map((row) => parseStatsRow(row)), cashBody.map((row) => parseStatsRow(row)));
+    return {
+      data,
+      meta: { group_by: 'route_day', snapshot_count: sumSnapshotCounts(data), truncated: false },
+    };
+  }
+
+  const totals = totalsBody[0] ? toWindowStats(parseStatsRow(totalsBody[0])) : emptyWindowStats();
+  const data = {
+    ...totals,
+    min_amount_brl: wantCash && cashBody[0] ? parseStatsRow(cashBody[0]).min_amount_brl : null,
+  };
+  return {
+    data,
+    meta: { group_by: 'window', snapshot_count: data.snapshot_count, truncated: false },
+  };
+}
+
+async function fetchSqlStats(rest: SupabaseRest, query: SnapshotQuery): Promise<SnapshotStatsResponse | null> {
+  const response = await rest(
+    'rpc/price_snapshot_stats',
+    {
+      method: 'POST',
+      body: JSON.stringify(toStatsRpcArgs(query)),
+    },
+    [400, 404],
+  );
+  if (!response.ok) return null;
+
+  const body = (await response.json()) as unknown;
+  const rows = Array.isArray(body) ? body.map((row) => parseStatsRow(row as Record<string, unknown>)) : [];
+  const snapshot_count = sumSnapshotCounts(rows);
+
+  if (query.groupBy === 'route_day') {
+    return {
+      data: rows,
+      meta: { group_by: 'route_day', snapshot_count, truncated: false },
+    };
+  }
+
+  const data = rows[0] ? toWindowStats(rows[0]) : emptyWindowStats();
+  return {
+    data,
+    meta: { group_by: 'window', snapshot_count: data.snapshot_count, truncated: false },
+  };
+}
+
+async function sampleStats(rest: SupabaseRest, query: SnapshotQuery): Promise<SnapshotStatsResponse> {
+  const { rows, total } = await fetchSnapshots(rest, 'price_snapshots', query, {
     select: 'origin,destination,flight_date,miles,amount_brl,collected_at,source',
     order: 'collected_at.desc',
     limit: STATS_FETCH_CAP,
     offset: 0,
   });
 
-  const truncated = rows.length >= STATS_FETCH_CAP;
+  const truncated = statsSampleTruncated(rows.length, total, STATS_FETCH_CAP);
   if (query.groupBy === 'route_day') {
     const data = minByRouteDay(rows);
-    return json({
+    return {
       data,
-      meta: { group_by: 'route_day' as const, snapshot_count: rows.length, truncated },
-    });
+      meta: {
+        group_by: 'route_day',
+        snapshot_count: rows.length,
+        truncated,
+        fallback: 'in_memory_sample',
+      },
+    };
   }
 
-  return json({
+  return {
     data: minOverWindow(rows),
-    meta: { group_by: 'window' as const, snapshot_count: rows.length, truncated },
-  });
+    meta: {
+      group_by: 'window',
+      snapshot_count: rows.length,
+      truncated,
+      fallback: 'in_memory_sample',
+    },
+  };
 }

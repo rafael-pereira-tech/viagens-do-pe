@@ -24,20 +24,25 @@ function row(source = 'smiles_web') {
   };
 }
 
-function restMock(impl: (path: string) => { status?: number; rows: unknown[]; total?: number }): {
+function restMock(
+  impl: (path: string, init?: RequestInit) => { status?: number; rows: unknown[]; total?: number },
+): {
   rest: SupabaseRest;
   paths: string[];
+  bodies: unknown[];
 } {
   const paths: string[] = [];
-  const rest: SupabaseRest = async (path) => {
+  const bodies: unknown[] = [];
+  const rest: SupabaseRest = async (path, init) => {
     paths.push(path);
-    const result = impl(path);
+    if (init?.body) bodies.push(JSON.parse(String(init.body)));
+    const result = impl(path, init);
     return new Response(JSON.stringify(result.rows), {
       status: result.status ?? 200,
-      headers: { 'Content-Range': `0-0/${result.total ?? result.rows.length}` },
+      headers: { 'Content-Range': `0-${Math.max(result.rows.length - 1, 0)}/${result.total ?? result.rows.length}` },
     });
   };
-  return { rest, paths };
+  return { rest, paths, bodies };
 }
 
 const READ_KEY = 'dev-only-read-api-key';
@@ -129,22 +134,215 @@ describe('handleReadApi', () => {
     assert.equal(fbBody.data[0]?.id, 'new');
   });
 
-  it('returns window mins for KPIs', async () => {
-    const { rest } = restMock(() => ({
-      rows: [
-        { ...row(), miles: 12000, amount_brl: null },
-        { ...row(), miles: null, amount_brl: '529.90', source: 'voeazul' },
-      ],
-    }));
+  it('QA: PET+CGH window stats are a full SQL count, not a 1000-row sample with smiles_web cash', async () => {
+    const { rest, paths } = restMock((path) => {
+      if (path.startsWith('rpc/')) return { status: 404, rows: [] };
+      const qs = new URLSearchParams(path.split('?')[1] ?? '');
+      const select = qs.get('select') ?? '';
+      assert.equal(qs.get('limit'), null, 'stats must not send a PostgREST page limit');
+      assert.equal(qs.get('origin'), 'eq.PET');
+      assert.equal(qs.get('destination'), 'eq.CGH');
+      if (select.includes('id.count()')) {
+        return {
+          rows: [
+            {
+              min_miles: 7200,
+              snapshot_count: 1244,
+              latest_collected_at: '2026-09-11T18:00:00.000Z',
+            },
+          ],
+        };
+      }
+      if (select.includes('amount_brl.min()')) {
+        assert.match(qs.get('source') ?? '', /in\.\(.*voegol/);
+        assert.equal((qs.get('source') ?? '').includes('smiles_web'), false);
+        return { rows: [{ min_amount_brl: '548.90' }] };
+      }
+      return { status: 500, rows: [] };
+    });
+    const response = await get('/api/v1/snapshots/stats?origin=PET&destination=CGH&group_by=window', rest);
+    const body = (await response.json()) as {
+      data: { min_miles: number; min_amount_brl: number; snapshot_count: number };
+      meta: { snapshot_count: number; truncated: boolean; fallback?: string };
+    };
+    assert.equal(response.status, 200);
+    assert.equal(body.meta.truncated, false);
+    assert.equal(body.meta.fallback, undefined);
+    assert.equal(body.meta.snapshot_count, 1244);
+    assert.equal(body.data.snapshot_count, 1244);
+    assert.notEqual(body.data.snapshot_count, 1000);
+    assert.equal(body.data.min_miles, 7200);
+    assert.equal(body.data.min_amount_brl, 548.9);
+    assert.notEqual(body.data.min_amount_brl, 248.5);
+    assert.equal(paths.some((p) => p.startsWith('price_snapshots?')), true);
+  });
+
+  it('QA: source=voegol_dry_run stays under the cap and is cash-only', async () => {
+    const { rest, paths } = restMock((path) => {
+      const qs = new URLSearchParams(path.split('?')[1] ?? '');
+      const select = qs.get('select') ?? '';
+      assert.equal(qs.get('source'), 'eq.voegol_dry_run');
+      if (select.includes('id.count()')) {
+        return {
+          rows: [{ min_miles: null, snapshot_count: 244, latest_collected_at: '2026-09-11T18:00:00.000Z' }],
+        };
+      }
+      if (select.includes('amount_brl.min()')) {
+        return { rows: [{ min_amount_brl: '455.75' }] };
+      }
+      return { status: 500, rows: [] };
+    });
+    const response = await get(
+      '/api/v1/snapshots/stats?origin=PET&destination=CGH&source=voegol_dry_run&group_by=window',
+      rest,
+    );
+    const body = (await response.json()) as {
+      data: { min_miles: number | null; min_amount_brl: number; snapshot_count: number };
+      meta: { snapshot_count: number; truncated: boolean };
+    };
+    assert.equal(response.status, 200);
+    assert.equal(body.meta.truncated, false);
+    assert.equal(body.meta.snapshot_count, 244);
+    assert.equal(body.data.min_miles, null);
+    assert.equal(body.data.min_amount_brl, 455.75);
+    assert.equal(paths.length, 2);
+  });
+
+  it('falls back to the stats RPC when PostgREST aggregates are disabled', async () => {
+    const { rest, paths, bodies } = restMock((path) => {
+      if (path.startsWith('price_snapshots?')) return { status: 400, rows: [] };
+      if (path.startsWith('rpc/price_snapshot_stats')) {
+        return {
+          rows: [
+            {
+              min_miles: 7200,
+              min_amount_brl: '529.90',
+              snapshot_count: 5480,
+              latest_collected_at: '2026-09-11T18:00:00.000Z',
+            },
+          ],
+        };
+      }
+      return { rows: [] };
+    });
+    const response = await get(
+      '/api/v1/snapshots/stats?origin=PET&destination=CGH&exclude_dry_run=1&group_by=window',
+      rest,
+    );
+    const body = (await response.json()) as {
+      data: { min_amount_brl: number; snapshot_count: number };
+      meta: { truncated: boolean };
+    };
+    assert.equal(response.status, 200);
+    assert.equal(paths.some((p) => p === 'rpc/price_snapshot_stats'), true);
+    assert.equal((bodies[0] as { p_exclude_dry_run: boolean }).p_exclude_dry_run, true);
+    assert.equal(body.meta.truncated, false);
+    assert.equal(body.data.snapshot_count, 5480);
+    assert.equal(body.data.min_amount_brl, 529.9);
+  });
+
+  it('does not treat legacy smiles_web amount_brl as cash on the sample fallback', async () => {
+    const { rest } = restMock((path) => {
+      if (path.startsWith('rpc/')) return { status: 404, rows: [] };
+      if (path.startsWith('price_snapshots?') && (path.includes('count()') || path.includes('amount_brl.min()'))) {
+        return { status: 400, rows: [] };
+      }
+      return {
+        rows: [
+          { ...row(), miles: 18500, amount_brl: 248.5, source: 'smiles_web' },
+          { ...row(), miles: null, amount_brl: '529.90', source: 'voeazul' },
+        ],
+        total: 2,
+      };
+    });
     const response = await get('/api/v1/snapshots/stats?origin=PET&destination=CGH&group_by=window', rest);
     const body = (await response.json()) as {
       data: { min_miles: number; min_amount_brl: number };
-      meta: { group_by: string };
+      meta: { truncated: boolean; fallback?: string; snapshot_count: number };
     };
     assert.equal(response.status, 200);
-    assert.equal(body.meta.group_by, 'window');
-    assert.equal(body.data.min_miles, 12000);
+    assert.equal(body.meta.fallback, 'in_memory_sample');
+    assert.equal(body.meta.truncated, false);
+    assert.equal(body.meta.snapshot_count, 2);
+    assert.equal(body.data.min_miles, 18500);
     assert.equal(body.data.min_amount_brl, 529.9);
+  });
+
+  it('marks a 1000-row PostgREST page truncated when Content-Range total is larger', async () => {
+    const page = Array.from({ length: 1000 }, (_, i) => ({
+      ...row(),
+      id: `row-${i}`,
+      amount_brl: i === 0 ? 248.5 : null,
+    }));
+    const { rest } = restMock((path) => {
+      if (path.startsWith('rpc/')) return { status: 404, rows: [] };
+      if (path.startsWith('price_snapshots?') && (path.includes('count()') || path.includes('amount_brl.min()'))) {
+        return { status: 400, rows: [] };
+      }
+      return { rows: page, total: 5480 };
+    });
+    const response = await get('/api/v1/snapshots/stats?origin=PET&group_by=window', rest);
+    const body = (await response.json()) as {
+      data: { min_amount_brl: number | null; snapshot_count: number };
+      meta: { truncated: boolean; snapshot_count: number; fallback?: string };
+    };
+    assert.equal(body.meta.fallback, 'in_memory_sample');
+    assert.equal(body.meta.truncated, true);
+    assert.equal(body.meta.snapshot_count, 1000);
+    assert.equal(body.data.min_amount_brl, null);
+  });
+
+  it('groups SQL stats by route/day', async () => {
+    const { rest } = restMock((path) => {
+      const qs = new URLSearchParams(path.split('?')[1] ?? '');
+      const select = qs.get('select') ?? '';
+      if (select.includes('id.count()')) {
+        return {
+          rows: [
+            {
+              origin: 'PET',
+              destination: 'CGH',
+              flight_date: '2026-09-15',
+              min_miles: 12000,
+              snapshot_count: 4,
+              latest_collected_at: '2026-09-11T18:00:00.000Z',
+            },
+            {
+              origin: 'PET',
+              destination: 'VCP',
+              flight_date: '2026-09-16',
+              min_miles: 18500,
+              snapshot_count: 2,
+              latest_collected_at: '2026-09-11T18:00:00.000Z',
+            },
+          ],
+        };
+      }
+      if (select.includes('amount_brl.min()')) {
+        return {
+          rows: [
+            {
+              origin: 'PET',
+              destination: 'CGH',
+              flight_date: '2026-09-15',
+              min_amount_brl: 890,
+            },
+          ],
+        };
+      }
+      return { rows: [] };
+    });
+    const response = await get('/api/v1/snapshots/stats?origin=PET&group_by=route_day', rest);
+    const body = (await response.json()) as {
+      data: Array<{ destination: string; min_amount_brl: number | null }>;
+      meta: { snapshot_count: number; truncated: boolean };
+    };
+    assert.equal(response.status, 200);
+    assert.equal(body.meta.truncated, false);
+    assert.equal(body.meta.snapshot_count, 6);
+    assert.equal(body.data[0]?.destination, 'CGH');
+    assert.equal(body.data[0]?.min_amount_brl, 890);
+    assert.equal(body.data[1]?.min_amount_brl, null);
   });
 
   it('requires Authorization: Bearer <READ_API_KEY> and rejects the ingest secret', async () => {

@@ -6,6 +6,8 @@
  * or cash-only rows are valid). `currency` is almost always `BRL`.
  * `source` is the collector id. LATAM cash is `latam_web` (never `latamairlines`).
  * Dry-run ingest may append `*_dry_run` — filter or accept.
+ * Stats: `min_miles` is award sources only; `min_amount_brl` is cash companions
+ * only. `exclude_dry_run` drops fixture sources, not a cash-vs-miles switch.
  */
 
 /** Live `source` / `fonte` ids. Pairs: smiles_web/voegol, tudoazul/voeazul, latam_pass/latam_web. */
@@ -62,6 +64,11 @@ export type SnapshotListQuery = {
   collected_at_from?: string
   collected_at_to?: string
   include_raw?: boolean
+  /**
+   * Drop collector fixture rows (`*_dry_run` sources from SMILES_DRY_RUN /
+   * TUDOAZUL_DRY_RUN / LATAM_DRY_RUN). Live sources stay unsuffixed.
+   * Ignored as an extra filter when `source` / `fonte` is already set.
+   */
   exclude_dry_run?: boolean
   limit?: number
   offset?: number
@@ -100,7 +107,9 @@ export type SnapshotStatsResponse = {
   meta: {
     group_by: SnapshotGroupBy
     snapshot_count: number
+    /** Always false when stats come from SQL. True only on a short in-memory sample. */
     truncated: boolean
+    fallback?: 'in_memory_sample'
   }
 }
 
