@@ -28,13 +28,23 @@ export interface RouteSpec {
   /**
    * Preferred search weekdays for this route. Empty means no preference
    * (every date in the window is equal). A function lets preference change
-   * across the window (LATAM after 31 Oct 2026).
+   * across the window (LATAM from 2026-11-01).
    */
   preferredDows: readonly Dow[] | ((flightDate: string) => readonly Dow[]);
 }
 
-const LATAM_GRU_DOWS_THROUGH_OCT: readonly Dow[] = [1, 3, 5]; // Mon/Wed/Fri
-const LATAM_GRU_DOWS_FROM_NOV: readonly Dow[] = [3, 5, 6]; // Wed/Fri/Sat
+/**
+ * Published PET→GRU grid (research briefing 2026-09-11). Scheduler prefers
+ * these dates but still queues every other date in the window.
+ *
+ * Through Oct 2026: Mon/Thu/Fri (not the early brief Mon/Wed/Fri).
+ * From ~2026-11-01: Wed/Fri/Sat. 31 Oct may still be the through-Oct grid.
+ */
+export const LATAM_GRU_PUBLISHED_CUTOVER = '2026-11-01';
+export const LATAM_GRU_DOWS_PUBLISHED_THROUGH_OCT: readonly Dow[] = [1, 4, 5]; // Mon/Thu/Fri
+export const LATAM_GRU_DOWS_FROM_NOV: readonly Dow[] = [3, 5, 6]; // Wed/Fri/Sat
+/** Early brief through Oct — tagged on raw_payload only, never used to filter jobs. */
+export const LATAM_GRU_DOWS_BRIEF_THROUGH_OCT: readonly Dow[] = [1, 3, 5]; // Mon/Wed/Fri
 
 export const ROUTE_MATRIX: readonly RouteSpec[] = [
   {
@@ -64,6 +74,8 @@ export const ROUTE_MATRIX: readonly RouteSpec[] = [
     airline: 'LATAM',
     program: 'latam_pass',
     preferredDows: (flightDate) =>
-      flightDate <= '2026-10-31' ? LATAM_GRU_DOWS_THROUGH_OCT : LATAM_GRU_DOWS_FROM_NOV,
+      flightDate < LATAM_GRU_PUBLISHED_CUTOVER
+        ? LATAM_GRU_DOWS_PUBLISHED_THROUGH_OCT
+        : LATAM_GRU_DOWS_FROM_NOV,
   },
 ];

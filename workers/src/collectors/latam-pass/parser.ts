@@ -1,5 +1,6 @@
 import type { CollectParams, Snapshot } from '../types';
-import { LATAM_CARRIER_CODES, LATAMAIRLINES_SOURCE, LATAM_PASS_SOURCE, LOYALTY_CURRENCIES } from './constants';
+import { latamGruDowPreference } from '../../dates';
+import { LATAM_CARRIER_CODES, LATAM_WEB_SOURCE, LATAM_PASS_SOURCE, LOYALTY_CURRENCIES } from './constants';
 import type {
   GeckoItem,
   LatamBrand,
@@ -191,6 +192,13 @@ function snapshotBase(
   };
 }
 
+function withDowTag(params: CollectParams, payload: Record<string, unknown>): Record<string, unknown> {
+  return {
+    ...payload,
+    dow_preference: latamGruDowPreference(params.flightDate),
+  };
+}
+
 function snapshotFromMilesBrand(params: CollectParams, offer: LatamOffer, brand: LatamBrand): Snapshot | null {
   const currency = moneyCurrency(brand.price ?? undefined);
   if (currency && !isLoyaltyCurrency(currency)) return null;
@@ -204,7 +212,7 @@ function snapshotFromMilesBrand(params: CollectParams, offer: LatamOffer, brand:
     amount_brl: null,
     taxes_brl: taxes,
     source: LATAM_PASS_SOURCE,
-    raw_payload: {
+    raw_payload: withDowTag(params, {
       redemption: true,
       flightCode: offer.summary?.flightCode ?? null,
       offerId: brand.offerId ?? null,
@@ -219,7 +227,7 @@ function snapshotFromMilesBrand(params: CollectParams, offer: LatamOffer, brand:
       price_without_tax_brl: moneyAmount(brand.priceWithOutTax ?? undefined),
       copay_brl: brandCopay(brand),
       taxes_brl: taxes,
-    },
+    }),
   };
 }
 
@@ -235,8 +243,8 @@ function snapshotFromCashBrand(params: CollectParams, offer: LatamOffer, brand: 
     miles: null,
     amount_brl: amount,
     taxes_brl: taxes,
-    source: LATAMAIRLINES_SOURCE,
-    raw_payload: {
+    source: LATAM_WEB_SOURCE,
+    raw_payload: withDowTag(params, {
       redemption: false,
       flightCode: offer.summary?.flightCode ?? null,
       offerId: brand.offerId ?? null,
@@ -248,7 +256,7 @@ function snapshotFromCashBrand(params: CollectParams, offer: LatamOffer, brand: 
       arrival: offer.summary?.destination?.arrival ?? null,
       price: brand.price ?? null,
       priceWithOutTax: brand.priceWithOutTax ?? null,
-    },
+    }),
   };
 }
 
@@ -276,7 +284,7 @@ function snapshotFromGeckoItem(params: CollectParams, item: GeckoItem, pricingMo
       amount_brl: null,
       taxes_brl: moneyAmount(item.taxes ?? undefined),
       source: LATAM_PASS_SOURCE,
-      raw_payload: {
+      raw_payload: withDowTag(params, {
         redemption: true,
         flightCode: item.flight?.flightCode ?? null,
         brandId: item.fare?.brandId ?? null,
@@ -286,7 +294,7 @@ function snapshotFromGeckoItem(params: CollectParams, item: GeckoItem, pricingMo
         departure: item.route?.departure ?? null,
         arrival: item.route?.arrival ?? null,
         copay_brl: moneyAmount(item.copay ?? undefined),
-      },
+      }),
     };
   }
 
@@ -298,8 +306,8 @@ function snapshotFromGeckoItem(params: CollectParams, item: GeckoItem, pricingMo
     miles: null,
     amount_brl: amount,
     taxes_brl: moneyAmount(item.taxes ?? undefined),
-    source: LATAMAIRLINES_SOURCE,
-    raw_payload: {
+    source: LATAM_WEB_SOURCE,
+    raw_payload: withDowTag(params, {
       redemption: false,
       flightCode: item.flight?.flightCode ?? null,
       brandId: item.fare?.brandId ?? null,
@@ -309,7 +317,7 @@ function snapshotFromGeckoItem(params: CollectParams, item: GeckoItem, pricingMo
       departure: item.route?.departure ?? null,
       arrival: item.route?.arrival ?? null,
       price: item.price ?? null,
-    },
+    }),
   };
 }
 
