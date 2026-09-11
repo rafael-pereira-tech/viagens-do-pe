@@ -13,7 +13,7 @@ crons = ["0 0 * * *", "0 6 * * *", "0 12 * * *", "0 18 * * *"]
 #   SUPABASE_URL
 #   SUPABASE_SERVICE_ROLE_KEY
 #   INGEST_TRIGGER_SECRET   (optional; required to authorize POST /run)
-#   API_READ_SECRET         (optional; required to authorize GET /api/v1/snapshots*)
+#   READ_API_KEY            (required for GET /api/v1/snapshots*; not INGEST_TRIGGER_SECRET)
 #   SMILES_API_KEY          (BE-3 guest search; SPA x-api-key from DevTools)
 #   SMILES_COOKIE / SMILES_ACCESS_TOKEN / SMILES_USER / SMILES_PASS  (optional member)
 #   TUDOAZUL_LOGIN / TUDOAZUL_PASSWORD  (BE-4 frozen secrets; placeholders only)

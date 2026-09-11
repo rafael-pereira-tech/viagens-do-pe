@@ -43,8 +43,8 @@ npm run preview
 
 | Variável         | Obrigatória         | Uso                                                                                         |
 | ---------------- | ------------------- | ------------------------------------------------------------------------------------------- |
-| `VITE_API_URL`   | Não (FE-1 / FE-1.1) | Base URL do Workers read API. Vazia = stubs locais. Ver [`docs/api-price-snapshots.md`](docs/api-price-snapshots.md). |
-| `VITE_API_TOKEN` | Não                 | Só se o Worker tiver `API_READ_SECRET`. **Nunca** coloque `SUPABASE_SERVICE_ROLE_KEY` aqui. |
+| `VITE_API_URL`       | Não (FE-1 / FE-1.1) | Base URL do Workers read API. Vazia = stubs locais. Ver [`docs/api-price-snapshots.md`](docs/api-price-snapshots.md). |
+| `VITE_READ_API_KEY`  | Sim, se `VITE_API_URL` estiver setado | Bearer `Authorization` para o Worker (`READ_API_KEY`). **Nunca** `SUPABASE_*`. Entrar/Sair não autoriza. |
 
 Copie `.env.example` para `.env` ou `.env.local`. O Vite só expõe variáveis com prefixo `VITE_`. O client tipado está em `src/lib/api.ts` (BE-6); o Dashboard ainda usa stubs até um ticket FE ligar o fetch. **Nunca** coloque `SUPABASE_SERVICE_ROLE_KEY` no frontend.
 
