@@ -1,0 +1,12 @@
+dist
+dist-ssr
+node_modules
+coverage
+package-lock.json
+workers/package-lock.json
+workers
+supabase
+.wrangler
+*.svg
+public
+src/components/ui

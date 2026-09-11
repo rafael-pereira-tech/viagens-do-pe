@@ -45,9 +45,7 @@ export function Shell({ children }: { children: ReactNode }) {
         <header className="flex flex-wrap items-center gap-3 border-b border-border pb-4">
           <div className="flex min-w-0 items-center gap-2.5">
             <LogoMark />
-            <span className="truncate text-base font-semibold tracking-tight text-foreground">
-              Viagens do Pé
-            </span>
+            <span className="truncate text-base font-semibold tracking-tight text-foreground">Viagens do Pé</span>
           </div>
           <Badge variant="success" className="h-auto px-3 py-1 text-xs font-medium">
             Origem fixa · PET · ida
@@ -59,9 +57,7 @@ export function Shell({ children }: { children: ReactNode }) {
             <Avatar aria-label={signedIn ? 'Conta conectada' : 'Sem sessão'} size="default">
               <AvatarFallback
                 className={
-                  signedIn
-                    ? 'bg-primary text-xs font-semibold text-primary-foreground'
-                    : 'text-xs font-semibold'
+                  signedIn ? 'bg-primary text-xs font-semibold text-primary-foreground' : 'text-xs font-semibold'
                 }
               >
                 {signedIn ? 'RP' : ''}

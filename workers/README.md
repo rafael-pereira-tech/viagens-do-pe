@@ -229,6 +229,8 @@ Without real Supabase secrets the worker still runs collectors and returns a sum
 
 ## Local
 
+Toolchain matches the repo root: Node **24** (`../.nvmrc`, `engines.node`). Lint/format stay on the Vite app; this package keeps `typecheck` + `test`.
+
 ```bash
 cd workers
 npm install

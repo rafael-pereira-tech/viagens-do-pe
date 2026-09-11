@@ -11,6 +11,9 @@
     "test": "tsx --test test/*.test.ts",
     "cf-typegen": "wrangler types"
   },
+  "engines": {
+    "node": ">=24"
+  },
   "devDependencies": {
     "@cloudflare/workers-types": "^5.20260911.1",
     "@types/node": "^22.20.2",

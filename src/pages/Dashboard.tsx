@@ -47,10 +47,7 @@ export function Dashboard() {
   }, [applied, searchParams, setSearchParams])
 
   const isLoading = applied.ui === 'loading'
-  const tabRows = useMemo(
-    () => applyQuery(PLACEHOLDER_OFFERS, applied, { ignoreDay: true }),
-    [applied],
-  )
+  const tabRows = useMemo(() => applyQuery(PLACEHOLDER_OFFERS, applied, { ignoreDay: true }), [applied])
   const rows = useMemo(() => applyQuery(PLACEHOLDER_OFFERS, applied), [applied])
   const kpis = kpisFromOffers(tabRows)
   const chart = chartFromOffers(tabRows)

@@ -12,11 +12,7 @@ export function DestinationTabs({ active, onChange }: Props) {
       <p className="text-sm text-muted-foreground">
         Destino · {ORIGIN} → {AIRPORT_LABEL[active]}
       </p>
-      <Tabs
-        value={active}
-        onValueChange={(value) => onChange(value as Destination)}
-        className="gap-0"
-      >
+      <Tabs value={active} onValueChange={(value) => onChange(value as Destination)} className="gap-0">
         <TabsList aria-label="Aeroporto de destino" className="grid h-10 w-full grid-cols-3 sm:w-auto">
           {DESTINATIONS.map((code) => (
             <TabsTrigger key={code} value={code} className="min-w-16 px-3 font-semibold">

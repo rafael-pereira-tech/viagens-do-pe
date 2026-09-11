@@ -181,9 +181,7 @@ export function kpisFromOffers(rows: OfferRow[]): KpiModel {
     return { menorMilhas: null, menorBrl: null, melhorMilheiro: null }
   }
 
-  const fewestMiles = rows.reduce((acc, row) =>
-    (row.miles ?? Infinity) < (acc.miles ?? Infinity) ? row : acc,
-  )
+  const fewestMiles = rows.reduce((acc, row) => ((row.miles ?? Infinity) < (acc.miles ?? Infinity) ? row : acc))
   const lowestCash = rows.reduce((acc, row) =>
     (row.amount_brl ?? Infinity) < (acc.amount_brl ?? Infinity) ? row : acc,
   )
