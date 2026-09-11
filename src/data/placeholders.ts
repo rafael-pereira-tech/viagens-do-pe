@@ -1,6 +1,6 @@
 import { milheiroFromQuote } from '../lib/api.ts'
 import { airlineForDestination, airlineIdFromName, type AirlineId } from '../lib/airlines.ts'
-import { programLabel } from '../lib/filters.ts'
+import { isCashCompanionSource, programLabel } from '../lib/filters.ts'
 import { formatShortDate } from '../lib/format.ts'
 import { isoFromToday, ORIGIN, todayIso, type Destination } from '../lib/query.ts'
 import type { SnapshotRouteDayStats, SnapshotWindowStats } from '../types/api.ts'
@@ -49,16 +49,6 @@ export const PLACEHOLDER_OFFERS: OfferRow[] = [
     amount_brl: 940,
     taxes_brl: 81,
     source: 'latam_web_dry_run',
-  }),
-  // Live leftover (pre-#11): excluded by default dry-run-only. Visible in ?dry=1 / ?live=1.
-  row('GRU', 10, {
-    airline: 'GOL',
-    program: 'smiles',
-    departure_time: '11:00',
-    miles: 9_000,
-    amount_brl: 248.5,
-    taxes_brl: 50,
-    source: 'smiles_web',
   }),
   row('GRU', 13, {
     airline: 'AZUL',
@@ -175,7 +165,9 @@ export function kpisFromOffers(rows: OfferRow[], stats?: SnapshotWindowStats | n
     (row) => row.miles,
   )
   const lowestCash = minBy(
-    rows.filter((row): row is OfferRow & { amount_brl: number } => row.amount_brl != null),
+    rows.filter(
+      (row): row is OfferRow & { amount_brl: number } => row.amount_brl != null && isCashCompanionSource(row.source),
+    ),
     (row) => row.amount_brl,
   )
   const bestMilheiro = minBy(
@@ -183,11 +175,15 @@ export function kpisFromOffers(rows: OfferRow[], stats?: SnapshotWindowStats | n
     (row) => row.milheiro,
   )
 
+  // Window stats (#15): min_amount_brl is cash companions only — never award copay.
   const minMiles = stats ? stats.min_miles : (fewestMiles?.miles ?? null)
   const minCash = stats ? stats.min_amount_brl : (lowestCash?.amount_brl ?? null)
 
   const milesRow = minMiles != null ? (rows.find((row) => row.miles === minMiles) ?? fewestMiles) : null
-  const cashRow = minCash != null ? (rows.find((row) => row.amount_brl === minCash) ?? lowestCash) : null
+  const cashRow =
+    minCash != null
+      ? (rows.find((row) => row.amount_brl === minCash && isCashCompanionSource(row.source)) ?? lowestCash)
+      : null
 
   return {
     menorMilhas:
@@ -242,7 +238,9 @@ export function chartFromOffers(rows: OfferRow[], fallbackDestination = ''): Cha
         (r) => r.miles,
       )
       const cashWinner = minBy(
-        group.filter((r): r is OfferRow & { amount_brl: number } => r.amount_brl != null),
+        group.filter(
+          (r): r is OfferRow & { amount_brl: number } => r.amount_brl != null && isCashCompanionSource(r.source),
+        ),
         (r) => r.amount_brl,
       )
       return {

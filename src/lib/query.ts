@@ -13,7 +13,10 @@ export type ChartMode = 'both' | 'milhas' | 'brl'
 
 export type UiState = '' | 'loading' | 'error' | 'empty'
 
-/** Production reads are live by default; QA can opt into `dry` or `dry_run`. */
+/**
+ * Default is include dry-run (no `exclude_dry_run`): the DB is still fixture-only.
+ * `live` = exclude_dry_run — empty until live batches exist. `only` = `*_dry_run`.
+ */
 export type DryMode = 'live' | 'include' | 'only'
 
 export type DashboardQuery = {
@@ -35,7 +38,7 @@ export const defaultQuery: DashboardQuery = {
   dia: '',
   bars: 'both',
   ui: '',
-  dryMode: 'live',
+  dryMode: 'include',
 }
 
 function isUiState(value: string): value is UiState {
@@ -53,11 +56,12 @@ function isChartMode(value: string): value is ChartMode {
 export function parseDryMode(params: URLSearchParams): DryMode {
   const live = (params.get('live') ?? params.get('prod') ?? params.get('exclude_dry_run') ?? '').toLowerCase()
   if (live === '1' || live === 'true') return 'live'
-  const include = (params.get('dry') ?? '').toLowerCase()
-  if (include === '1' || include === 'true') return 'include'
   const only = (params.get('dry_run') ?? '').toLowerCase()
+  if (only === '1' || only === 'true') return 'only'
   if (only === '0' || only === 'false') return 'live'
-  return 'only'
+  const include = (params.get('dry') ?? '').toLowerCase()
+  if (include === '0' || include === 'false') return 'live'
+  return 'include'
 }
 
 export function parseQuery(params: URLSearchParams): DashboardQuery {
@@ -86,7 +90,6 @@ export function queryToSearchParams(query: DashboardQuery): URLSearchParams {
   if (query.bars !== 'both') params.set('bars', query.bars)
   if (query.ui) params.set('ui', query.ui)
   if (query.dryMode === 'live') params.set('live', '1')
-  if (query.dryMode === 'include') params.set('dry', '1')
   if (query.dryMode === 'only') params.set('dry_run', '1')
   return params
 }

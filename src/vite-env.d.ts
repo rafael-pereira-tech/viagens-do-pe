@@ -2,10 +2,10 @@
 
 interface ImportMetaEnv {
   readonly VITE_API_URL?: string
-  /** Must match Worker `READ_API_KEY`. Never a Supabase key. */
-  readonly VITE_READ_API_KEY?: string
-  /** @deprecated Use `VITE_READ_API_KEY`. */
+  /** Pages alias for Worker `API_READ_SECRET` / `READ_API_KEY`. Sent as Bearer. */
   readonly VITE_API_TOKEN?: string
+  /** Alias of `VITE_API_TOKEN`. Never a Supabase key. */
+  readonly VITE_READ_API_KEY?: string
 }
 
 interface ImportMeta {

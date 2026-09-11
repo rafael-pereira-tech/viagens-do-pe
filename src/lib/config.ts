@@ -9,11 +9,11 @@ export const CONFIG_ERROR =
     : null
 
 /**
- * Optional Bearer: `VITE_READ_API_KEY` or alias `VITE_API_TOKEN`.
- * Send when the Worker has `READ_API_KEY` / `API_READ_SECRET`.
+ * Bearer for the live Worker: `VITE_API_TOKEN` or alias `VITE_READ_API_KEY`.
+ * Required when the Worker has `API_READ_SECRET` / `READ_API_KEY`.
  * Not the service role, not `INGEST_TRIGGER_SECRET`, and not stub Entrar/Sair.
  */
-export const READ_API_KEY = import.meta.env.VITE_READ_API_KEY ?? import.meta.env.VITE_API_TOKEN ?? ''
+export const READ_API_KEY = import.meta.env.VITE_API_TOKEN ?? import.meta.env.VITE_READ_API_KEY ?? ''
 
 /** Fetch live snapshots whenever the Worker base URL is set. */
 export const CAN_FETCH_SNAPSHOTS = Boolean(API_URL) && !USE_STUBS
