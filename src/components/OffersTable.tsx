@@ -61,7 +61,7 @@ export function OffersTable({ rows, isLoading, onResetFilters }: Props) {
                     {row.airline} · {row.program}
                   </TableCell>
                   <TableCell>
-                    <Badge variant="secondary">{row.source}</Badge>
+                    <Badge variant="outline">{row.source}</Badge>
                   </TableCell>
                   <TableCell className="text-right tabular-nums text-card-foreground">
                     {row.miles != null ? formatMiles(row.miles) : '—'}
