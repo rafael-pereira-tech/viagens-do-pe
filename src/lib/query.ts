@@ -19,6 +19,8 @@ export type DashboardQuery = {
   dia: string
   bars: ChartMode
   ui: '' | 'loading'
+  /** When true (`?dry=1`), include `*_dry_run` snapshot sources. */
+  dry: boolean
 }
 
 export const defaultQuery: DashboardQuery = {
@@ -29,6 +31,7 @@ export const defaultQuery: DashboardQuery = {
   dia: '',
   bars: 'both',
   ui: '',
+  dry: false,
 }
 
 function isDestination(value: string): value is Destination {
@@ -43,6 +46,7 @@ export function parseQuery(params: URLSearchParams): DashboardQuery {
   const toParam = (params.get('to') ?? '').toUpperCase()
   const barsParam = params.get('bars') ?? ''
   const uiParam = params.get('ui') ?? ''
+  const dryParam = (params.get('dry') ?? '').toLowerCase()
 
   return {
     to: isDestination(toParam) ? toParam : 'GRU',
@@ -52,6 +56,7 @@ export function parseQuery(params: URLSearchParams): DashboardQuery {
     dia: params.get('dia') ?? '',
     bars: isChartMode(barsParam) ? barsParam : 'both',
     ui: uiParam === 'loading' ? 'loading' : '',
+    dry: dryParam === '1' || dryParam === 'true',
   }
 }
 
@@ -64,6 +69,7 @@ export function queryToSearchParams(query: DashboardQuery): URLSearchParams {
   if (query.dia) params.set('dia', query.dia)
   if (query.bars !== 'both') params.set('bars', query.bars)
   if (query.ui) params.set('ui', query.ui)
+  if (query.dry) params.set('dry', '1')
   return params
 }
 

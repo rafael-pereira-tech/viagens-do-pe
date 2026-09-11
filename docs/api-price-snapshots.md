@@ -214,42 +214,61 @@ exceeds the page, the page is a full 1000-row PostgREST `db-max-rows` page
 with no total, or the fetch cap is hit. Do not treat
 `snapshot_count=1000` + `truncated:false` as a complete set.
 
-## Sources
+## Sources (locked)
 
-| `source` / `fonte` | Program | Meaning |
-| --- | --- | --- |
-| `smiles_web` | `smiles` | GOL award miles (`amount_brl` is null) |
-| `voegol` | `smiles` | GOL full cash BRL |
-| `tudoazul` | `tudoazul` | Azul points (cash copay is **not** `amount_brl`) |
-| `voeazul` | `tudoazul` | Azul full cash BRL |
-| `latam_pass` | `latam_pass` | LATAM miles |
-| `latam_web` | `latam_pass` | LATAM cash |
+Award + cash companion pairs. Filter `fonte` / `source` on these ids.
 
-Dry-run ingest may persist the same ids **or** a `*_dry_run` suffix (e.g.
-`smiles_web_dry_run`). The FE should either:
+| Pair | Award / miles `source` | Cash companion `source` | Program |
+| --- | --- | --- | --- |
+| Smiles / GOL | `smiles_web` | `voegol` | `smiles` |
+| TudoAzul / AZUL | `tudoazul` | `voeazul` | `tudoazul` |
+| LATAM Pass / LATAM | `latam_pass` | **`latam_web`** | `latam_pass` |
 
-- pass `exclude_dry_run=1` (drops fixture sources from list/latest/stats), or
-- accept fixture rows and label them.
+LATAM cash is **`latam_web`**. Do **not** use `latamairlines` (that name is not a
+`price_snapshots.source`). Constants: `LIVE_SOURCES` in `src/types/api.ts`.
+
+| `source` / `fonte` | Meaning |
+| --- | --- |
+| `smiles_web` | GOL award miles (`amount_brl` is null) |
+| `voegol` | GOL full cash BRL |
+| `tudoazul` | Azul points (cash copay is **not** `amount_brl`) |
+| `voeazul` | Azul full cash BRL |
+| `latam_pass` | LATAM miles |
+| `latam_web` | LATAM full cash BRL |
+
+Dry-run after the S0 hotfix persists the **same live name + `_dry_run`**:
+`smiles_web_dry_run`, `voegol_dry_run`, `tudoazul_dry_run`, `voeazul_dry_run`,
+`latam_pass_dry_run`, `latam_web_dry_run`. The FE should either pass
+`exclude_dry_run=1` or accept those rows and label them.
 
 `exclude_dry_run` is **not** a cash-vs-miles switch. Program sources never
 count toward `min_amount_brl`.
 
 ## Auth and secrets
 
-**Worker read proxy with a server-side secret.** RLS stays enabled with **no**
-anon/authenticated policies. Do not add permissive anon RLS.
+Reads go **only** through this Worker proxy. RLS stays enabled with **no**
+anon/authenticated policies (`policies []` today). Do **not** add a browser
+Supabase client or anon key until tight SELECT RLS exists.
 
-| Who | Credential |
-| --- | --- |
-| Worker → Supabase | `SUPABASE_SERVICE_ROLE_KEY` (the server-side secret; **never** in the browser) |
-| Browser → Worker | CORS allowlist. Optional extra gate: `API_READ_SECRET` → `Authorization: Bearer …` |
-| Pages build | `VITE_API_URL` (and `VITE_API_TOKEN` only if `API_READ_SECRET` is set) |
+The dashboard **Entrar / Sair** buttons are a UI stub. They do **not** authorize
+snapshot data. The Worker checks a real Bearer on every `/api/v1/snapshots*` call.
 
-**Never** put `SUPABASE_SERVICE_ROLE_KEY` in `VITE_*` or any browser bundle.
+| Who | Credential | Header |
+| --- | --- | --- |
+| Worker → Supabase | `SUPABASE_SERVICE_ROLE_KEY` (Worker secret only) | PostgREST `Authorization` / `apikey` — **never** in `VITE_*` |
+| FE / curl → Worker | `READ_API_KEY` (Worker secret) = `VITE_READ_API_KEY` (Pages env) | `Authorization: Bearer <READ_API_KEY>` |
+| Ingest `POST /run` | `INGEST_TRIGGER_SECRET` | **Not accepted** on read routes |
 
-If `API_READ_SECRET` is unset, allowlisted origins can read without a token
-(the service role still never leaves the Worker). If it is set, every
-`/api/v1/snapshots*` call needs the Bearer header.
+`READ_API_KEY` must be **distinct** from `INGEST_TRIGGER_SECRET`. Reusing the
+ingest trigger is rejected (`read_api_key_reuses_ingest_secret`). A later
+session/login can replace this v1 Pages-safe Bearer; until then the Worker
+still requires the header. If `READ_API_KEY` is unset, snapshot routes return
+**503** (`read_api_key_not_configured`) — they do not fall open.
+
+v1 note: `VITE_READ_API_KEY` is bundled into the Pages build (public config).
+It is only a shared Bearer the Worker knows. It is **not** a secret equivalent
+to the service role. Never embed `SUPABASE_URL` / `SUPABASE_ANON_KEY` /
+`SUPABASE_SERVICE_ROLE_KEY` in the FE.
 
 `raw_payload` is stripped unless `include_raw=1`. When included, keys that look
 like secrets (`password`, `authorization`, `cookie`, `api_key`, …) are replaced
@@ -272,29 +291,34 @@ Allowed request `Origin` values:
 Dashboard query today: `to`, `from`, `until`, `fonte` (see `src/lib/query.ts`).
 
 ```ts
-import { API_URL } from './lib/config.ts'
-import {
-  dashboardToSnapshotQuery,
-  fetchLatestSnapshots,
-  fetchSnapshotStats,
-  toOfferRow,
-} from './lib/api.ts'
+import { API_URL, READ_API_KEY } from './lib/config.ts'
+import { fetchLatestSnapshots, fetchSnapshotStats, liveDashboardQuery, toOfferRow } from './lib/api.ts'
 
-if (!API_URL) {
+if (!API_URL || !READ_API_KEY) {
   // keep using src/data/placeholders.ts
 } else {
-  const filters = dashboardToSnapshotQuery(query)
-  const [latest, stats] = await Promise.all([
+  const filters = liveDashboardQuery(query) // PET, exclude_dry_run=1, from=today
+  const [latest, stats, byDay] = await Promise.all([
     fetchLatestSnapshots(filters),
     fetchSnapshotStats({ ...filters, group_by: 'window' }),
+    fetchSnapshotStats({ ...filters, group_by: 'route_day' }),
   ])
   const offers = latest.data.map(toOfferRow)
-  const minMiles = stats.data.min_miles
-  const minCash = stats.data.min_amount_brl
+  const minMiles = Array.isArray(stats.data) ? null : stats.data.min_miles
+  const minCash = Array.isArray(stats.data) ? null : stats.data.min_amount_brl
+  const chartDays = Array.isArray(byDay.data) ? byDay.data : []
 }
 ```
 
-Pages build setting: `VITE_API_URL=https://viagens-do-pe-ingest.<account>.workers.dev`
+Pages build settings (then **redeploy**):
+
+```
+VITE_API_URL=https://viagens-do-pe-ingest.rafaellimapereira.workers.dev
+VITE_READ_API_KEY=<same value as Worker READ_API_KEY>
+```
+
+`src/lib/api.ts` always sends `Authorization: Bearer ${VITE_READ_API_KEY}` and
+refuses to fetch if that env is empty.
 
 ## Env (Worker)
 
@@ -303,17 +327,17 @@ Already required for ingest:
 - `SUPABASE_URL`
 - `SUPABASE_SERVICE_ROLE_KEY`
 
-New optional:
+Required for reads:
 
-- `API_READ_SECRET` — Bearer gate for `/api/v1/snapshots*`
-- `CORS_ALLOWED_ORIGINS` — extra origins
+- `READ_API_KEY` — Bearer for `/api/v1/snapshots*` (not `INGEST_TRIGGER_SECRET`)
+
+Optional: `CORS_ALLOWED_ORIGINS` — extra origins
 
 ```bash
 cd workers
 npx wrangler secret put SUPABASE_URL
 npx wrangler secret put SUPABASE_SERVICE_ROLE_KEY
-# optional:
-npx wrangler secret put API_READ_SECRET
+npx wrangler secret put READ_API_KEY
 ```
 
 Apply:
@@ -332,6 +356,7 @@ curl -sS https://viagens-do-pe-ingest.<account>.workers.dev/api/v1/health
 
 # PET → CGH table/chart feed (latest per route/day/source)
 curl -sS -G 'https://viagens-do-pe-ingest.<account>.workers.dev/api/v1/snapshots/latest' \
+  -H 'Authorization: Bearer <READ_API_KEY>' \
   --data-urlencode origin=PET \
   --data-urlencode destination=CGH \
   --data-urlencode flight_date_from=2026-09-01 \
@@ -340,13 +365,15 @@ curl -sS -G 'https://viagens-do-pe-ingest.<account>.workers.dev/api/v1/snapshots
 
 # KPI mins over the same window (SQL COUNT/MIN; cash KPIs ignore smiles_web)
 curl -sS -G 'https://viagens-do-pe-ingest.<account>.workers.dev/api/v1/snapshots/stats' \
+  -H 'Authorization: Bearer <READ_API_KEY>' \
   --data-urlencode origin=PET \
   --data-urlencode destination=CGH \
   --data-urlencode exclude_dry_run=1 \
   --data-urlencode group_by=window
 
-# Local (wrangler dev). Add -H 'Authorization: Bearer …' if API_READ_SECRET is set.
+# Local (wrangler dev). READ_API_KEY is required on snapshot routes.
 curl -sS -G 'http://localhost:8787/api/v1/snapshots' \
+  -H 'Authorization: Bearer dev-only-read-api-key' \
   --data-urlencode origin=PET \
   --data-urlencode source=smiles_web \
   --data-urlencode limit=20
@@ -416,9 +443,9 @@ paths:
         "400":
           description: Invalid filter
         "401":
-          description: Missing/invalid API_READ_SECRET
+          description: Missing/invalid Authorization Bearer READ_API_KEY
         "503":
-          description: Worker has no Supabase credentials
+          description: READ_API_KEY unset, reused ingest secret, or no Supabase credentials
   /api/v1/snapshots/latest:
     get:
       summary: Latest snapshot per route/day/source

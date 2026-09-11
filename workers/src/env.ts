@@ -4,11 +4,13 @@ export interface Env {
   /** When set, POST /run requires `Authorization: Bearer <secret>`. */
   INGEST_TRIGGER_SECRET?: string;
   /**
-   * BE-6 dashboard read API. When set, GET /api/v1/snapshots* requires
-   * `Authorization: Bearer <secret>`. Leave unset for CORS-restricted public
-   * reads (service role still never leaves the Worker).
+   * BE-6 dashboard read API. Required for GET /api/v1/snapshots*.
+   * Clients send `Authorization: Bearer <READ_API_KEY>`.
+   * Must be distinct from `INGEST_TRIGGER_SECRET` (ingest-only).
+   * Never put `SUPABASE_SERVICE_ROLE_KEY` in VITE_* — Pages may hold this
+   * Bearer as `VITE_READ_API_KEY` (public config, not the service role).
    */
-  API_READ_SECRET?: string;
+  READ_API_KEY?: string;
   /** Extra CORS origins, comma-separated. Pages + localhost are always allowed. */
   CORS_ALLOWED_ORIGINS?: string;
   /** Optional ISO date override (YYYY-MM-DD) for the collection window. */

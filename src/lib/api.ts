@@ -1,5 +1,5 @@
-import { API_TOKEN, API_URL } from './config.ts'
-import type { DashboardQuery } from './query.ts'
+import { API_URL, READ_API_KEY } from './config.ts'
+import { todayIso, type DashboardQuery } from './query.ts'
 import type { ApiPriceSnapshot, SnapshotListQuery, SnapshotListResponse, SnapshotStatsResponse } from '../types/api.ts'
 import type { OfferRow } from '../types/priceSnapshot.ts'
 
@@ -16,6 +16,22 @@ export function dashboardToSnapshotQuery(query: DashboardQuery): SnapshotListQue
     flight_date_from: query.from || undefined,
     flight_date_to: query.until || undefined,
     fonte: query.fonte && query.fonte.toLowerCase() !== 'todas' ? query.fonte : undefined,
+  }
+}
+
+const LATEST_PAGE_LIMIT = 2000
+
+/**
+ * Live dashboard fetch: PET → tab destination, no `dia` (chart needs the window),
+ * `exclude_dry_run=1` unless `?dry=1`, and `flight_date_from` defaults to today.
+ */
+export function liveDashboardQuery(query: DashboardQuery, today = todayIso()): SnapshotListQuery {
+  const filters = dashboardToSnapshotQuery({ ...query, dia: '' })
+  return {
+    ...filters,
+    flight_date_from: filters.flight_date_from || today,
+    exclude_dry_run: !query.dry,
+    limit: LATEST_PAGE_LIMIT,
   }
 }
 
@@ -53,14 +69,20 @@ export function snapshotsUrl(path: string, query: SnapshotListQuery = {}): strin
   return params ? `${base}${path}?${params}` : `${base}${path}`
 }
 
-function headers(init?: HeadersInit): Headers {
+/** Header the FE must send. Stub Entrar/Sair does not authorize reads. */
+export const READ_AUTH_HEADER = 'Authorization'
+
+export function readAuthHeaders(init?: HeadersInit): Headers {
   const next = new Headers(init)
-  if (API_TOKEN) next.set('Authorization', `Bearer ${API_TOKEN}`)
+  if (!READ_API_KEY) {
+    throw new Error('VITE_READ_API_KEY is not set; refusing to call the Worker without a Bearer')
+  }
+  next.set(READ_AUTH_HEADER, `Bearer ${READ_API_KEY}`)
   return next
 }
 
 async function getJson<T>(url: string, init?: RequestInit): Promise<T> {
-  const response = await fetch(url, { ...init, headers: headers(init?.headers) })
+  const response = await fetch(url, { ...init, headers: readAuthHeaders(init?.headers) })
   if (!response.ok) {
     throw new Error(`API ${response.status}`)
   }
@@ -82,12 +104,22 @@ export function fetchSnapshotStats(query: SnapshotListQuery, init?: RequestInit)
   return getJson<SnapshotStatsResponse>(snapshotsUrl(SNAPSHOTS_STATS_PATH, query), init)
 }
 
-/** Derive the FE stub `milheiro` (R$ / 1.000 milhas). Incomplete quotes → 0. */
+/**
+ * Award milheiro (R$ / 1.000 milhas) from boarding taxes, not cash fare.
+ * Cash-only rows (`miles` null) and unknown taxes → `null` (UI shows —).
+ */
+export function milheiroFromQuote(input: { miles?: number | null; taxes_brl?: number | null }): number | null {
+  const miles = input.miles
+  const taxes = input.taxes_brl
+  if (miles != null && miles > 0 && taxes != null) return (taxes / miles) * 1000
+  return null
+}
+
 export function toOfferRow(row: ApiPriceSnapshot): OfferRow {
   const miles = row.miles
   const amount = row.amount_brl
-  const milheiro = miles != null && miles > 0 && amount != null ? (amount / miles) * 1000 : 0
   return {
+    id: row.id,
     origin: row.origin,
     destination: row.destination,
     airline: row.airline,
@@ -100,6 +132,6 @@ export function toOfferRow(row: ApiPriceSnapshot): OfferRow {
     currency: row.currency,
     source: row.source,
     collected_at: row.collected_at,
-    milheiro,
+    milheiro: milheiroFromQuote(row),
   }
 }

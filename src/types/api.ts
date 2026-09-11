@@ -4,10 +4,28 @@
  *
  * Nullability: `miles`, `amount_brl`, and `taxes_brl` may be null (miles-only
  * or cash-only rows are valid). `currency` is almost always `BRL`.
- * `source` is the collector id and may be a `*_dry_run` suffix — filter or accept.
+ * `source` is the collector id. LATAM cash is `latam_web` (never `latamairlines`).
+ * Dry-run ingest may append `*_dry_run` — filter or accept.
  * Stats: `min_miles` is award sources only; `min_amount_brl` is cash companions
  * only. `exclude_dry_run` drops fixture sources, not a cash-vs-miles switch.
  */
+
+/** Live `source` / `fonte` ids. Pairs: smiles_web/voegol, tudoazul/voeazul, latam_pass/latam_web. */
+export const LIVE_SOURCES = ['smiles_web', 'voegol', 'tudoazul', 'voeazul', 'latam_pass', 'latam_web'] as const
+
+export type LiveSource = (typeof LIVE_SOURCES)[number]
+
+/** S0 hotfix: dry-run persist ids are the live name + `_dry_run`. */
+export const DRY_RUN_SOURCES = [
+  'smiles_web_dry_run',
+  'voegol_dry_run',
+  'tudoazul_dry_run',
+  'voeazul_dry_run',
+  'latam_pass_dry_run',
+  'latam_web_dry_run',
+] as const
+
+export type DryRunSource = (typeof DRY_RUN_SOURCES)[number]
 
 export type ApiPriceSnapshot = {
   id: string

@@ -1,8 +1,9 @@
 /**
- * UI stub snapshot. The Worker read contract (nullability, `id`, `*_dry_run`
+ * UI snapshot row. The Worker read contract (nullability, `id`, `*_dry_run`
  * sources) lives in `src/types/api.ts` — see `docs/api-price-snapshots.md`.
  */
 export type PriceSnapshot = {
+  id?: string
   origin: string
   destination: string
   airline: string
@@ -17,7 +18,10 @@ export type PriceSnapshot = {
   collected_at: string
 }
 
-/** UI stub: milheiro (R$ / 1.000 milhas) derived for display, not fetched. */
+/**
+ * Display row. `milheiro` is derived: `(taxes_brl / miles) * 1000` on award
+ * quotes. `null` when miles are missing (cash-only) or taxes are unknown.
+ */
 export type OfferRow = PriceSnapshot & {
-  milheiro: number
+  milheiro: number | null
 }

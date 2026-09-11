@@ -1,8 +1,12 @@
-/** Workers API base URL. Empty = local stubs. Never put SUPABASE_SERVICE_ROLE_KEY here. */
+/** Workers API base URL. Empty = local stubs. Never put SUPABASE_* keys here. */
 export const API_URL = import.meta.env.VITE_API_URL ?? ''
 
 /**
- * Optional Bearer token when the Worker has `API_READ_SECRET` set.
- * Bundled into the client — it is not a secret from the service role.
+ * Pages-safe Bearer sent as `Authorization: Bearer <VITE_READ_API_KEY>`.
+ * Must match Worker secret `READ_API_KEY`. Not the service role, not
+ * `INGEST_TRIGGER_SECRET`, and not the stub Entrar/Sair button.
  */
-export const API_TOKEN = import.meta.env.VITE_API_TOKEN ?? ''
+export const READ_API_KEY = import.meta.env.VITE_READ_API_KEY ?? import.meta.env.VITE_API_TOKEN ?? ''
+
+/** Live Worker reads need both the base URL and the dedicated Bearer. */
+export const CAN_FETCH_SNAPSHOTS = Boolean(API_URL && READ_API_KEY)

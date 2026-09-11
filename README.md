@@ -1,6 +1,6 @@
 # Viagens do Pé
 
-Dashboard FE-1.1 (Vite + React + TypeScript + **shadcn/ui**) alinhado ao wireframe **D-1 v2** e tokens **D-2**. Origem fixa **PET**, só ida, abas de destino **GRU | CGH | VCP**. O backend (Workers + Supabase) fica em outro lugar — este app não inventa APIs.
+Dashboard FE-2 (Vite + React + TypeScript + **shadcn/ui**) alinhado ao wireframe **D-1 v2** e tokens **D-2**. Origem fixa **PET**, só ida, abas de destino **GRU | CGH | VCP**. Com `VITE_API_URL` o shell lê `price_snapshots` via Worker (BE-6); sem a variável, o app continua nos stubs locais.
 
 Ingest BE-2/BE-5: coleta agendada de preços em [`workers/`](workers/). Smiles/GOL PET→CGH (`smiles_web` + `voegol`), TudoAzul/AZUL PET→VCP e PET→POA (`tudoazul` + `voeazul`) e LATAM Pass/LATAM PET→GRU (`latam_pass` + `latam_web`) são collectors HTTP reais.
 
@@ -17,11 +17,11 @@ Ingest BE-2/BE-5: coleta agendada de preços em [`workers/`](workers/). Smiles/G
 ```bash
 nvm use          # Node 24 (Active LTS Krypton; ver `.nvmrc`)
 npm install
-cp .env.example .env   # opcional
+cp .env.example .env   # inclui VITE_API_URL do Worker de ingest
 npm run dev
 ```
 
-Abre `http://localhost:5173`.
+Abre `http://localhost:5173`. Para desenvolver só com stubs, deixe `VITE_API_URL` vazio no `.env` e reinicie o Vite.
 
 ### Ferramentas (lint / format / types)
 
@@ -41,12 +41,32 @@ npm run preview
 
 ## Variáveis de ambiente
 
-| Variável         | Obrigatória         | Uso                                                                                         |
-| ---------------- | ------------------- | ------------------------------------------------------------------------------------------- |
-| `VITE_API_URL`   | Não (FE-1 / FE-1.1) | Base URL do Workers read API. Vazia = stubs locais. Ver [`docs/api-price-snapshots.md`](docs/api-price-snapshots.md). |
-| `VITE_API_TOKEN` | Não                 | Só se o Worker tiver `API_READ_SECRET`. **Nunca** coloque `SUPABASE_SERVICE_ROLE_KEY` aqui. |
+| Variável            | Obrigatória                           | Uso                                                                                                                                                                                                                 |
+| ------------------- | ------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `VITE_API_URL`      | Não                                   | Base URL do Workers read API. Vazia = stubs locais. Padrão no `.env.example`: `https://viagens-do-pe-ingest.rafaellimapereira.workers.dev`. Contrato: [`docs/api-price-snapshots.md`](docs/api-price-snapshots.md). |
+| `VITE_READ_API_KEY` | Sim, se `VITE_API_URL` estiver setado | Bearer `Authorization` para o Worker (`READ_API_KEY`). **Nunca** `SUPABASE_*`. Entrar/Sair não autoriza. Sem a chave, o Dashboard fica nos stubs.                                                                  |
 
-Copie `.env.example` para `.env` ou `.env.local`. O Vite só expõe variáveis com prefixo `VITE_`. O client tipado está em `src/lib/api.ts` (BE-6); o Dashboard ainda usa stubs até um ticket FE ligar o fetch. **Nunca** coloque `SUPABASE_SERVICE_ROLE_KEY` no frontend.
+### Local
+
+```bash
+cp .env.example .env
+# VITE_API_URL já aponta para o Worker de ingest. Edite se for usar wrangler dev:
+# VITE_API_URL=http://localhost:8787
+npm run dev
+```
+
+O Vite só expõe variáveis com prefixo `VITE_`. Reinicie `npm run dev` depois de mudar o `.env`. Sem `VITE_API_URL` **ou** sem `VITE_READ_API_KEY`, o Dashboard usa `src/data/placeholders.ts`. O client está em `src/lib/api.ts` e recusa fetch sem Bearer. Query extra: `?dry=1` inclui fontes `*_dry_run` (o padrão é `exclude_dry_run=1`).
+
+**Nunca** coloque `SUPABASE_SERVICE_ROLE_KEY` nem qualquer `VITE_SUPABASE*` no frontend — Security grepa o bundle.
+
+### Cloudflare Pages
+
+`VITE_*` é inlined no `npm run build`. Sem a variável no ambiente de build, o site de produção fica nos stubs.
+
+1. Pages → projeto → **Settings** → **Environment variables**.
+2. Adicione `VITE_API_URL=https://viagens-do-pe-ingest.rafaellimapereira.workers.dev` (Production e Preview).
+3. Adicione `VITE_READ_API_KEY` com o **mesmo** valor do secret `READ_API_KEY` do Worker. Não invente chave; não use `SUPABASE_*` nem `INGEST_TRIGGER_SECRET`.
+4. **Redeploy** o deploy mais recente (ou um push novo) — mudar o env sem rebuild não atualiza o JS.
 
 ## D-2 + shadcn (FE-1.1)
 
@@ -58,13 +78,17 @@ Tokens semânticos em `src/index.css` (`:root` HSL). Primitivos em `src/componen
 - KPIs (Card): menor milhas, menor BRL (cash), melhor milheiro — `text-2xl font-semibold tracking-tight tabular-nums`.
 - Gráfico: barras agrupadas **só em datas futuras**; ToggleGroup Milhas+BRL / Só milhas / Só BRL (`bars`); clique na barra filtra a tabela (`dia`).
 - Tabela (Table, thead sticky): Data, Cia/programa, Fonte, Milhas, Taxas (BRL), Cash (BRL), Milheiro. Só voos futuros. Vazio: _Sem ofertas futuras nesta aba_.
-- Loading: Skeleton (`?ui=loading`).
+- Loading: Skeleton enquanto o fetch roda (e `?ui=loading` para forçar).
+- Erro de API: faixa inline com **Tentar de novo** (sem Dialog).
 
 ## D-1 v2 (comportamento)
 
 - Origem fixa PET · ida — sem picker de rota; sem nav Alertas/Fontes.
-- Dados em `src/data/placeholders.ts` (`PriceSnapshot` + milheiro derivado). Ofertas no passado são ignoradas.
-- Query preservada: `to`, `from`, `until`, `fonte`, `dia`, `bars`.
+- Com `VITE_API_URL` + `VITE_READ_API_KEY`: KPIs, gráfico e tabela vêm de `/api/v1/snapshots/latest` + `/stats` (`group_by=window` e `route_day`).
+- Sem URL ou sem chave: dados em `src/data/placeholders.ts`. Ofertas no passado são ignoradas.
+- Milheiro de milhas = `(taxes_brl / miles) * 1000`. Linhas só-cash (`voegol` / `voeazul` / `latam_web`) mostram —.
+- Fonte: `smiles_web`, `voegol`, `tudoazul`, `voeazul`, `latam_pass`, `latam_web`.
+- Query preservada: `to`, `from`, `until`, `fonte`, `dia`, `bars` (e `dry` opcional).
 
 ## Deploy — Cloudflare Pages
 
@@ -73,6 +97,7 @@ Tokens semânticos em `src/index.css` (`:root` HSL). Primitivos em `src/componen
 3. Output: `dist`
 4. Node: `24` (veja `.nvmrc`)
 5. SPA: `public/_redirects` (`/* /index.html 200`) vai para `dist`.
+6. **Obrigatório para dados reais:** `VITE_API_URL` + `VITE_READ_API_KEY` no ambiente de build + **redeploy** (veja [Cloudflare Pages](#cloudflare-pages) acima).
 
 Ou Wrangler:
 
@@ -80,7 +105,7 @@ Ou Wrangler:
 npx wrangler pages deploy dist
 ```
 
-`wrangler.toml` aponta `pages_build_output_dir = "dist"`. Defina `VITE_API_URL` nos build settings quando o Workers existir.
+`wrangler.toml` aponta `pages_build_output_dir = "dist"`.
 
 ## Ingest worker (BE-2 / BE-3 / BE-4 / BE-5)
 
@@ -106,6 +131,7 @@ src/
   components/ui/  primitivos shadcn
   data/           stubs PET → GRU/CGH/VCP
   lib/            query URL, filtros, formatação, VITE_API_URL, client BE-6
+  hooks/          fetch latest + stats do Dashboard
   pages/Dashboard.tsx
   types/          priceSnapshot (stubs) + api.ts (Worker contract)
 workers/          ingest + BE-6 read API (`/api/v1/snapshots*`)
