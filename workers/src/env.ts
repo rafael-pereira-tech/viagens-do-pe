@@ -22,6 +22,8 @@ export interface Env {
   FLIGHT_WINDOW_DAYS?: string;
   /** Production MVP excludes PET→POA unless explicitly enabled. */
   ROUTE_POA_ENABLED?: string;
+  /** Use the latest-batch/cheapest-offer view for dashboard KPIs. */
+  CURRENT_READ_MODEL?: string;
 
   /**
    * Smiles (BE-3). Never commit real values.

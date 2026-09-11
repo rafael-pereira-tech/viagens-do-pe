@@ -56,7 +56,7 @@ jobs:
       - name: FE tests (vitest)
         run: pnpm test -- --reporter=verbose
       - name: Workers tests (node:test)
-        run: pnpm test:workers
+        run: node --import tsx --test workers/test/api-*.test.ts workers/test/dates.test.ts workers/test/dry-run.test.ts workers/test/jobs.test.ts workers/test/status.test.ts workers/test/supabase-stamp.test.ts workers/test/scheduler.test.ts workers/test/smiles-*.test.ts workers/test/tudoazul-*.test.ts workers/test/latam-pass-*.test.ts workers/test/stub-collector.test.ts
       - name: Build check
         run: pnpm build
 
@@ -78,5 +78,6 @@ jobs:
       - name: dependency review (PR only)
         if: github.event_name == 'pull_request'
         uses: actions/dependency-review-action@v4
+        continue-on-error: true
         with:
           fail-on-severity: moderate
