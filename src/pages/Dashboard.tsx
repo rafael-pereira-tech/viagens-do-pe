@@ -8,7 +8,7 @@ import { KpiStrip } from '../components/KpiStrip.tsx'
 import { OffersTable } from '../components/OffersTable.tsx'
 import { chartFromOffers, chartFromRouteDayStats, kpisFromOffers, PLACEHOLDER_OFFERS } from '../data/placeholders.ts'
 import { useDashboardSnapshots } from '../hooks/useDashboardSnapshots.ts'
-import { API_URL } from '../lib/config.ts'
+import { CAN_FETCH_SNAPSHOTS } from '../lib/config.ts'
 import { applyQuery } from '../lib/filters.ts'
 import { formatShortDate } from '../lib/format.ts'
 import {
@@ -49,7 +49,7 @@ export function Dashboard() {
     }
   }, [applied, searchParams, setSearchParams])
 
-  const live = Boolean(API_URL)
+  const live = CAN_FETCH_SNAPSHOTS
   const remote = useDashboardSnapshots(applied)
   const sourceRows = live ? remote.offers : PLACEHOLDER_OFFERS
   const tabRows = useMemo(() => applyQuery(sourceRows, applied, { ignoreDay: true }), [applied, sourceRows])

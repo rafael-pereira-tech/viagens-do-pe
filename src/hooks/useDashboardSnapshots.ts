@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { fetchLatestSnapshots, fetchSnapshotStats, liveDashboardQuery, toOfferRow } from '../lib/api.ts'
-import { API_URL } from '../lib/config.ts'
+import { CAN_FETCH_SNAPSHOTS } from '../lib/config.ts'
 import type { DashboardQuery } from '../lib/query.ts'
 import type { SnapshotRouteDayStats, SnapshotWindowStats } from '../types/api.ts'
 import type { OfferRow } from '../types/priceSnapshot.ts'
@@ -23,7 +23,7 @@ function routeDayFrom(data: SnapshotWindowStats | SnapshotRouteDayStats[]): Snap
 }
 
 export function useDashboardSnapshots(query: DashboardQuery): DashboardSnapshots {
-  const live = Boolean(API_URL)
+  const live = CAN_FETCH_SNAPSHOTS
   const filters = useMemo(
     () =>
       liveDashboardQuery({

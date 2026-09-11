@@ -240,10 +240,10 @@ Allowed request `Origin` values:
 Dashboard query today: `to`, `from`, `until`, `fonte` (see `src/lib/query.ts`).
 
 ```ts
-import { API_URL } from './lib/config.ts'
+import { API_URL, READ_API_KEY } from './lib/config.ts'
 import { fetchLatestSnapshots, fetchSnapshotStats, liveDashboardQuery, toOfferRow } from './lib/api.ts'
 
-if (!API_URL) {
+if (!API_URL || !READ_API_KEY) {
   // keep using src/data/placeholders.ts
 } else {
   const filters = liveDashboardQuery(query) // PET, exclude_dry_run=1, from=today
@@ -255,7 +255,7 @@ if (!API_URL) {
   const offers = latest.data.map(toOfferRow)
   const minMiles = Array.isArray(stats.data) ? null : stats.data.min_miles
   const minCash = Array.isArray(stats.data) ? null : stats.data.min_amount_brl
-  void byDay
+  const chartDays = Array.isArray(byDay.data) ? byDay.data : []
 }
 ```
 
