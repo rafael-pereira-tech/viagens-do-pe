@@ -30,6 +30,15 @@
   --chart-3: 215 10% 46%;
   --chart-4: 222 22% 12%;
   --chart-5: 210 16% 93%;
+  /* D-2.1 airline chart brands (hex: Azul #0078B8, GOL #E65C00, LATAM #752B5C) */
+  --airline-azul: 201 100% 36%;
+  --airline-azul-soft: 201 55% 88%;
+  --airline-gol: 24 100% 45%;
+  --airline-gol-soft: 24 85% 88%;
+  --airline-latam: 320 46% 31%;
+  --airline-latam-soft: 320 30% 88%;
+  --airline-other: 215 16% 58%;
+  --airline-other-soft: 210 16% 93%;
   --success: 160 84% 30%;
   --success-soft: 152 76% 96%;
   --sidebar: 0 0% 100%;
@@ -67,6 +76,14 @@
   --chart-3: 215 12% 70%;
   --chart-4: 210 20% 96%;
   --chart-5: 217 19% 18%;
+  --airline-azul: 201 90% 55%;
+  --airline-azul-soft: 201 40% 28%;
+  --airline-gol: 24 95% 55%;
+  --airline-gol-soft: 24 45% 28%;
+  --airline-latam: 320 45% 58%;
+  --airline-latam-soft: 320 28% 28%;
+  --airline-other: 215 16% 65%;
+  --airline-other-soft: 217 19% 22%;
   --success: 160 70% 45%;
   --success-soft: 160 40% 16%;
   --sidebar: 222 20% 13%;
@@ -95,6 +112,14 @@
   --color-chart-3: hsl(var(--chart-3));
   --color-chart-2: hsl(var(--chart-2));
   --color-chart-1: hsl(var(--chart-1));
+  --color-airline-azul: hsl(var(--airline-azul));
+  --color-airline-azul-soft: hsl(var(--airline-azul-soft));
+  --color-airline-gol: hsl(var(--airline-gol));
+  --color-airline-gol-soft: hsl(var(--airline-gol-soft));
+  --color-airline-latam: hsl(var(--airline-latam));
+  --color-airline-latam-soft: hsl(var(--airline-latam-soft));
+  --color-airline-other: hsl(var(--airline-other));
+  --color-airline-other-soft: hsl(var(--airline-other-soft));
   --color-ring: hsl(var(--ring));
   --color-input: hsl(var(--input));
   --color-border: hsl(var(--border));

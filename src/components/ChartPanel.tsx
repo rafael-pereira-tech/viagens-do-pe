@@ -3,6 +3,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import type { ChartPoint } from '../data/placeholders.ts'
+import { chartFillsForDestination, type AirlineChartFills } from '../lib/airlines.ts'
 import { formatBrl, formatMiles, formatShortDate } from '../lib/format.ts'
 import type { ChartMode } from '../lib/query.ts'
 import { EmptyHint } from './EmptyHint.tsx'
@@ -24,6 +25,8 @@ const MODES: { key: ChartMode; label: string }[] = [
 ]
 
 export function ChartPanel({ points, mode, isLoading, selectedDate, destination, onModeChange, onSelectDate }: Props) {
+  const fills = chartFillsForDestination(destination)
+
   return (
     <Card size="sm" aria-label="Gráfico de ofertas futuras">
       <CardHeader>
@@ -35,7 +38,8 @@ export function ChartPanel({ points, mode, isLoading, selectedDate, destination,
               </CardTitle>
             </TooltipTrigger>
             <TooltipContent>
-              Barras agrupadas pelas menores milhas e menor cash do dia. Clique numa data para filtrar a tabela.
+              Barras agrupadas pelas menores milhas e menor cash do dia. Cores D-2.1 da cia da rota ({fills.label}
+              ). Clique numa data para filtrar a tabela.
             </TooltipContent>
           </Tooltip>
           <ToggleGroup
@@ -65,7 +69,13 @@ export function ChartPanel({ points, mode, isLoading, selectedDate, destination,
         ) : points.length === 0 ? (
           <EmptyHint title="Sem ofertas futuras nesta aba" />
         ) : (
-          <GroupedBars points={points} mode={mode} selectedDate={selectedDate} onSelectDate={onSelectDate} />
+          <GroupedBars
+            points={points}
+            mode={mode}
+            selectedDate={selectedDate}
+            fills={fills}
+            onSelectDate={onSelectDate}
+          />
         )}
       </CardContent>
     </Card>
@@ -79,15 +89,16 @@ function seriesBars(
   brlH: number,
   showMiles: boolean,
   showBrl: boolean,
+  fills: AirlineChartFills,
 ): { key: string; x: number; h: number; fill: string }[] {
   const bars: { key: string; x: number; h: number; fill: string }[] = []
   let x = gx
   if (showMiles) {
-    bars.push({ key: 'milhas', x, h: milesH, fill: 'hsl(var(--chart-1))' })
+    bars.push({ key: 'milhas', x, h: milesH, fill: fills.miles })
     x += barW + 3
   }
   if (showBrl) {
-    bars.push({ key: 'brl', x, h: brlH, fill: 'hsl(var(--chart-2))' })
+    bars.push({ key: 'brl', x, h: brlH, fill: fills.brl })
   }
   return bars
 }
@@ -96,11 +107,13 @@ function GroupedBars({
   points,
   mode,
   selectedDate,
+  fills,
   onSelectDate,
 }: {
   points: ChartPoint[]
   mode: ChartMode
   selectedDate: string
+  fills: AirlineChartFills
   onSelectDate: (isoDate: string) => void
 }) {
   const showMiles = mode === 'both' || mode === 'milhas'
@@ -138,6 +151,7 @@ function GroupedBars({
                 (point.brl / maxBrl) * innerH,
                 showMiles,
                 showBrl,
+                fills,
               )
               return (
                 <g key={point.date}>
@@ -146,7 +160,7 @@ function GroupedBars({
                     y={pad.top}
                     width={groupW}
                     height={innerH}
-                    fill={selected ? 'hsl(var(--primary) / 0.1)' : 'transparent'}
+                    fill={selected ? fills.selection : 'transparent'}
                   />
                   {bars.map((bar) => (
                     <rect
@@ -208,8 +222,8 @@ function GroupedBars({
           <Tooltip>
             <TooltipTrigger asChild>
               <span className="inline-flex cursor-help items-center gap-1.5">
-                <span className="h-2.5 w-2.5 rounded-sm bg-chart-1" />
-                Menor milhas no dia
+                <span className={`h-2.5 w-2.5 rounded-sm ${fills.legendMilesClass}`} />
+                Menor milhas no dia · {fills.label}
               </span>
             </TooltipTrigger>
             <TooltipContent>Menor quantidade de milhas entre as ofertas daquele dia</TooltipContent>
@@ -219,7 +233,7 @@ function GroupedBars({
           <Tooltip>
             <TooltipTrigger asChild>
               <span className="inline-flex cursor-help items-center gap-1.5">
-                <span className="h-2.5 w-2.5 rounded-sm bg-chart-2" />
+                <span className={`h-2.5 w-2.5 rounded-sm ${fills.legendBrlClass}`} />
                 Menor cash (BRL) no dia
               </span>
             </TooltipTrigger>
