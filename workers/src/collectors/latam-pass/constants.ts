@@ -2,10 +2,11 @@
 export const LATAM_PASS_SOURCE = 'latam_pass';
 
 /**
- * Full cash BRL from the official LATAM booking path (same BFF host,
- * `redemption=false`). Never mix this with LATAM Pass copay.
+ * Full cash BRL from latamairlines.com (`redemption=false`).
+ * Briefing allowed `latam` / `latam_web`; persist `latam_web` (mirrors `smiles_web`,
+ * distinct from program `latam_pass`). Never mix with LATAM Pass copay.
  */
-export const LATAMAIRLINES_SOURCE = 'latamairlines';
+export const LATAM_WEB_SOURCE = 'latam_web';
 
 export const LATAM_API_HOST = 'https://www.latamairlines.com';
 export const LATAM_ORIGIN = 'https://www.latamairlines.com';
@@ -13,10 +14,11 @@ export const LATAM_OFFERS_UI = 'https://www.latamairlines.com/br/pt/oferta-voos'
 
 /**
  * Miles UI uses `redemption=true`; cash uses `redemption=false`.
- * Upstream (2026): `GET /bff/air-offers/v2/offers/search`.
- * Gecko captures the unversioned `/bff/air-offers/offers/search` alias.
+ * Research briefing (2026-09-11): `GET /bff/air-offers/offers/search`.
+ * SPA also ships `/bff/air-offers/v2/offers/search` (`LATAM_OFFERS_PATH` override).
+ * Partner award search / NDC are not public — skipped for v1.
  */
-export const LATAM_OFFERS_PATH = '/bff/air-offers/v2/offers/search';
+export const LATAM_OFFERS_PATH = '/bff/air-offers/offers/search';
 
 /**
  * Member session. Password login is often blocked by Akamai/captcha —

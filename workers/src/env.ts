@@ -53,7 +53,8 @@ export interface Env {
    * LATAM Pass / LATAM (BE-5). Never commit real values.
    *
    * Frozen live secrets (placeholders only): `LATAM_PASS_LOGIN` + `LATAM_PASS_PASSWORD`.
-   * Do not use `LATAM_LOGIN` / `LATAM_PASSWORD`. `LATAM_DRY_RUN=1` parses bundled
+   * Researchy `LATAM_PASS_NUMBER` maps to `LATAM_PASS_LOGIN`. Do not use
+   * `LATAM_LOGIN` / `LATAM_PASSWORD`. `LATAM_DRY_RUN=1` parses bundled
    * PET→GRU fixtures (no network). Optional host/path/delay overrides are non-secrets.
    */
   LATAM_PASS_LOGIN?: string;

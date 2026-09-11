@@ -22,7 +22,7 @@ Configured in `wrangler.toml` `[triggers].crons`.
 | Smiles | GOL | PET→CGH | Tue / Thu / Sat |
 | TudoAzul | AZUL | PET→VCP | Mon / Fri |
 | TudoAzul | AZUL | PET→POA | none published — full window, equal priority |
-| LATAM Pass | LATAM | PET→GRU | Mon / Wed / Fri through 31 Oct 2026; Wed / Fri / Sat from 1 Nov 2026 |
+| LATAM Pass | LATAM | PET→GRU | **Brief preference:** Mon / Wed / Fri through Oct 2026; Wed / Fri / Sat after. **Published network** (Mon / Thu / Fri through Oct; Wed / Fri / Sat from ~2026-11-01) is not the sort key — only to read empty≠scrape_failed on non-operating days |
 
 Preferred weekdays are ordered first; every other date in the window is still queued.
 
@@ -83,11 +83,11 @@ Do not commit credentials. Local: `workers/.dev.vars`. Production: `npx wrangler
 | `TUDOAZUL_DRY_RUN` | CI / local without Azul | `1` parses bundled PET→VCP and PET→POA JSON fixtures (no network). Accepted until live credentials are provided privately. |
 | `TUDOAZUL_API_HOST` | No | Default `https://b2c-api.voeazul.com.br`. |
 | `TUDOAZUL_REQUEST_DELAY_MS` | No | Default `400`. |
-| `LATAM_PASS_LOGIN` | Yes (live) | **Frozen** LATAM Pass / latamairlines.com login (placeholder only). Not `LATAM_LOGIN`. |
+| `LATAM_PASS_LOGIN` | Yes (live) | **Frozen** LATAM Pass / latamairlines.com login (placeholder only). Researchy `LATAM_PASS_NUMBER` → this name. Not `LATAM_LOGIN`. |
 | `LATAM_PASS_PASSWORD` | Yes (live) | **Frozen** password (placeholder only). Not `LATAM_PASSWORD`. Never commit a real value. |
 | `LATAM_DRY_RUN` | CI / local without LATAM | `1` parses bundled PET→GRU JSON fixtures (no network). Accepted until live credentials are provided privately. |
 | `LATAM_API_HOST` | No | Default `https://www.latamairlines.com`. |
-| `LATAM_OFFERS_PATH` | No | Default `/bff/air-offers/v2/offers/search`. |
+| `LATAM_OFFERS_PATH` | No | Default `/bff/air-offers/offers/search`. SPA v2 alias via env override. |
 | `LATAM_REQUEST_DELAY_MS` | No | Default `400`. |
 
 Unconfigured live ticks record **`auth_failed`** for every Smiles, TudoAzul, and LATAM Pass date, so the ingest run is **`auth_failed`**.
@@ -187,43 +187,43 @@ FLIGHT_WINDOW_END=2026-09-15
 
 ## LATAM Pass / LATAM (BE-5)
 
-One `collect({ origin, destination, airline, program, flightDate })` job, two sources. `program` stays `latam_pass`. Airline is LATAM. The scheduler already prefers PET→GRU Mon/Wed/Fri through 31 Oct 2026 and Wed/Fri/Sat from 1 Nov 2026, and still queues every other date — the collector does **not** hard-lock DOW.
+One `collect({ origin, destination, airline, program, flightDate })` job, two sources. `program` stays `latam_pass`. Airline is LATAM. The scheduler **preference-orders** the brief PET→GRU grid (Mon/Wed/Fri through Oct 2026; Wed/Fri/Sat after) and still queues every other Sep–Dec date — **not a hard lock**. The published network (Mon/Thu/Fri through Oct; Wed/Fri/Sat from ~2026-11-01) is **not** the sort key; it only explains why empty inventory on a non-operating weekday is `empty`, not `scrape_failed`. Each snapshot tags `raw_payload.dow_preference` with `{ brief, published, cutover, grid }`.
 
 | Quote | `source` | `miles` | `amount_brl` | `taxes_brl` |
 | --- | --- | --- | --- | --- |
 | Award / miles+money | `latam_pass` | `brands[].price.amount` when `currency=LOYALTY_POINTS` | **always `null`** | `brands[].taxes.amount` |
-| Full cash BRL | `latamairlines` | `null` | `brands[].price.amount` (BRL) | `brands[].taxes.amount` when present |
+| Full cash BRL | `latam_web` | `null` | `items[].price.amount` / `brands[].price.amount` (BRL) | `brands[].taxes.amount` when present |
 
 **Critical: LATAM miles+money copay (`money` / `copay` / `additionalAmount` / `fareMoney`) is not full cash BRL.** Persist only on `raw_payload` as `copay_brl`. `priceWithOutTax` is the equivalent cash fare LATAM attaches next to miles (used for milheiro) — store as `price_without_tax_brl`, never as `amount_brl`. Missing fare → `null` / `empty`, **never invent price 0**. If only miles or only cash fails → `partial`.
 
-NDC / B2B LATAM Trade exists but needs an agency — skipped for v1.
+Partner LATAM Pass award search is redeem-only (not availability). NDC / B2B LATAM Trade needs an agency — both skipped for v1.
 
 ### LATAM Pass miles (primary)
 
 - UI: `https://www.latamairlines.com/br/pt/oferta-voos?origin=PET&outbound=YYYY-MM-DDT00:00:00.000Z&destination=GRU&adt=1&chd=0&inf=0&trip=OW&cabin=Economy&redemption=true&sort=RECOMMENDED`
-- Upstream: `GET https://www.latamairlines.com/bff/air-offers/v2/offers/search` (`redemption=true`)
+- Upstream: `GET https://www.latamairlines.com/bff/air-offers/offers/search` (`redemption=true`; logged session). Award search is not public — fixtures until secrets.
 - Login first (best-effort): `POST …/bff/user-session/v1/session` with `LATAM_PASS_LOGIN` / `LATAM_PASS_PASSWORD`. Captcha/WAF likely — dry-run/fixtures until secrets.
 - Params: `origin`, `destination`, `outFrom={YYYY-MM-DD}T00:00:00.000Z`, `adult=1`, `cabinType=Economy`, one-way (`inFrom=null`)
 - Headers: `x-latam-application-name: web-air-offers`, `x-latam-application-country: BR`, `x-latam-application-oc: br`, `x-latam-application-lang: pt`, browser `Accept` / `Origin` / `Referer` / `User-Agent`
 - Parses native `content[].summary.brands[]` (`price.currency=LOYALTY_POINTS`) and gecko-normalized `items[]`
-- Filter marketing carrier **LA / JJ / LP / XL / 4C / PZ** only (G3 / AD / DL dropped)
+- Filter marketing carrier **LA\*** / LATAM group **JJ / LP / XL / 4C / PZ** (G3 / AD / DL dropped)
 
 ### Full cash BRL (separate source, same host)
 
 - UI: same `oferta-voos` URL with `redemption=false`
-- Upstream: same offers/search GET with `redemption=false`
-- Persist `brands[].price.amount` → `amount_brl` when `currency=BRL`
-- Same ingest job (companion), distinct `source=latamairlines`. Miles WAF vs cash WAF can independently yield `partial`.
+- Upstream: `GET https://www.latamairlines.com/bff/air-offers/offers/search?origin=PET&destination=GRU` (`redemption=false`)
+- Persist `items[].price.amount` (gecko) or `brands[].price.amount` → `amount_brl` when `currency=BRL`; `miles=null`; filter LA\*
+- Same ingest job (companion), distinct `source=latam_web` (briefing also allowed `latam`). Miles WAF vs cash WAF can independently yield `partial`.
 
 ### Route
 
-- **PET→GRU**: operates; empty on some DOWs is `empty`, not `scrape_failed`. Connections (`stopOvers>0`) are inventory, never `scrape_failed`.
+- **PET→GRU**: collect **all** dates 1 Sep–31 Dec 2026. Empty outside real inventory (including published non-operating DOWs) is `empty`, not `scrape_failed`. Connections (`stopOvers>0`) are inventory, never `scrape_failed`.
 
 ### Auth
 
 Frozen secrets (placeholders only — no real credentials in git or CI):
 
-- `LATAM_PASS_LOGIN` / `LATAM_PASS_PASSWORD` — LATAM Pass / latamairlines.com member pair (not `LATAM_LOGIN` / `LATAM_PASSWORD`)
+- `LATAM_PASS_LOGIN` / `LATAM_PASS_PASSWORD` — LATAM Pass / latamairlines.com member pair (not `LATAM_LOGIN` / `LATAM_PASSWORD`; Researchy `LATAM_PASS_NUMBER` → `LATAM_PASS_LOGIN`)
 - `LATAM_DRY_RUN=1` parses bundled PET→GRU fixtures (no network) until those secrets are provided privately
 
 ### Rate / WAF
@@ -236,7 +236,7 @@ Frozen secrets (placeholders only — no real credentials in git or CI):
 
 | Status | When |
 | --- | --- |
-| `success` | ≥1 persistable LATAM quote (miles and/or latamairlines cash) |
+| `success` | ≥1 persistable LATAM quote (miles and/or `latam_web` cash) |
 | `empty` | 200 but no LATAM inventory / allowed fares |
 | `auth_failed` | missing config, 401, JSON 403, or login failed |
 | `scrape_failed` | network/5xx/429, HTML/non-JSON, Akamai block, HTTP 406 WAF |
@@ -254,7 +254,7 @@ Frozen secrets (placeholders only — no real credentials in git or CI):
 
 **Live API discovery notes:** the SPA (`@smiles/flight-availability`) calls `ApiFlightSearch` → `v1/airlines/search` with `NOT_CREDENTIALS` plus `x-api-key` from remote constants (`x-api-key=flight-search` in LaunchDarkly). This environment's AWS egress received **HTTP 406** from Akamai on both blue and green search hosts even with the historical public key — Workers on Cloudflare IPs may succeed; if not, set `SMILES_COOKIE` from a real browser session or keep `SMILES_DRY_RUN=1` until the WAF allows the guest key.
 
-LATAM's SPA calls `GET /bff/air-offers/v2/offers/search` (`redemption=true|false`) with `x-latam-*` headers. Miles fields (`price.currency=LOYALTY_POINTS`, `priceWithOutTax`) typically need a logged-in session. This environment's AWS egress received **HTML 403 Access Denied** from Akamai — keep `LATAM_DRY_RUN=1` until private `LATAM_PASS_LOGIN` / `LATAM_PASS_PASSWORD` are provided.
+LATAM's SPA calls `GET /bff/air-offers/offers/search` (`redemption=true|false`) with `x-latam-*` headers. Miles fields (`price.currency=LOYALTY_POINTS`, `priceWithOutTax`) typically need a logged-in session. This environment's AWS egress received **HTML 403 Access Denied** from Akamai — keep `LATAM_DRY_RUN=1` until private `LATAM_PASS_LOGIN` / `LATAM_PASS_PASSWORD` are provided.
 
 ## Run status and overlap
 
