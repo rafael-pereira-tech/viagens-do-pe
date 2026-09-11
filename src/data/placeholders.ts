@@ -176,11 +176,15 @@ export function kpisFromOffers(rows: OfferRow[], stats?: SnapshotWindowStats | n
     (row) => row.milheiro,
   )
 
+  // Window stats (#15): min_amount_brl is cash companions only — never award copay.
   const minMiles = stats ? stats.min_miles : (fewestMiles?.miles ?? null)
   const minCash = stats ? stats.min_amount_brl : (lowestCash?.amount_brl ?? null)
 
   const milesRow = minMiles != null ? (rows.find((row) => row.miles === minMiles) ?? fewestMiles) : null
-  const cashRow = minCash != null ? (rows.find((row) => row.amount_brl === minCash) ?? lowestCash) : null
+  const cashRow =
+    minCash != null
+      ? (rows.find((row) => row.amount_brl === minCash && isCashCompanionSource(row.source)) ?? lowestCash)
+      : null
 
   return {
     menorMilhas:
