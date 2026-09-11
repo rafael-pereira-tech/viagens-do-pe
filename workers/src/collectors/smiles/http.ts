@@ -45,3 +45,8 @@ export class SequentialLimiter {
 export function isRetryableStatus(status: number): boolean {
   return status === 429 || status === 502 || status === 503 || status === 504;
 }
+
+export function looksLikeHtml(body: string): boolean {
+  const trimmed = body.trimStart();
+  return /^<!doctype html/i.test(trimmed) || /^<html/i.test(trimmed) || /access denied/i.test(trimmed);
+}

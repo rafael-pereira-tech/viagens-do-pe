@@ -21,9 +21,10 @@ crons = ["0 0 * * *", "0 6 * * *", "0 12 * * *", "0 18 * * *"]
 #
 # Optional non-secret overrides can be added under [vars] later:
 #   FLIGHT_WINDOW_START, FLIGHT_WINDOW_END
-#   SMILES_DRY_RUN=1   (fixture parser, no live Smiles)
+#   SMILES_DRY_RUN=1   (fixture parser, no live Smiles / VoeGol)
 #   SMILES_ENV=blue|green
 #   SMILES_REQUEST_DELAY_MS
+#   VOEGOL_API_HOST
 #   TUDOAZUL_DRY_RUN=1 (fixture parser, no live Azul)
 #   TUDOAZUL_API_HOST / TUDOAZUL_REQUEST_DELAY_MS
 #   LATAM_DRY_RUN=1    (fixture parser, no live LATAM)

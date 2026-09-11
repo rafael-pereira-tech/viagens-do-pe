@@ -74,7 +74,8 @@ export function ofertaVoosUrl(params: CollectParams, pricingMode: LatamPricingMo
  *
  * Miles UI: `https://www.latamairlines.com/br/pt/oferta-voos?...&redemption=true`
  * Cash UI: same with `redemption=false`
- * Host: `GET {apiHost}/bff/air-offers/v2/offers/search`
+ * Host: `GET {apiHost}/bff/air-offers/offers/search` (briefing 2026-09-11).
+ * Override with `LATAM_OFFERS_PATH` for the SPA v2 alias.
  *
  * - `origin` / `destination` — IATA
  * - `outFrom` — `{YYYY-MM-DD}T00:00:00.000Z`

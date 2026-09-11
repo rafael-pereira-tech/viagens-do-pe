@@ -23,4 +23,18 @@ describe('buildJobs', () => {
     assert.ok(jobs.slice(0, firstOther).every((j) => j.preferred));
     assert.ok(jobs.slice(firstOther).every((j) => !j.preferred));
   });
+
+  it('queues every PET→GRU date; brief preference is not a lock', () => {
+    const jobs = buildJobs(FLIGHT_WINDOW, ROUTE_MATRIX.filter((r) => r.destination === 'GRU'));
+    assert.equal(jobs.length, 122);
+    const wed = jobs.find((j) => j.flightDate === '2026-09-16');
+    assert.ok(wed);
+    assert.equal(wed.preferred, true); // brief Mon/Wed/Fri through Oct
+    const thu = jobs.find((j) => j.flightDate === '2026-09-17');
+    assert.ok(thu);
+    assert.equal(thu.preferred, false); // published operating, not brief sort key
+    const tue = jobs.find((j) => j.flightDate === '2026-09-15');
+    assert.ok(tue);
+    assert.equal(tue.preferred, false);
+  });
 });

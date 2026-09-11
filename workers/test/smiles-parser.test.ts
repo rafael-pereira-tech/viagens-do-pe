@@ -1,8 +1,10 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import type { CollectParams } from '../src/collectors/types.ts';
-import { SMILES_SOURCE } from '../src/collectors/smiles/constants.ts';
+import { SMILES_SOURCE, VOEGOL_SOURCE } from '../src/collectors/smiles/constants.ts';
 import {
+  SEARCH_PET_CGH_CASH,
+  SEARCH_PET_CGH_CASH_EMPTY,
   SEARCH_PET_CGH_EMPTY,
   SEARCH_PET_CGH_GOL_NO_FARES,
   SEARCH_PET_CGH_SUCCESS,
@@ -11,6 +13,7 @@ import {
   departureTimeOf,
   isGolFlight,
   parseSmilesSearch,
+  parseVoegolFlights,
   quotedOrNull,
   resolveFareTypes,
   toFiniteNumber,
@@ -40,7 +43,7 @@ describe('smiles parser helpers', () => {
 });
 
 describe('parseSmilesSearch PET→CGH fixture', () => {
-  it('emits GOL miles and miles+BRL rows and drops partner airlines', () => {
+  it('emits GOL miles rows with amount_brl always null and copay only in raw_payload', () => {
     const parsed = parseSmilesSearch(SEARCH_PET_CGH_SUCCESS, params, {
       fareTypes: resolveFareTypes({ includeClub: false }),
     });
@@ -57,7 +60,8 @@ describe('parseSmilesSearch PET→CGH fixture', () => {
       assert.equal(row.flight_date, '2026-09-15');
       assert.equal(row.currency, 'BRL');
       assert.equal(row.source, SMILES_SOURCE);
-      assert.ok(row.miles != null || row.amount_brl != null);
+      assert.ok(row.miles != null && row.miles > 0);
+      assert.equal(row.amount_brl, null);
       assert.equal(row.collected_at, undefined);
       assert.equal(row.ingest_run_id, undefined);
     }
@@ -77,8 +81,16 @@ describe('parseSmilesSearch PET→CGH fixture', () => {
       (row) => row.departure_time === '06:40:00' && row.miles === 7200,
     );
     assert.ok(morningMix);
-    assert.equal(morningMix.amount_brl, 248.5);
+    assert.equal(morningMix.amount_brl, null);
     assert.equal(morningMix.taxes_brl, 39.9);
+    const mixRaw = morningMix.raw_payload as {
+      copay_brl?: number | null;
+      smiles_money?: number | null;
+      money?: number | null;
+    };
+    assert.equal(mixRaw.copay_brl, 248.5);
+    assert.equal(mixRaw.smiles_money, 248.5);
+    assert.equal(mixRaw.money, 248.5);
 
     assert.equal(
       parsed.snapshots.some((row) => row.miles === 17100),
@@ -92,11 +104,27 @@ describe('parseSmilesSearch PET→CGH fixture', () => {
     );
   });
 
+  it('never writes Smiles money copay onto amount_brl for smiles_web', () => {
+    const parsed = parseSmilesSearch(SEARCH_PET_CGH_SUCCESS, params, {
+      fareTypes: resolveFareTypes({ includeClub: false }),
+    });
+    const smilesWeb = parsed.snapshots.filter((row) => row.source === SMILES_SOURCE);
+    assert.ok(smilesWeb.length > 0);
+    for (const row of smilesWeb) {
+      assert.equal(row.amount_brl, null);
+    }
+    assert.equal(
+      smilesWeb.some((row) => row.amount_brl != null),
+      false,
+    );
+  });
+
   it('includes club fares when requested', () => {
     const parsed = parseSmilesSearch(SEARCH_PET_CGH_SUCCESS, params, {
       fareTypes: resolveFareTypes({ includeClub: true }),
     });
     assert.ok(parsed.snapshots.some((row) => row.miles === 17100));
+    assert.ok(parsed.snapshots.filter((row) => row.source === SMILES_SOURCE).every((row) => row.amount_brl == null));
   });
 
   it('returns empty when fixture departure dates do not match the requested civil date', () => {
@@ -122,6 +150,61 @@ describe('parseSmilesSearch PET→CGH fixture', () => {
     });
     assert.equal(parsed.golFlights, 1);
     assert.equal(parsed.snapshots.length, 0);
+  });
+});
+
+describe('parseVoegolFlights PET→CGH cash', () => {
+  it('emits voegol full-cash rows and never invents 0', () => {
+    const parsed = parseVoegolFlights(SEARCH_PET_CGH_CASH, params);
+    assert.equal(parsed.golItineraries, 2);
+    assert.equal(parsed.otherAirlineItineraries, 1);
+    assert.equal(parsed.snapshots.length, 2);
+    for (const row of parsed.snapshots) {
+      assert.equal(row.source, VOEGOL_SOURCE);
+      assert.equal(row.program, 'smiles');
+      assert.equal(row.airline, 'GOL');
+      assert.equal(row.miles, null);
+      assert.ok(row.amount_brl != null && row.amount_brl > 0);
+      assert.notEqual(row.amount_brl, 0);
+      assert.equal(row.currency, 'BRL');
+    }
+    const morning = parsed.snapshots.find((row) => row.departure_time === '06:40:00');
+    assert.equal(morning?.amount_brl, 548.9);
+    const evening = parsed.snapshots.find((row) => row.departure_time === '18:20:00');
+    assert.equal(evening?.amount_brl, 631.2);
+    assert.equal(
+      parsed.snapshots.some((row) => row.amount_brl === 199.9),
+      false,
+      'partner cash must be dropped',
+    );
+  });
+
+  it('unwraps nested data.itineraries and totalPrice.amount', () => {
+    const nested = {
+      data: {
+        itineraries: [
+          {
+            origin: 'PET',
+            destination: 'CGH',
+            departure: '2026-09-15T07:00:00',
+            segments: [{ flight: { airlineCode: 'G3' } }],
+            offers: [{ totalPrice: { amount: '455.75', currencyCode: 'BRL' } }],
+          },
+        ],
+      },
+    };
+    const parsed = parseVoegolFlights(nested, params);
+    assert.equal(parsed.snapshots.length, 1);
+    assert.equal(parsed.snapshots[0]!.source, VOEGOL_SOURCE);
+    assert.equal(parsed.snapshots[0]!.amount_brl, 455.75);
+    assert.equal(parsed.snapshots[0]!.miles, null);
+    assert.equal(parsed.snapshots[0]!.departure_time, '07:00:00');
+  });
+
+  it('returns no snapshots for an empty itinerary list', () => {
+    const parsed = parseVoegolFlights(SEARCH_PET_CGH_CASH_EMPTY, params);
+    assert.equal(parsed.snapshots.length, 0);
+    assert.equal(parsed.golItineraries, 0);
   });
 });
 

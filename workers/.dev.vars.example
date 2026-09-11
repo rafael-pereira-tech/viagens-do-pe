@@ -10,11 +10,12 @@ INGEST_TRIGGER_SECRET=dev-only-trigger-secret
 # API_READ_SECRET=dev-only-read-secret
 # CORS_ALLOWED_ORIGINS=http://localhost:4173
 
-# BE-3 Smiles. Dry-run uses bundled PET→CGH JSON (no live login).
+# BE-3 Smiles + VoeGol. Dry-run uses bundled PET→CGH miles + cash JSON (no live login).
 # For live guest search, copy x-api-key from DevTools on
 # api-air-flightsearch-blue.smiles.com.br/v1/airlines/search.
 SMILES_DRY_RUN=1
 SMILES_API_KEY=
+# VOEGOL_API_HOST=https://b2c-api.voegol.com.br
 # SMILES_COOKIE=
 # SMILES_MEMBER_NUMBER=
 # SMILES_USER=
@@ -30,10 +31,11 @@ TUDOAZUL_PASSWORD=
 # TUDOAZUL_REQUEST_DELAY_MS=400
 
 # BE-5 LATAM Pass / LATAM. Frozen secrets (placeholders only).
-# Do not use LATAM_LOGIN / LATAM_PASSWORD.
+# Do not use LATAM_LOGIN / LATAM_PASSWORD. Researchy LATAM_PASS_NUMBER → LATAM_PASS_LOGIN.
 # Dry-run uses bundled PET→GRU JSON (no live login).
 LATAM_DRY_RUN=1
 LATAM_PASS_LOGIN=
 LATAM_PASS_PASSWORD=
 # LATAM_API_HOST=https://www.latamairlines.com
+# LATAM_OFFERS_PATH=/bff/air-offers/offers/search
 # LATAM_REQUEST_DELAY_MS=400
