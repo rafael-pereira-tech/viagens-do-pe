@@ -58,7 +58,7 @@ jobs:
       - name: FE coverage (thresholds 35/45)
         run: pnpm test:coverage
       - name: Workers tests (node:test)
-        run: node --import tsx --test workers/test/api-*.test.ts workers/test/dates.test.ts workers/test/dry-run.test.ts workers/test/jobs.test.ts workers/test/status.test.ts workers/test/supabase-stamp.test.ts workers/test/scheduler.test.ts workers/test/smiles-*.test.ts workers/test/tudoazul-*.test.ts workers/test/latam-pass-*.test.ts workers/test/stub-collector.test.ts
+        run: node --import tsx --test workers/test/api-*.test.ts workers/test/dates.test.ts workers/test/dry-run.test.ts workers/test/jobs.test.ts workers/test/sentry.test.ts workers/test/status.test.ts workers/test/supabase-stamp.test.ts workers/test/scheduler.test.ts workers/test/smiles-*.test.ts workers/test/tudoazul-*.test.ts workers/test/latam-pass-*.test.ts workers/test/stub-collector.test.ts
       - name: Build check
         run: pnpm build
       - name: Bundle size (size-limit)

@@ -332,6 +332,8 @@ npx wrangler secret put SUPABASE_SERVICE_ROLE_KEY
 npx wrangler secret put INGEST_TRIGGER_SECRET
 # optional dashboard read gate (BE-6):
 npx wrangler secret put READ_API_KEY
+# optional Worker error tracking (BE ingest + cron):
+npx wrangler secret put SENTRY_DSN
 # BE-3 live Smiles (omit if SMILES_DRY_RUN=1):
 npx wrangler secret put SMILES_API_KEY
 # optional member session:
@@ -347,6 +349,21 @@ npx wrangler secret put LATAM_PASS_PASSWORD
 Optional env overrides: `FLIGHT_WINDOW_START`, `FLIGHT_WINDOW_END` (YYYY-MM-DD), `SMILES_DRY_RUN`, `SMILES_ENV`, `SMILES_REQUEST_DELAY_MS`, `VOEGOL_API_HOST`, `TUDOAZUL_DRY_RUN`, `TUDOAZUL_REQUEST_DELAY_MS`, `TUDOAZUL_API_HOST`, `LATAM_DRY_RUN`, `LATAM_REQUEST_DELAY_MS`, `LATAM_API_HOST`, `CORS_ALLOWED_ORIGINS`.
 
 Without real Supabase secrets the worker still runs collectors and returns a summary; it skips persistence (`persisted: false`). Do not point `SUPABASE_URL` at a dummy hostname — workerd fails hard on DNS errors. Leave the vars empty instead.
+
+## Sentry (Worker prod)
+
+`@sentry/cloudflare` wraps `fetch` + cron. Uncaught exceptions go to Issues. Ingest **does not throw** on WAF (`scrape_failed` / `auth_failed` / `partial`) — those are sent as a single grouped message per tick (`fingerprint: ingest + status + cron`), without cookies, HTTP bodies, or HTML dumps.
+
+1. Create a Sentry project (platform: Cloudflare).
+2. `cd workers && npx wrangler secret put SENTRY_DSN` (Client Keys DSN). Staging: `--env staging`.
+3. Deploy. Probe (needs `INGEST_TRIGGER_SECRET`):
+
+```bash
+curl -X POST https://viagens-do-pe-ingest.<subdomain>.workers.dev/internal/sentry-test \
+  -H "Authorization: Bearer <INGEST_TRIGGER_SECRET>"
+```
+
+Empty `SENTRY_DSN` (local default) disables the SDK. Source maps: `npx @sentry/wizard@latest -i sourcemaps` when you want readable stacks.
 
 ## Local
 
