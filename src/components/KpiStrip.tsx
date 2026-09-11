@@ -1,4 +1,4 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardHeader } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import type { KpiModel } from '../data/placeholders.ts'
 import { formatBrl, formatMiles, formatMilheiro } from '../lib/format.ts'
@@ -17,11 +17,9 @@ export function KpiStrip({ kpis, isLoading }: Props) {
           <Card key={i} size="sm">
             <CardHeader>
               <Skeleton className="h-3 w-24" />
-              <Skeleton className="mt-2 h-7 w-28" />
-            </CardHeader>
-            <CardContent>
+              <Skeleton className="h-8 w-28" />
               <Skeleton className="h-3 w-32" />
-            </CardContent>
+            </CardHeader>
           </Card>
         ))}
       </section>
@@ -51,12 +49,10 @@ export function KpiStrip({ kpis, isLoading }: Props) {
       {cards.map((card) => (
         <Card key={card.label} size="sm">
           <CardHeader>
-            <CardDescription className={FIELD_LABEL}>{card.label}</CardDescription>
-            <CardTitle className={`${KPI_VALUE} text-card-foreground`}>{card.value}</CardTitle>
-          </CardHeader>
-          <CardContent>
+            <p className={FIELD_LABEL}>{card.label}</p>
+            <p className={`${KPI_VALUE} text-card-foreground`}>{card.value}</p>
             <p className="text-xs text-muted-foreground">{card.caption}</p>
-          </CardContent>
+          </CardHeader>
         </Card>
       ))}
     </section>
