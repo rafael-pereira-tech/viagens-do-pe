@@ -41,10 +41,11 @@ npm run preview
 
 ## Variáveis de ambiente
 
-| Variável            | Obrigatória                           | Uso                                                                                                                                                                                                                 |
-| ------------------- | ------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `VITE_API_URL`      | Não                                   | Base URL do Workers read API. Vazia = stubs locais. Padrão no `.env.example`: `https://viagens-do-pe-ingest.rafaellimapereira.workers.dev`. Contrato: [`docs/api-price-snapshots.md`](docs/api-price-snapshots.md). |
-| `VITE_READ_API_KEY` | Sim, se `VITE_API_URL` estiver setado | Bearer `Authorization` para o Worker (`READ_API_KEY`). **Nunca** `SUPABASE_*`. Entrar/Sair não autoriza. Sem a chave, o Dashboard fica nos stubs.                                                                  |
+| Variável            | Obrigatória                  | Uso                                                                                                                                                                                                                 |
+| ------------------- | ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `VITE_API_URL`      | Não                          | Base URL do Workers read API. Vazia = stubs locais. Padrão no `.env.example`: `https://viagens-do-pe-ingest.rafaellimapereira.workers.dev`. Contrato: [`docs/api-price-snapshots.md`](docs/api-price-snapshots.md). |
+| `VITE_READ_API_KEY` | Só se o Worker exigir Bearer | `Authorization: Bearer …` para `READ_API_KEY`. **Nunca** `SUPABASE_*`. Entrar/Sair não autoriza.                                                                                                                    |
+| `VITE_API_TOKEN`    | Alias de `VITE_READ_API_KEY` | Use quando o Worker tiver `API_READ_SECRET`. Mesmo valor, mesmo header.                                                                                                                                             |
 
 ### Local
 
@@ -55,7 +56,15 @@ cp .env.example .env
 npm run dev
 ```
 
-O Vite só expõe variáveis com prefixo `VITE_`. Reinicie `npm run dev` depois de mudar o `.env`. Sem `VITE_API_URL` **ou** sem `VITE_READ_API_KEY`, o Dashboard usa `src/data/placeholders.ts`. O client está em `src/lib/api.ts` e recusa fetch sem Bearer. Query extra: `?dry=1` inclui fontes `*_dry_run` (o padrão é `exclude_dry_run=1`).
+O Vite só expõe variáveis com prefixo `VITE_`. Reinicie `npm run dev` depois de mudar o `.env`. Sem `VITE_API_URL` o Dashboard usa `src/data/placeholders.ts`. Com a URL, o client chama o Worker; 404/401 viram faixa de erro (o `/api/v1` pode 404 até o Platform redeploy). Se o Worker tiver `API_READ_SECRET` / `READ_API_KEY`, defina `VITE_API_TOKEN` ou `VITE_READ_API_KEY`.
+
+Dados (select **Dados** / query):
+
+| Modo                                | UI                         | Query                  | API                                                                                 |
+| ----------------------------------- | -------------------------- | ---------------------- | ----------------------------------------------------------------------------------- |
+| **Só dry-run (padrão até o purge)** | Só dry-run (padrão)        | `?dry_run=1` (default) | sem `exclude_dry_run`; só `*_dry_run`. Evita `smiles_web` legado (`amount_brl=248.5`) nas KPIs/stats. |
+| Incluir dry-run                     | Incluir dry-run            | `?dry=1`               | live + fixtures                                                                     |
+| Produção                            | Produção (exclude dry-run) | `?live=1`              | `exclude_dry_run=1` — ligar depois do purge                                         |
 
 **Nunca** coloque `SUPABASE_SERVICE_ROLE_KEY` nem qualquer `VITE_SUPABASE*` no frontend — Security grepa o bundle.
 
@@ -65,18 +74,18 @@ O Vite só expõe variáveis com prefixo `VITE_`. Reinicie `npm run dev` depois 
 
 1. Pages → projeto → **Settings** → **Environment variables**.
 2. Adicione `VITE_API_URL=https://viagens-do-pe-ingest.rafaellimapereira.workers.dev` (Production e Preview).
-3. Adicione `VITE_READ_API_KEY` com o **mesmo** valor do secret `READ_API_KEY` do Worker. Não invente chave; não use `SUPABASE_*` nem `INGEST_TRIGGER_SECRET`.
-4. **Redeploy** o deploy mais recente (ou um push novo) — mudar o env sem rebuild não atualiza o JS.
+3. Se o Worker tiver `API_READ_SECRET` ou `READ_API_KEY`, adicione `VITE_API_TOKEN` (ou `VITE_READ_API_KEY`) com o **mesmo** valor. Não invente chave; não use `SUPABASE_*` nem `INGEST_TRIGGER_SECRET`.
+4. **Redeploy** o deploy mais recente (ou um push novo) — mudar o env sem rebuild não atualiza o JS. Sem rebuild, 404/401 no `/api/v1` são esperados até o Platform publicar o Worker.
 
 ## D-2 + shadcn (FE-1.1)
 
-Tokens semânticos em `src/index.css` (`:root` HSL). Primitivos em `src/components/ui/`. O gráfico de barras continua custom (SVG): fills D-2.1 por destino (`--airline-azul` / `--airline-gol` / `--airline-latam` + softs) e Tooltip no chrome.
+Tokens semânticos em `src/index.css` (`:root` HSL). Primitivos em `src/components/ui/`. O gráfico de barras continua custom (SVG): fills D-2.1 da **cia vencedora do dia** (`--airline-azul` / `--airline-gol` / `--airline-latam` + softs; hex do Designer) e Tooltip no chrome.
 
 - Topbar: logo, **Viagens do Pé**, Badge success/soft `Origem fixa · PET · ida`, Button outline Entrar/Sair, Avatar+Fallback.
 - Abas **GRU | CGH | VCP** (Tabs) trocam KPIs, gráfico e tabela na hora. Persistido em `?to=GRU`.
 - Filtros (batch no **Aplicar**): Input date (janela futura) + Select da fonte. **Limpar** (outline) reseta a janela/fonte. Query: `from`, `until`, `fonte`.
 - KPIs (Card): menor milhas, menor BRL (cash), melhor milheiro — `text-2xl font-semibold tracking-tight tabular-nums`.
-- Gráfico: barras agrupadas **só em datas futuras**; ToggleGroup Milhas+BRL / Só milhas / Só BRL (`bars`); clique na barra filtra a tabela (`dia`). Cores D-2.1 por aba: **VCP→Azul**, **CGH→GOL**, **GRU→LATAM**.
+- Gráfico: barras agrupadas **só em datas futuras**; ToggleGroup Milhas+BRL / Só milhas / Só BRL (`bars`); clique na barra filtra a tabela (`dia`). Cor = **cia vencedora daquele dia na métrica** (não empilha 3 cias). Tokens D-2.1: Azul `#0078B8`, GOL `#E65C00`, LATAM `#752B5C`. Fallback da aba: VCP→Azul, CGH→GOL, GRU→LATAM.
 - Tabela (Table, thead sticky): Data, Cia/programa, Fonte, Milhas, Taxas (BRL), Cash (BRL), Milheiro. Só voos futuros. Vazio: _Sem ofertas futuras nesta aba_.
 - Loading: Skeleton enquanto o fetch roda (e `?ui=loading` para forçar).
 - Erro de API: faixa inline com **Tentar de novo** (sem Dialog).
@@ -88,7 +97,7 @@ Tokens semânticos em `src/index.css` (`:root` HSL). Primitivos em `src/componen
 - Sem URL ou sem chave: dados em `src/data/placeholders.ts`. Ofertas no passado são ignoradas.
 - Milheiro de milhas = `(taxes_brl / miles) * 1000`. Linhas só-cash (`voegol` / `voeazul` / `latam_web`) mostram —.
 - Fonte: `smiles_web`, `voegol`, `tudoazul`, `voeazul`, `latam_pass`, `latam_web`.
-- Query preservada: `to`, `from`, `until`, `fonte`, `dia`, `bars` (e `dry` opcional).
+- Query preservada: `to`, `from`, `until`, `fonte`, `dia`, `bars`, e modo de dados (`dry` / `dry_run`).
 
 ## Deploy — Cloudflare Pages
 
@@ -97,7 +106,7 @@ Tokens semânticos em `src/index.css` (`:root` HSL). Primitivos em `src/componen
 3. Output: `dist`
 4. Node: `24` (veja `.nvmrc`)
 5. SPA: `public/_redirects` (`/* /index.html 200`) vai para `dist`.
-6. **Obrigatório para dados reais:** `VITE_API_URL` + `VITE_READ_API_KEY` no ambiente de build + **redeploy** (veja [Cloudflare Pages](#cloudflare-pages) acima).
+6. **Para dados reais:** `VITE_API_URL` no build + **redeploy**. `VITE_API_TOKEN` / `VITE_READ_API_KEY` só se o Worker exigir Bearer (veja [Cloudflare Pages](#cloudflare-pages) acima).
 
 Ou Wrangler:
 

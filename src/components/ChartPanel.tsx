@@ -3,7 +3,12 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import type { ChartPoint } from '../data/placeholders.ts'
-import { chartFillsForDestination, type AirlineChartFills } from '../lib/airlines.ts'
+import {
+  AIRLINE_LEGEND,
+  chartFillsForAirline,
+  chartFillsForDestination,
+  type AirlineChartFills,
+} from '../lib/airlines.ts'
 import { formatBrl, formatMiles, formatShortDate } from '../lib/format.ts'
 import type { ChartMode } from '../lib/query.ts'
 import { StateView } from './StateView.tsx'
@@ -37,7 +42,7 @@ export function ChartPanel({
   error,
   onRetry,
 }: Props) {
-  const fills = chartFillsForDestination(destination)
+  const fallbackFills = chartFillsForDestination(destination)
 
   return (
     <Card size="sm" aria-label="Gráfico de ofertas futuras">
@@ -50,8 +55,8 @@ export function ChartPanel({
               </CardTitle>
             </TooltipTrigger>
             <TooltipContent>
-              Barras agrupadas pelas menores milhas e menor cash do dia. Cores D-2.1 da cia da rota ({fills.label}
-              ). Clique numa data para filtrar a tabela.
+              Barras agrupadas milhas|BRL. Cor = cia vencedora daquele dia na métrica (não empilha 3 cias). Fallback da
+              rota: {fallbackFills.label}.
             </TooltipContent>
           </Tooltip>
           <ToggleGroup
@@ -97,7 +102,7 @@ export function ChartPanel({
             points={points}
             mode={mode}
             selectedDate={selectedDate}
-            fills={fills}
+            fallbackFills={fallbackFills}
             onSelectDate={onSelectDate}
           />
         )}
@@ -113,16 +118,17 @@ function seriesBars(
   brlH: number,
   showMiles: boolean,
   showBrl: boolean,
-  fills: AirlineChartFills,
+  milesFills: AirlineChartFills,
+  brlFills: AirlineChartFills,
 ): { key: string; x: number; h: number; fill: string }[] {
   const bars: { key: string; x: number; h: number; fill: string }[] = []
   let x = gx
   if (showMiles) {
-    bars.push({ key: 'milhas', x, h: milesH, fill: fills.miles })
+    bars.push({ key: 'milhas', x, h: milesH, fill: milesFills.miles })
     x += barW + 3
   }
   if (showBrl) {
-    bars.push({ key: 'brl', x, h: brlH, fill: fills.brl })
+    bars.push({ key: 'brl', x, h: brlH, fill: brlFills.brl })
   }
   return bars
 }
@@ -131,13 +137,13 @@ function GroupedBars({
   points,
   mode,
   selectedDate,
-  fills,
+  fallbackFills,
   onSelectDate,
 }: {
   points: ChartPoint[]
   mode: ChartMode
   selectedDate: string
-  fills: AirlineChartFills
+  fallbackFills: AirlineChartFills
   onSelectDate: (isoDate: string) => void
 }) {
   const showMiles = mode === 'both' || mode === 'milhas'
@@ -168,6 +174,8 @@ function GroupedBars({
             {points.map((point, i) => {
               const gx = pad.left + i * groupW + gap / 2
               const selected = point.date === selectedDate
+              const milesFills = chartFillsForAirline(point.milesAirline)
+              const brlFills = chartFillsForAirline(point.brlAirline)
               const bars = seriesBars(
                 gx,
                 barW,
@@ -175,7 +183,8 @@ function GroupedBars({
                 (point.brl / maxBrl) * innerH,
                 showMiles,
                 showBrl,
-                fills,
+                milesFills,
+                brlFills,
               )
               return (
                 <g key={point.date}>
@@ -184,7 +193,7 @@ function GroupedBars({
                     y={pad.top}
                     width={groupW}
                     height={innerH}
-                    fill={selected ? fills.selection : 'transparent'}
+                    fill={selected ? milesFills.selection : 'transparent'}
                   />
                   {bars.map((bar) => (
                     <rect
@@ -214,6 +223,8 @@ function GroupedBars({
           <div className="absolute inset-0 flex pb-9" role="list" aria-label="Datas do gráfico">
             {points.map((point) => {
               const selected = point.date === selectedDate
+              const milesLabel = chartFillsForAirline(point.milesAirline).label
+              const brlLabel = chartFillsForAirline(point.brlAirline).label
               return (
                 <Tooltip key={point.date} delayDuration={150}>
                   <TooltipTrigger asChild>
@@ -222,16 +233,16 @@ function GroupedBars({
                       role="listitem"
                       className="h-full flex-1 rounded-md focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none"
                       aria-pressed={selected}
-                      aria-label={`${formatShortDate(point.date)}: ${formatMiles(point.milhas)} milhas, ${formatBrl(point.brl, true)}, ${point.sampleSize} ofertas`}
+                      aria-label={`${formatShortDate(point.date)}: ${formatMiles(point.milhas)} milhas (${milesLabel}), ${formatBrl(point.brl, true)} (${brlLabel}), ${point.sampleSize} ofertas`}
                       onClick={() => onSelectDate(point.date)}
                     />
                   </TooltipTrigger>
                   <TooltipContent className="tabular-nums">
                     <span className="font-medium">{formatShortDate(point.date)}</span>
                     {' · '}
-                    {formatMiles(point.milhas)} milhas
+                    {formatMiles(point.milhas)} milhas ({milesLabel})
                     {' · '}
-                    {formatBrl(point.brl, true)}
+                    {formatBrl(point.brl, true)} ({brlLabel})
                     {' · '}
                     {point.sampleSize} oferta{point.sampleSize === 1 ? '' : 's'}
                   </TooltipContent>
@@ -246,24 +257,35 @@ function GroupedBars({
           <Tooltip>
             <TooltipTrigger asChild>
               <span className="inline-flex cursor-help items-center gap-1.5">
-                <span className={`h-2.5 w-2.5 rounded-sm ${fills.legendMilesClass}`} />
-                Menor milhas no dia · {fills.label}
+                <span className={`h-2.5 w-2.5 rounded-sm ${fallbackFills.legendMilesClass}`} />
+                Menor milhas · cor da cia vencedora
               </span>
             </TooltipTrigger>
-            <TooltipContent>Menor quantidade de milhas entre as ofertas daquele dia</TooltipContent>
+            <TooltipContent>Cor da barra = cia da menor oferta de milhas daquele dia</TooltipContent>
           </Tooltip>
         ) : null}
         {showBrl ? (
           <Tooltip>
             <TooltipTrigger asChild>
               <span className="inline-flex cursor-help items-center gap-1.5">
-                <span className={`h-2.5 w-2.5 rounded-sm ${fills.legendBrlClass}`} />
-                Menor cash (BRL) no dia
+                <span className={`h-2.5 w-2.5 rounded-sm ${fallbackFills.legendBrlClass}`} />
+                Menor cash (BRL) · soft da cia vencedora
               </span>
             </TooltipTrigger>
-            <TooltipContent>Menor preço em dinheiro (cash) entre as ofertas daquele dia</TooltipContent>
+            <TooltipContent>Cor suave = cia do menor cash daquele dia. Não empilha 3 cias.</TooltipContent>
           </Tooltip>
         ) : null}
+        <span className="inline-flex flex-wrap items-center gap-2" aria-label="Cores das cias">
+          {AIRLINE_LEGEND.map((item) => {
+            const fills = chartFillsForAirline(item.id)
+            return (
+              <span key={item.id} className="inline-flex items-center gap-1">
+                <span className={`h-2.5 w-2.5 rounded-sm ${fills.legendMilesClass}`} />
+                {item.label}
+              </span>
+            )
+          })}
+        </span>
       </div>
     </div>
   )

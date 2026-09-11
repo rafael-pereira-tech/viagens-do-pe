@@ -22,15 +22,21 @@ export function dashboardToSnapshotQuery(query: DashboardQuery): SnapshotListQue
 const LATEST_PAGE_LIMIT = 2000
 
 /**
- * Live dashboard fetch: PET → tab destination, no `dia` (chart needs the window),
- * `exclude_dry_run=1` unless `?dry=1`, and `flight_date_from` defaults to today.
+ * Live dashboard fetch: PET → tab destination, no `dia` (chart needs the window).
+ * Default is dry-run-only (`*_dry_run`) until legacy smiles_web purge.
+ * `?live=1` sends `exclude_dry_run=1`. `?dry=1` includes both.
  */
 export function liveDashboardQuery(query: DashboardQuery, today = todayIso()): SnapshotListQuery {
   const filters = dashboardToSnapshotQuery({ ...query, dia: '' })
+  const fonte =
+    query.dryMode === 'only' && filters.fonte && !filters.fonte.endsWith('_dry_run')
+      ? `${filters.fonte}_dry_run`
+      : filters.fonte
   return {
     ...filters,
+    fonte,
     flight_date_from: filters.flight_date_from || today,
-    exclude_dry_run: !query.dry,
+    exclude_dry_run: query.dryMode === 'live',
     limit: LATEST_PAGE_LIMIT,
   }
 }
@@ -74,11 +80,22 @@ export const READ_AUTH_HEADER = 'Authorization'
 
 export function readAuthHeaders(init?: HeadersInit): Headers {
   const next = new Headers(init)
-  if (!READ_API_KEY) {
-    throw new Error('VITE_READ_API_KEY is not set; refusing to call the Worker without a Bearer')
-  }
-  next.set(READ_AUTH_HEADER, `Bearer ${READ_API_KEY}`)
+  if (READ_API_KEY) next.set(READ_AUTH_HEADER, `Bearer ${READ_API_KEY}`)
   return next
+}
+
+export function describeFetchError(err: unknown): string {
+  const detail = err instanceof Error ? err.message : 'erro desconhecido'
+  if (detail.includes('404')) {
+    return 'A API ainda não está no ar (404). Tente de novo depois do deploy do Worker.'
+  }
+  if (detail.includes('401')) {
+    return 'A API pediu autorização (401). Defina VITE_API_TOKEN ou VITE_READ_API_KEY e faça rebuild.'
+  }
+  if (detail.includes('503')) {
+    return 'A API não está pronta (503). Confira o Worker.'
+  }
+  return `Não foi possível carregar as ofertas (${detail}).`
 }
 
 async function getJson<T>(url: string, init?: RequestInit): Promise<T> {

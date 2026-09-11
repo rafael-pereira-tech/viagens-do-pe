@@ -11,7 +11,7 @@ import { OffersTable } from '../components/OffersTable.tsx'
 import { StateView } from '../components/StateView.tsx'
 import { chartFromOffers, kpisFromOffers, PLACEHOLDER_OFFERS } from '../data/placeholders.ts'
 import { applyQuery } from '../lib/filters.ts'
-import { type ChartMode, type Destination, DESTINATIONS } from '../lib/query.ts'
+import { type ChartMode, type Destination, type DryMode, DESTINATIONS } from '../lib/query.ts'
 
 type Variant = 'success' | 'loading' | 'error' | 'empty'
 
@@ -35,6 +35,7 @@ export function Playground() {
   const [globalVariant, setGlobalVariant] = useState<Variant>('success')
   const [destination, setDestination] = useState<Destination>('GRU')
   const [chartMode, setChartMode] = useState<ChartMode>('both')
+  const [dryMode, setDryMode] = useState<DryMode>('only')
   const [draft, setDraft] = useState({ from: '', until: '', fonte: '' })
 
   const isLoading = globalVariant === 'loading'
@@ -43,14 +44,23 @@ export function Playground() {
   const errorMsg = isError ? 'Não foi possível carregar as ofertas (API 500).' : null
 
   const baseQuery = useMemo(
-    () => ({ to: destination, from: draft.from, until: draft.until, fonte: draft.fonte, dia: '', bars: chartMode, ui: '' as const, dry: false }),
-    [destination, draft, chartMode],
+    () => ({
+      to: destination,
+      from: draft.from,
+      until: draft.until,
+      fonte: draft.fonte,
+      dia: '',
+      bars: chartMode,
+      ui: '' as const,
+      dryMode,
+    }),
+    [destination, draft, chartMode, dryMode],
   )
 
   const tabRows = useMemo(() => applyQuery(PLACEHOLDER_OFFERS, baseQuery, { ignoreDay: true }), [baseQuery])
   const rows = useMemo(() => applyQuery(PLACEHOLDER_OFFERS, baseQuery), [baseQuery])
   const kpis = useMemo(() => kpisFromOffers(isEmpty ? [] : tabRows), [tabRows, isEmpty])
-  const chart = useMemo(() => (isEmpty ? [] : chartFromOffers(tabRows)), [tabRows, isEmpty])
+  const chart = useMemo(() => (isEmpty ? [] : chartFromOffers(tabRows, destination)), [tabRows, isEmpty, destination])
 
   const effectiveKpis = isEmpty ? kpisFromOffers([], undefined) : kpis
   const effectiveChart = isEmpty ? [] : chart
@@ -109,7 +119,9 @@ export function Playground() {
 
           <FiltersBar
             draft={draft}
+            dryMode={dryMode}
             onDraftChange={(patch) => setDraft((d) => ({ ...d, ...patch }))}
+            onDryModeChange={setDryMode}
             onApply={() => {}}
             onClear={() => setDraft({ from: '', until: '', fonte: '' })}
             isLoading={isLoading}

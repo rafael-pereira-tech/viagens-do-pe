@@ -3,14 +3,16 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { FILTER_FONTES, sourceLabel } from '../lib/filters.ts'
-import { todayIso, type DashboardQuery } from '../lib/query.ts'
+import { todayIso, type DashboardQuery, type DryMode } from '../lib/query.ts'
 import { FIELD_LABEL } from '../lib/ui.ts'
 
 type Draft = Pick<DashboardQuery, 'from' | 'until' | 'fonte'>
 
 type Props = {
   draft: Draft
+  dryMode: DryMode
   onDraftChange: (patch: Partial<Draft>) => void
+  onDryModeChange: (mode: DryMode) => void
   onApply: () => void
   onClear: () => void
   isLoading?: boolean
@@ -19,7 +21,13 @@ type Props = {
 const ALL_FONTES = 'todas'
 const dateInputClass = 'h-10 bg-card tabular-nums'
 
-export function FiltersBar({ draft, onDraftChange, onApply, onClear, isLoading }: Props) {
+const DRY_MODES: { value: DryMode; label: string }[] = [
+  { value: 'only', label: 'Só dry-run (padrão)' },
+  { value: 'include', label: 'Incluir dry-run' },
+  { value: 'live', label: 'Produção (exclude dry-run)' },
+]
+
+export function FiltersBar({ draft, dryMode, onDraftChange, onDryModeChange, onApply, onClear, isLoading }: Props) {
   const minDate = todayIso()
 
   return (
@@ -32,8 +40,8 @@ export function FiltersBar({ draft, onDraftChange, onApply, onClear, isLoading }
             onApply()
           }}
         >
-          <div className="grid flex-1 grid-cols-1 gap-3 sm:grid-cols-2">
-            <fieldset className="block min-w-0">
+          <div className="grid flex-1 grid-cols-1 gap-3 sm:grid-cols-3">
+            <fieldset className="block min-w-0 sm:col-span-1">
               <legend className={`${FIELD_LABEL} mb-1`}>Janela futura</legend>
               <div className="grid grid-cols-2 gap-1.5">
                 <Input
@@ -78,8 +86,25 @@ export function FiltersBar({ draft, onDraftChange, onApply, onClear, isLoading }
                 </SelectContent>
               </Select>
             </div>
+            <div className="block min-w-0">
+              <span className={`${FIELD_LABEL} mb-1 block`} id="dados-label">
+                Dados
+              </span>
+              <Select value={dryMode} onValueChange={(value) => onDryModeChange(value as DryMode)} disabled={isLoading}>
+                <SelectTrigger aria-labelledby="dados-label" className="h-10 w-full bg-card">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent position="popper" align="start" className="w-(--radix-select-trigger-width)">
+                  {DRY_MODES.map((mode) => (
+                    <SelectItem key={mode.value} value={mode.value}>
+                      {mode.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
-          <div className="flex shrink-0 justify-end gap-2">
+          <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">
             <Button type="button" variant="outline" className="h-10 px-4" onClick={onClear} disabled={isLoading}>
               Limpar
             </Button>

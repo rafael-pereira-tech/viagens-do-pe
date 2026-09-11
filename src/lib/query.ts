@@ -13,6 +13,9 @@ export type ChartMode = 'both' | 'milhas' | 'brl'
 
 export type UiState = '' | 'loading' | 'error' | 'empty'
 
+/** Production reads are live by default; QA can opt into `dry` or `dry_run`. */
+export type DryMode = 'live' | 'include' | 'only'
+
 export type DashboardQuery = {
   to: Destination
   from: string
@@ -21,8 +24,7 @@ export type DashboardQuery = {
   dia: string
   bars: ChartMode
   ui: UiState
-  /** When true (`?dry=1`), include `*_dry_run` snapshot sources. */
-  dry: boolean
+  dryMode: DryMode
 }
 
 export const defaultQuery: DashboardQuery = {
@@ -33,7 +35,7 @@ export const defaultQuery: DashboardQuery = {
   dia: '',
   bars: 'both',
   ui: '',
-  dry: false,
+  dryMode: 'live',
 }
 
 function isUiState(value: string): value is UiState {
@@ -48,12 +50,20 @@ function isChartMode(value: string): value is ChartMode {
   return value === 'both' || value === 'milhas' || value === 'brl'
 }
 
+export function parseDryMode(params: URLSearchParams): DryMode {
+  const live = (params.get('live') ?? params.get('prod') ?? params.get('exclude_dry_run') ?? '').toLowerCase()
+  if (live === '1' || live === 'true') return 'live'
+  const include = (params.get('dry') ?? '').toLowerCase()
+  if (include === '1' || include === 'true') return 'include'
+  const only = (params.get('dry_run') ?? '').toLowerCase()
+  if (only === '0' || only === 'false') return 'live'
+  return 'only'
+}
+
 export function parseQuery(params: URLSearchParams): DashboardQuery {
   const toParam = (params.get('to') ?? '').toUpperCase()
   const barsParam = params.get('bars') ?? ''
   const uiParam = params.get('ui') ?? ''
-  const dryParam = (params.get('dry') ?? '').toLowerCase()
-
   return {
     to: isDestination(toParam) ? toParam : 'GRU',
     from: params.get('from') ?? '',
@@ -62,7 +72,7 @@ export function parseQuery(params: URLSearchParams): DashboardQuery {
     dia: params.get('dia') ?? '',
     bars: isChartMode(barsParam) ? barsParam : 'both',
     ui: isUiState(uiParam) ? uiParam : '',
-    dry: dryParam === '1' || dryParam === 'true',
+    dryMode: parseDryMode(params),
   }
 }
 
@@ -75,7 +85,9 @@ export function queryToSearchParams(query: DashboardQuery): URLSearchParams {
   if (query.dia) params.set('dia', query.dia)
   if (query.bars !== 'both') params.set('bars', query.bars)
   if (query.ui) params.set('ui', query.ui)
-  if (query.dry) params.set('dry', '1')
+  if (query.dryMode === 'live') params.set('live', '1')
+  if (query.dryMode === 'include') params.set('dry', '1')
+  if (query.dryMode === 'only') params.set('dry_run', '1')
   return params
 }
 

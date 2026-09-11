@@ -5,8 +5,8 @@ import { ChartPanel } from './ChartPanel.tsx'
 import type { ChartPoint } from '../data/placeholders.ts'
 
 const points: ChartPoint[] = [
-  { date: '2026-04-10', milhas: 12000, brl: 580, sampleSize: 2 },
-  { date: '2026-04-11', milhas: 14000, brl: 690, sampleSize: 1 },
+  { date: '2026-04-10', milhas: 12000, brl: 580, sampleSize: 2, milesAirline: 'LATAM', brlAirline: 'LATAM' },
+  { date: '2026-04-11', milhas: 14000, brl: 690, sampleSize: 1, milesAirline: 'GOL', brlAirline: 'AZUL' },
 ]
 
 function renderChart(props: Partial<React.ComponentProps<typeof ChartPanel>> = {}) {
@@ -52,7 +52,7 @@ describe('ChartPanel', () => {
     renderChart({ points })
     // chart renders accessible buttons per date
     expect(screen.getAllByRole('listitem').length).toBe(2)
-    expect(screen.getByText(/Menor milhas no dia/)).toBeInTheDocument()
+    expect(screen.getByText(/Menor milhas.*cia vencedora/)).toBeInTheDocument()
   })
 
   it('mode toggle: calls onModeChange', async () => {

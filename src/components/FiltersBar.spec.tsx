@@ -5,7 +5,17 @@ describe('FiltersBar', () => {
   const draft = { from: '', until: '', fonte: '' }
 
   it('disabled when isLoading', () => {
-    render(<FiltersBar draft={draft} onDraftChange={vi.fn()} onApply={vi.fn()} onClear={vi.fn()} isLoading />)
+    render(
+      <FiltersBar
+        draft={draft}
+        dryMode="only"
+        onDraftChange={vi.fn()}
+        onDryModeChange={vi.fn()}
+        onApply={vi.fn()}
+        onClear={vi.fn()}
+        isLoading
+      />,
+    )
     expect(screen.getByLabelText('Início da janela')).toBeDisabled()
     expect(screen.getByLabelText('Fim da janela')).toBeDisabled()
     expect(screen.getByRole('button', { name: 'Limpar' })).toBeDisabled()
@@ -13,7 +23,16 @@ describe('FiltersBar', () => {
   })
 
   it('enabled by default', () => {
-    render(<FiltersBar draft={draft} onDraftChange={vi.fn()} onApply={vi.fn()} onClear={vi.fn()} />)
+    render(
+      <FiltersBar
+        draft={draft}
+        dryMode="only"
+        onDraftChange={vi.fn()}
+        onDryModeChange={vi.fn()}
+        onApply={vi.fn()}
+        onClear={vi.fn()}
+      />,
+    )
     expect(screen.getByRole('button', { name: 'Aplicar' })).toBeEnabled()
   })
 })

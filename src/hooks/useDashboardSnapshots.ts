@@ -1,5 +1,11 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { fetchLatestSnapshots, fetchSnapshotStats, liveDashboardQuery, toOfferRow } from '../lib/api.ts'
+import {
+  describeFetchError,
+  fetchLatestSnapshots,
+  fetchSnapshotStats,
+  liveDashboardQuery,
+  toOfferRow,
+} from '../lib/api.ts'
 import { CAN_FETCH_SNAPSHOTS } from '../lib/config.ts'
 import type { DashboardQuery } from '../lib/query.ts'
 import type { SnapshotRouteDayStats, SnapshotWindowStats } from '../types/api.ts'
@@ -31,12 +37,12 @@ export function useDashboardSnapshots(query: DashboardQuery): DashboardSnapshots
         from: query.from,
         until: query.until,
         fonte: query.fonte,
-        dry: query.dry,
+        dryMode: query.dryMode,
         dia: '',
         bars: 'both',
         ui: '',
       }),
-    [query.to, query.from, query.until, query.fonte, query.dry],
+    [query.to, query.from, query.until, query.fonte, query.dryMode],
   )
   const [offers, setOffers] = useState<OfferRow[]>([])
   const [windowStats, setWindowStats] = useState<SnapshotWindowStats | null>(null)
@@ -62,29 +68,29 @@ export function useDashboardSnapshots(query: DashboardQuery): DashboardSnapshots
     setError(null)
 
     const { signal } = ac
+    const dryOnly = query.dryMode === 'only'
     Promise.all([
       fetchLatestSnapshots(filters, { signal }),
-      fetchSnapshotStats({ ...filters, group_by: 'window' }, { signal }),
-      fetchSnapshotStats({ ...filters, group_by: 'route_day' }, { signal }),
+      dryOnly ? Promise.resolve(null) : fetchSnapshotStats({ ...filters, group_by: 'window' }, { signal }),
+      dryOnly ? Promise.resolve(null) : fetchSnapshotStats({ ...filters, group_by: 'route_day' }, { signal }),
     ])
       .then(([latest, windowRes, dayRes]) => {
         setOffers(latest.data.map(toOfferRow))
-        setWindowStats(windowStatsFrom(windowRes.data))
-        setRouteDay(routeDayFrom(dayRes.data))
+        setWindowStats(windowRes ? windowStatsFrom(windowRes.data) : null)
+        setRouteDay(dayRes ? routeDayFrom(dayRes.data) : [])
         setIsLoading(false)
       })
       .catch((err: unknown) => {
         if (signal.aborted) return
-        const detail = err instanceof Error ? err.message : 'erro desconhecido'
         setOffers([])
         setWindowStats(null)
         setRouteDay([])
-        setError(`Não foi possível carregar as ofertas (${detail}).`)
+        setError(describeFetchError(err))
         setIsLoading(false)
       })
 
     return () => ac.abort()
-  }, [filters, live, nonce])
+  }, [filters, live, nonce, query.dryMode])
 
   return { offers, windowStats, routeDay, isLoading, error, refresh }
 }
