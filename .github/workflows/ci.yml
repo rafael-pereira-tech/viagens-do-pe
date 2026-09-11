@@ -1,0 +1,83 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    name: lint / typecheck / format
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint
+      - run: pnpm format:check
+      - run: pnpm typecheck
+      - name: Check for .env leaks in diff
+        run: |
+          if git diff --name-only origin/${{ github.base_ref || 'main' }}...HEAD | grep -E '^\.env(\.|$)' ; then
+            echo "::error::.env files should not be committed"
+            exit 1
+          fi
+          # quick heuristic: no SUPABASE_SERVICE_ROLE_KEY in bundle
+          if grep -R "SUPABASE_SERVICE_ROLE_KEY" --include="*.ts" --include="*.tsx" src/ 2>/dev/null; then
+            echo "::error::SUPABASE_SERVICE_ROLE_KEY leaked in src/"
+            exit 1
+          fi
+
+  unit-tests:
+    name: unit tests (FE + workers)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: FE tests (vitest)
+        run: pnpm test -- --reporter=verbose
+      - name: Workers tests (node:test)
+        run: node --import tsx --test workers/test/api-*.test.ts workers/test/dates.test.ts workers/test/dry-run.test.ts workers/test/jobs.test.ts workers/test/status.test.ts workers/test/supabase-stamp.test.ts workers/test/scheduler.test.ts workers/test/smiles-*.test.ts workers/test/tudoazul-*.test.ts workers/test/latam-pass-*.test.ts workers/test/stub-collector.test.ts
+      - name: Build check
+        run: pnpm build
+
+  secure:
+    name: secure / audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: pnpm audit (moderate+)
+        run: pnpm audit --audit-level=moderate || echo "::warning::audit found moderate+ issues"
+      - name: dependency review (PR only)
+        if: github.event_name == 'pull_request'
+        uses: actions/dependency-review-action@v4
+        continue-on-error: true
+        with:
+          fail-on-severity: moderate

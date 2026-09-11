@@ -200,22 +200,24 @@ async function snapshotStats(url: URL, env: Env, deps: ReadApiDeps): Promise<Res
   const query = { ...parsed.value, includeRaw: false };
   // Prefer unpaged PostgREST COUNT/MIN on the existing table (no migration).
   // That is the QA path: PET+CGH with no source, >1000 rows, legacy smiles_web copay.
-  const fromAggregate = await fetchPostgrestAggregateStats(rest, query);
+  const statsTable = env.CURRENT_READ_MODEL === '1' ? 'price_snapshots_latest' : 'price_snapshots';
+  const fromAggregate = await fetchPostgrestAggregateStats(rest, query, statsTable);
   if (fromAggregate) return json(fromAggregate);
   const fromRpc = await fetchSqlStats(rest, query);
   if (fromRpc) return json(fromRpc);
-  return json(await sampleStats(rest, query));
+  return json(await sampleStats(rest, query, statsTable));
 }
 
 async function fetchPostgrestAggregateStats(
   rest: SupabaseRest,
   query: SnapshotQuery,
+  table: string,
 ): Promise<SnapshotStatsResponse | null> {
   const routeDay = query.groupBy === 'route_day';
   const totalsQs = toStatsAggregateQuery(query, {
     select: routeDay ? STATS_ROUTE_DAY_SELECT : STATS_WINDOW_SELECT,
   });
-  const totalsResponse = await rest(`price_snapshots?${totalsQs}`, { method: 'GET' }, [400, 404]);
+  const totalsResponse = await rest(`${table}?${totalsQs}`, { method: 'GET' }, [400, 404]);
   if (!totalsResponse.ok) return null;
   const totalsBody = await readRows(totalsResponse);
   if (totalsBody.length > 0 && !looksLikeTotalsAggregate(totalsBody[0])) return null;
@@ -227,7 +229,7 @@ async function fetchPostgrestAggregateStats(
       select: routeDay ? STATS_CASH_ROUTE_DAY_SELECT : STATS_CASH_WINDOW_SELECT,
       cashOnly: true,
     });
-    const cashResponse = await rest(`price_snapshots?${cashQs}`, { method: 'GET' }, [400, 404]);
+    const cashResponse = await rest(`${table}?${cashQs}`, { method: 'GET' }, [400, 404]);
     if (!cashResponse.ok) return null;
     cashBody = await readRows(cashResponse);
     if (cashBody.length > 0 && !looksLikeCashAggregate(cashBody[0])) return null;
@@ -281,8 +283,8 @@ async function fetchSqlStats(rest: SupabaseRest, query: SnapshotQuery): Promise<
   };
 }
 
-async function sampleStats(rest: SupabaseRest, query: SnapshotQuery): Promise<SnapshotStatsResponse> {
-  const { rows, total } = await fetchSnapshots(rest, 'price_snapshots', query, {
+async function sampleStats(rest: SupabaseRest, query: SnapshotQuery, table = 'price_snapshots'): Promise<SnapshotStatsResponse> {
+  const { rows, total } = await fetchSnapshots(rest, table, query, {
     select: 'origin,destination,flight_date,miles,amount_brl,collected_at,source',
     order: 'collected_at.desc',
     limit: STATS_FETCH_CAP,

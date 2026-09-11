@@ -10,6 +10,7 @@ export type PriceSnapshot = {
   program: string
   flight_date: string
   departure_time?: string
+  stops?: number
   miles?: number
   amount_brl?: number
   taxes_brl?: number

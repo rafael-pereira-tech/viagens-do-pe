@@ -49,6 +49,7 @@ export function toPublicSnapshot(row: Record<string, unknown>, includeRaw: boole
     program: asString(row.program) ?? '',
     flight_date: asString(row.flight_date) ?? '',
     departure_time: asString(row.departure_time),
+    stops: asNumber(row.stops),
     miles: asNumber(row.miles),
     amount_brl: asNumber(row.amount_brl),
     taxes_brl: asNumber(row.taxes_brl),

@@ -74,7 +74,8 @@ export function Playground() {
           <p className="max-w-2xl text-sm text-muted-foreground">
             Rota pública <code className="rounded bg-muted px-1 py-0.5 text-xs">/playground</code> para validar{' '}
             <span className="font-medium text-foreground">loading / empty / error / success</span> dos componentes
-            principais. Use também <code className="rounded bg-muted px-1 py-0.5 text-xs">?ui=loading|error|empty</code> no{' '}
+            principais. Use também <code className="rounded bg-muted px-1 py-0.5 text-xs">?ui=loading|error|empty</code>{' '}
+            no{' '}
             <Link to="/" className="underline underline-offset-4">
               Dashboard
             </Link>{' '}
@@ -108,7 +109,13 @@ export function Playground() {
               ))}
             </ToggleGroup>
             <span className="text-xs font-medium text-muted-foreground">Destino</span>
-            <ToggleGroup type="single" variant="outline" size="sm" value={destination} onValueChange={(v) => v && setDestination(v as Destination)}>
+            <ToggleGroup
+              type="single"
+              variant="outline"
+              size="sm"
+              value={destination}
+              onValueChange={(v) => v && setDestination(v as Destination)}
+            >
               {DESTINATIONS.map((d) => (
                 <ToggleGroupItem key={d} value={d}>
                   {d}
@@ -137,7 +144,12 @@ export function Playground() {
       <div className="grid gap-6">
         <section className="space-y-3">
           <SectionTitle title="KpiStrip" subtitle="3 indicadores · loading skeletons · empty (—) · error alert" />
-          <KpiStrip kpis={effectiveKpis} isLoading={isLoading} error={errorMsg} onRetry={() => setGlobalVariant('success')} />
+          <KpiStrip
+            kpis={effectiveKpis}
+            isLoading={isLoading}
+            error={errorMsg}
+            onRetry={() => setGlobalVariant('success')}
+          />
         </section>
 
         <section className="space-y-3">
@@ -196,7 +208,13 @@ export function Playground() {
                 <CardTitle className="text-xs">error</CardTitle>
               </CardHeader>
               <CardContent>
-                <StateView variant="error" title="Falha ao carregar" description="API 500" actionLabel="Tentar de novo" onAction={() => {}} />
+                <StateView
+                  variant="error"
+                  title="Falha ao carregar"
+                  description="API 500"
+                  actionLabel="Tentar de novo"
+                  onAction={() => {}}
+                />
               </CardContent>
             </Card>
           </div>

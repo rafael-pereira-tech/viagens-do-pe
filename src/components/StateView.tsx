@@ -38,7 +38,12 @@ export function StateView({ variant = 'empty', title, description, actionLabel, 
         {description ? <p className="max-w-sm text-xs text-muted-foreground">{description}</p> : null}
       </div>
       {actionLabel && onAction ? (
-        <Button type="button" variant={isError ? 'outline' : 'default'} size={isError ? 'sm' : 'default'} onClick={onAction}>
+        <Button
+          type="button"
+          variant={isError ? 'outline' : 'default'}
+          size={isError ? 'sm' : 'default'}
+          onClick={onAction}
+        >
           {actionLabel}
         </Button>
       ) : null}

@@ -60,11 +60,11 @@ O Vite só expõe variáveis com prefixo `VITE_`. Reinicie `npm run dev` depois 
 
 Dados (select **Dados** / query):
 
-| Modo                                | UI                         | Query                  | API                                                                                 |
-| ----------------------------------- | -------------------------- | ---------------------- | ----------------------------------------------------------------------------------- |
-| **Incluir dry-run (padrão)** | Incluir dry-run (padrão)   | implícito ou `?dry=1` | sem `exclude_dry_run` — live + `*_dry_run`. A base ainda é só fixture; exclude esvaziaria KPIs. |
-| Só dry-run                   | Só dry-run                 | `?dry_run=1`          | só `*_dry_run`                                                                                  |
-| Produção                     | Produção (exclude dry-run) | `?live=1`             | `exclude_dry_run=1` — usar quando existirem batches live                                        |
+| Modo                                | UI                         | Query                  | API                                                                                                   |
+| ----------------------------------- | -------------------------- | ---------------------- | ----------------------------------------------------------------------------------------------------- |
+| **Produção (padrão)**               | Produção (exclude dry-run) | `?live=1`              | `exclude_dry_run=1` — somente batches reais                                                           |
+| Incluir dry-run                     | Incluir dry-run            | `?dry=1`               | live + fixtures                                                                                       |
+| Só dry-run                          | Só dry-run                 | `?dry_run=1`           | somente `*_dry_run`                                                                                   |
 
 **Nunca** coloque `SUPABASE_SERVICE_ROLE_KEY` nem qualquer `VITE_SUPABASE*` no frontend — Security grepa o bundle.
 
@@ -122,7 +122,7 @@ npx wrangler pages deploy dist
 
 Scheduled collection lives in [`workers/`](workers/). **Smiles / GOL PET→CGH** (`smiles_web` miles, `voegol` cash), **TudoAzul / AZUL PET→VCP + PET→POA** (`tudoazul` miles, `voeazul` cash), and **LATAM Pass / LATAM PET→GRU** (`latam_pass` miles, `latam_web` cash) are implemented.
 
-- Cron: 00:00, 06:00, 12:00, 18:00 **UTC** (21:00, 03:00, 09:00, 15:00 America/Sao_Paulo)
+- Cron: 09:00 and 21:00 **UTC** (06:00 and 18:00 America/Sao_Paulo); production scans a rolling 45-day window.
 - Local: `cd workers && npm install && npm run dev` — see [`workers/README.md`](workers/README.md) for `SMILES_*` / `TUDOAZUL_LOGIN`+`TUDOAZUL_PASSWORD` / `LATAM_PASS_LOGIN`+`LATAM_PASS_PASSWORD` placeholders, dry-run fixtures, and a manual `/run` tick
 - **BE-6 read API** (same Worker): `GET /api/v1/snapshots`, `/latest`, `/stats`. Contract + curl: [`docs/api-price-snapshots.md`](docs/api-price-snapshots.md)
 

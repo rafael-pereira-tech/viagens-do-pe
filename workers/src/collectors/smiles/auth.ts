@@ -1,6 +1,7 @@
 import type { Env } from '../../env';
 import { SMILES_LOGIN_HOSTS, SMILES_LOGIN_PATH, SMILES_ORIGIN } from './constants';
 import type { SmilesEnvName, SmilesSession } from './types';
+import { anySourceEnabled } from '../capabilities';
 
 export function smilesEnvName(env: Env): SmilesEnvName {
   return env.SMILES_ENV?.trim().toLowerCase() === 'green' ? 'green' : 'blue';
@@ -20,13 +21,7 @@ export function isDryRun(env: Env): boolean {
 }
 
 export function isLiveEnabled(env: Env): boolean {
-  return Boolean(
-    env.SMILES_API_KEY?.trim() ||
-      env.SMILES_COOKIE?.trim() ||
-      env.SMILES_ACCESS_TOKEN?.trim() ||
-      env.SMILES_USER?.trim() ||
-      truthy(env.SMILES_LIVE),
-  );
+  return anySourceEnabled(env, 'smiles_points', 'gol_cash') || Boolean(env.SMILES_USER?.trim() || truthy(env.SMILES_LIVE));
 }
 
 export function loginHost(env: Env): string {

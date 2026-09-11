@@ -49,6 +49,7 @@ export function OffersTable({ rows, isLoading, onResetFilters, error, onRetry }:
                 <TableHead className={FIELD_LABEL}>Cia / programa</TableHead>
                 <TableHead className={FIELD_LABEL}>Fonte</TableHead>
                 <TableHead className={`${FIELD_LABEL} text-right`}>Milhas</TableHead>
+                <TableHead className={`${FIELD_LABEL} text-right`}>Paradas</TableHead>
                 <TableHead className={`${FIELD_LABEL} text-right`}>Taxas (BRL)</TableHead>
                 <TableHead className={`${FIELD_LABEL} text-right`}>Cash (BRL)</TableHead>
                 <TableHead className={`${FIELD_LABEL} text-right`}>Milheiro</TableHead>
@@ -72,6 +73,9 @@ export function OffersTable({ rows, isLoading, onResetFilters, error, onRetry }:
                   </TableCell>
                   <TableCell className="text-right tabular-nums text-card-foreground">
                     {row.miles != null ? formatMiles(row.miles) : '—'}
+                  </TableCell>
+                  <TableCell className="text-right tabular-nums text-card-foreground">
+                    {row.stops != null ? row.stops : '—'}
                   </TableCell>
                   <TableCell className="text-right tabular-nums text-card-foreground">
                     {row.taxes_brl != null ? formatBrl(row.taxes_brl, true) : '—'}

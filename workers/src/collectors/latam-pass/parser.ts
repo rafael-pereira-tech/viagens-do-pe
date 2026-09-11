@@ -208,6 +208,7 @@ function snapshotFromMilesBrand(params: CollectParams, offer: LatamOffer, brand:
   const taxes = !taxesCurrency || taxesCurrency === 'BRL' ? moneyAmount(brand.taxes ?? undefined) : null;
   return {
     ...snapshotBase(params, offerDeparture(offer)),
+    stops: offer.summary?.stopOvers ?? offer.summary?.stops ?? null,
     miles,
     amount_brl: null,
     taxes_brl: taxes,
@@ -240,6 +241,7 @@ function snapshotFromCashBrand(params: CollectParams, offer: LatamOffer, brand: 
   const taxes = !taxesCurrency || taxesCurrency === 'BRL' ? moneyAmount(brand.taxes ?? undefined) : null;
   return {
     ...snapshotBase(params, offerDeparture(offer)),
+    stops: offer.summary?.stopOvers ?? offer.summary?.stops ?? null,
     miles: null,
     amount_brl: amount,
     taxes_brl: taxes,
@@ -280,6 +282,7 @@ function snapshotFromGeckoItem(params: CollectParams, item: GeckoItem, pricingMo
     if (quoted == null) return null;
     return {
       ...snapshotBase(params, item.route?.departure),
+      stops: item.flight?.stops ?? null,
       miles: quoted,
       amount_brl: null,
       taxes_brl: moneyAmount(item.taxes ?? undefined),
@@ -303,6 +306,7 @@ function snapshotFromGeckoItem(params: CollectParams, item: GeckoItem, pricingMo
   if (amount == null) return null;
   return {
     ...snapshotBase(params, item.route?.departure),
+    stops: item.flight?.stops ?? null,
     miles: null,
     amount_brl: amount,
     taxes_brl: moneyAmount(item.taxes ?? undefined),

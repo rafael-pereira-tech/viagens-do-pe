@@ -54,6 +54,7 @@ Aliases: `flight_date_gte` / `flight_date_lte`, `collected_at_gte` / `collected_
   program: string
   flight_date: string            // YYYY-MM-DD
   departure_time: string | null
+  stops: number | null          // number of connections, when upstream provides it
   miles: number | null           // award quote; null on cash-only rows
   amount_brl: number | null      // cash quote; null on miles-only rows
   taxes_brl: number | null       // null = unknown, 0 = zero tax
@@ -241,10 +242,8 @@ Dry-run after the S0 hotfix persists the **same live name + `_dry_run`**:
 `latam_pass_dry_run`, `latam_web_dry_run`. The FE should either pass
 `exclude_dry_run=1` or accept those rows and label them.
 
-Dashboard modes: **default includes dry-run** (no `exclude_dry_run`; `?dry=1`
-optional). The table is still fixture-only (`*_dry_run`); excluding fixtures
-empties KPIs. `?dry_run=1` keeps only fixtures. `?live=1` (Produção) sends
-`exclude_dry_run=1` when live batches exist.
+Dashboard production mode is live by default and sends `exclude_dry_run=1`.
+`?dry=1` includes live+fixtures and `?dry_run=1` selects fixtures for QA.
 
 `exclude_dry_run` is **not** a cash-vs-miles switch. Program sources never
 count toward `min_amount_brl`.

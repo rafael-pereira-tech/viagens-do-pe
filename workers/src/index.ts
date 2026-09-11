@@ -1,5 +1,6 @@
 import { applyCors, corsPreflight } from './api/cors';
 import { handleReadApi } from './api/handlers';
+import { handleStagingProbe } from './api/probe';
 import type { Env } from './env';
 import { runIngest } from './scheduler';
 
@@ -39,6 +40,12 @@ export default {
 
     if (request.method === 'GET' && url.pathname === '/health') {
       return Response.json({ ok: true, service: 'viagens-do-pe-ingest' });
+    }
+
+    if (request.method === 'POST' && url.pathname === '/internal/probe') {
+      const denied = authorizeManualRun(request, env);
+      if (denied) return denied;
+      return handleStagingProbe(request, env);
     }
 
     if (request.method === 'POST' && url.pathname === '/run') {
