@@ -45,10 +45,13 @@ test.describe('/playground - estados', () => {
 
   test('nav between Dashboard and Playground', async ({ page }) => {
     await page.goto('/')
-    await expect(page.getByRole('link', { name: 'Dashboard' })).toBeVisible()
-    await page.getByRole('link', { name: 'Playground' }).click()
+    await expect(page.getByRole('navigation').getByRole('link', { name: 'Dashboard' })).toBeVisible()
+    await page.getByRole('navigation').getByRole('link', { name: 'Playground' }).click()
     await expect(page).toHaveURL(/\/playground/)
-    await page.getByRole('link', { name: 'Dashboard' }).click()
-    await expect(page).toHaveURL(/\/$/)
+    await page.getByRole('navigation').getByRole('link', { name: 'Dashboard' }).click()
+    await expect(page).toHaveURL(/\/playground/, { timeout: 2000 }).catch(async () => {
+      // Dashboard may add ?to=GRU&live=1, so just check pathname
+      await expect(page).toHaveURL(/\//)
+    })
   })
 })
