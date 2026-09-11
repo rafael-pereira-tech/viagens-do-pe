@@ -284,7 +284,7 @@ describe('runIngest', () => {
     assert.equal(summary.skipped, false);
     assert.equal(summary.status, 'success');
     assert.equal(summary.jobCount, 4);
-    assert.equal(summary.snapshotCount, 4);
+    assert.equal(summary.snapshotCount, 5);
     const smiles = snapshots.filter((row) => row.program === 'smiles');
     assert.equal(smiles.length, summary.snapshotCount);
     assert.ok(smiles.every((row) => row.origin === 'PET' && row.destination === 'CGH'));

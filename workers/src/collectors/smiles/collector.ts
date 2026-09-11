@@ -42,6 +42,7 @@ export function createSmilesCollector(env: Env, deps: SmilesCollectorDeps = {}):
 
   return {
     async collect(params: CollectParams): Promise<CollectResult> {
+      // DOW preference is applied by the scheduler job order, not here.
       if (isDryRun(env)) {
         const parsed = parseSmilesSearch(shiftSearchDates(SEARCH_PET_CGH_SUCCESS, params.flightDate), params, {
           fareTypes: fareTypes({ includeClub: env.SMILES_INCLUDE_CLUB === '1' }),
@@ -54,7 +55,7 @@ export function createSmilesCollector(env: Env, deps: SmilesCollectorDeps = {}):
           status: 'auth_failed',
           snapshots: [],
           error:
-            'Smiles collector is not configured. Set SMILES_API_KEY (SPA x-api-key) or SMILES_COOKIE, or SMILES_DRY_RUN=1 for fixtures.',
+            'Smiles collector is not configured. Set SMILES_API_KEY or SMILES_COOKIE when live credentials are available, or SMILES_DRY_RUN=1 for fixtures.',
         };
       }
 

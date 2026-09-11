@@ -11,6 +11,7 @@ import {
   departureTimeOf,
   isGolFlight,
   parseSmilesSearch,
+  quotedOrNull,
   resolveFareTypes,
   toFiniteNumber,
 } from '../src/collectors/smiles/parser.ts';
@@ -62,10 +63,15 @@ describe('parseSmilesSearch PET→CGH fixture', () => {
     }
 
     const morningMiles = parsed.snapshots.find(
-      (row) => row.departure_time === '06:40:00' && row.miles === 18500 && (row.amount_brl === 0 || row.amount_brl == null),
+      (row) => row.departure_time === '06:40:00' && row.miles === 18500,
     );
     assert.ok(morningMiles);
+    assert.equal(morningMiles.amount_brl, null);
     assert.equal(morningMiles.taxes_brl, 39.9);
+
+    const omittedMoney = parsed.snapshots.find((row) => row.miles === 14100);
+    assert.ok(omittedMoney);
+    assert.equal(omittedMoney.amount_brl, null);
 
     const morningMix = parsed.snapshots.find(
       (row) => row.departure_time === '06:40:00' && row.miles === 7200,
@@ -116,5 +122,35 @@ describe('parseSmilesSearch PET→CGH fixture', () => {
     });
     assert.equal(parsed.golFlights, 1);
     assert.equal(parsed.snapshots.length, 0);
+  });
+});
+
+describe('quoted prices', () => {
+  it('never invents 0 for missing miles or cash', () => {
+    assert.equal(quotedOrNull(undefined, 'miles'), null);
+    assert.equal(quotedOrNull(null, 'money'), null);
+    assert.equal(quotedOrNull('', 'money'), null);
+    assert.equal(quotedOrNull(0, 'miles'), null);
+    assert.equal(quotedOrNull(0, 'money'), null);
+    assert.equal(quotedOrNull('0', 'money'), null);
+    assert.equal(quotedOrNull(18500, 'miles'), 18500);
+    assert.equal(quotedOrNull(248.5, 'money'), 248.5);
+  });
+
+  it('does not persist placeholder zeros from the search payload', () => {
+    const parsed = parseSmilesSearch(SEARCH_PET_CGH_SUCCESS, params, {
+      fareTypes: resolveFareTypes({ includeClub: false }),
+    });
+    assert.ok(parsed.snapshots.length > 0);
+    for (const row of parsed.snapshots) {
+      assert.notEqual(row.miles, 0);
+      assert.notEqual(row.amount_brl, 0);
+      if (row.miles == null) assert.equal(row.miles, null);
+      if (row.amount_brl == null) assert.equal(row.amount_brl, null);
+    }
+    assert.equal(
+      parsed.snapshots.some((row) => row.miles === 0 || row.amount_brl === 0),
+      false,
+    );
   });
 });

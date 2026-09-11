@@ -2,8 +2,6 @@ import type { CollectParams, Snapshot } from '../types';
 import { DEFAULT_FARE_TYPES, GOL_AIRLINE_CODES, SMILES_SOURCE } from './constants';
 import type { SmilesFare, SmilesFlight, SmilesSearchResponse } from './types';
 
-const MONEY_FARE = /MONEY/i;
-
 export function toFiniteNumber(value: unknown): number | null {
   if (typeof value === 'number' && Number.isFinite(value)) return value;
   if (typeof value === 'string' && value.trim() !== '') {
@@ -15,6 +13,16 @@ export function toFiniteNumber(value: unknown): number | null {
 
 export function roundMoney(value: number): number {
   return Math.round(value * 100) / 100;
+}
+
+/**
+ * Quoted miles / cash. Missing, empty, or non-positive → `null`.
+ * Locked BE-3: never invent price 0.
+ */
+export function quotedOrNull(value: unknown, kind: 'miles' | 'money'): number | null {
+  const parsed = toFiniteNumber(value);
+  if (parsed == null || parsed <= 0) return null;
+  return kind === 'miles' ? Math.round(parsed) : roundMoney(parsed);
 }
 
 export function departureTimeOf(iso: string | undefined): string | null {
@@ -53,22 +61,11 @@ export function isGolFlight(flight: SmilesFlight): boolean {
 function fareTaxes(flight: SmilesFlight, fare: SmilesFare): number | null {
   const candidates = [fare.g3?.costTax, fare.airlineTax, fare.boardingTax, flight.airlineTax];
   for (const value of candidates) {
+    if (value === undefined || value === null || value === '') continue;
     const parsed = toFiniteNumber(value);
     if (parsed != null && parsed >= 0) return roundMoney(parsed);
   }
   return null;
-}
-
-function fareMiles(fare: SmilesFare): number | null {
-  const miles = toFiniteNumber(fare.miles);
-  if (miles == null || miles < 0) return null;
-  return Math.round(miles);
-}
-
-function fareMoney(fare: SmilesFare): number | null {
-  const money = toFiniteNumber(fare.money);
-  if (money == null || money < 0) return null;
-  return roundMoney(money);
 }
 
 export function isAllowedFareType(type: string | undefined, allowed: ReadonlySet<string>): boolean {
@@ -98,12 +95,9 @@ function snapshotFromFare(
   flight: SmilesFlight,
   fare: SmilesFare,
 ): Snapshot | null {
-  const miles = fareMiles(fare);
-  const amount = fareMoney(fare);
-  if (miles == null && amount == null) return null;
-  const isMoneyMix = MONEY_FARE.test(String(fare.type ?? ''));
-  // Pure-miles rows may omit money; miles+BRL rows keep a 0 copay when listed as 0.
-  const amountBrl = amount ?? (isMoneyMix ? 0 : null);
+  const miles = quotedOrNull(fare.miles, 'miles');
+  const amountBrl = quotedOrNull(fare.money, 'money');
+  if (miles == null && amountBrl == null) return null;
 
   const departure = departureTimeOf(flight.departure?.date);
   return {

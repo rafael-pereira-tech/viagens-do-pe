@@ -52,15 +52,21 @@ export function toSnapshotRow(snapshot: Snapshot): Record<string, unknown> {
     ingest_run_id: snapshot.ingest_run_id,
   };
   if (snapshot.departure_time !== undefined) row.departure_time = snapshot.departure_time;
-  if (snapshot.miles !== undefined) row.miles = snapshot.miles;
-  if (snapshot.amount_brl !== undefined) row.amount_brl = snapshot.amount_brl;
+  if (snapshot.miles !== undefined) {
+    row.miles = snapshot.miles != null && snapshot.miles > 0 ? snapshot.miles : null;
+  }
+  if (snapshot.amount_brl !== undefined) {
+    row.amount_brl = snapshot.amount_brl != null && snapshot.amount_brl > 0 ? snapshot.amount_brl : null;
+  }
   if (snapshot.taxes_brl !== undefined) row.taxes_brl = snapshot.taxes_brl;
   if (snapshot.raw_payload !== undefined) row.raw_payload = snapshot.raw_payload;
   return row;
 }
 
 export function isPersistableSnapshot(snapshot: Snapshot): boolean {
-  return snapshot.miles != null || snapshot.amount_brl != null;
+  const miles = snapshot.miles;
+  const amount = snapshot.amount_brl;
+  return (miles != null && miles > 0) || (amount != null && amount > 0);
 }
 
 const PLACEHOLDER = /your[_-]?project|example\.supabase|placeholder|changeme|your-service-role-key/i;

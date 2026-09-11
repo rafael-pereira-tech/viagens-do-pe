@@ -53,9 +53,11 @@ GET {SMILES_SEARCH_HOST}/v1/airlines/search
   &forceCongener=false
 ```
 
-Default host is `https://api-air-flightsearch-blue.smiles.com.br` (`SMILES_ENV=green` switches to the green replica). One sequential request per flight date, default **400ms** gap (`SMILES_REQUEST_DELAY_MS`), exponential backoff on 429/502/503/504 (max 3 tries). Tue/Thu/Sat are scheduler preferences only — other dates are still collected.
+Default host is `https://api-air-flightsearch-blue.smiles.com.br` (`SMILES_ENV=green` switches to the green replica). One sequential request per flight date, default **400ms** gap (`SMILES_REQUEST_DELAY_MS`), exponential backoff on 429/502/503/504 (max 3 tries). Tue/Thu/Sat are scheduler preferences only — the collector does **not** hard-fail other dates.
 
-Each GOL (G3) flight emits public **SMILES** (miles) and **SMILES_MONEY** (miles+BRL copay) rows. Club fares are skipped unless a member session is present (`SMILES_COOKIE` / `SMILES_ACCESS_TOKEN` / `SMILES_MEMBER_NUMBER` or `SMILES_INCLUDE_CLUB=1`). Partner airlines in the same payload are dropped. Taxes come from `fare.g3.costTax` or `airlineTax` when present (`null` means unknown).
+Each GOL (G3) flight emits public **SMILES** (miles) and **SMILES_MONEY** (miles+BRL copay) rows. Club fares are skipped unless a member session is present (`SMILES_COOKIE` / `SMILES_ACCESS_TOKEN` / `SMILES_MEMBER_NUMBER` or `SMILES_INCLUDE_CLUB=1`). Partner airlines in the same payload are dropped. Taxes come from `fare.g3.costTax` or `airlineTax` when present (`null` means unknown). **Missing miles or cash is `null`, never `0`.** A payload `money: 0` on a miles-only fare is treated as no cash quote.
+
+Live credentials are env secrets only. Until Pereira sends them privately to PM, `SMILES_DRY_RUN=1` (bundled PET→CGH fixtures) is the accepted path.
 
 ### Env / secrets
 
@@ -69,7 +71,7 @@ Do not commit credentials. Local: `workers/.dev.vars`. Production: `npx wrangler
 | `SMILES_MEMBER_NUMBER` | No | `memberNumber` query param (club pricing). |
 | `SMILES_USER` / `SMILES_PASS` | No | Best-effort `POST /oauth/token` (Auth0 password-realm). Usually blocked by captcha/WAF — prefer cookies. |
 | `SMILES_AUTH_CLIENT_ID` / `SMILES_AUTH_AUDIENCE` / `SMILES_AUTH_REALM` | No | Overrides for that login POST. |
-| `SMILES_DRY_RUN` | CI / local without Smiles | `1` parses bundled PET→CGH JSON fixtures (no network). |
+| `SMILES_DRY_RUN` | CI / local without Smiles | `1` parses bundled PET→CGH JSON fixtures (no network). Accepted until live credentials are provided privately. |
 | `SMILES_LIVE` | No | Set `1` to force live mode if you only have cookies/token. |
 | `SMILES_ENV` | No | `blue` (default) or `green`. |
 | `SMILES_SEARCH_HOST` / `SMILES_LOGIN_HOST` | No | Full origin overrides. |

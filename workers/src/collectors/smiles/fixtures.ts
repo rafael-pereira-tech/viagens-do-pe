@@ -63,6 +63,17 @@ export const SEARCH_PET_CGH_SUCCESS: SmilesSearchResponse = {
               uid: 'fare-empty',
               type: 'SMILES_MONEY',
             },
+            {
+              uid: 'fare-zero-placeholder',
+              type: 'SMILES_MONEY',
+              miles: 0,
+              money: 0,
+            },
+            {
+              uid: 'fare-miles-only-omit-money',
+              type: 'SMILES',
+              miles: 14100,
+            },
           ],
         },
         {
