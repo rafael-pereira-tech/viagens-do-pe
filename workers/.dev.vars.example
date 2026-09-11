@@ -25,3 +25,12 @@ TUDOAZUL_LOGIN=
 TUDOAZUL_PASSWORD=
 # TUDOAZUL_API_HOST=https://b2c-api.voeazul.com.br
 # TUDOAZUL_REQUEST_DELAY_MS=400
+
+# BE-5 LATAM Pass / LATAM. Frozen secrets (placeholders only).
+# Dry-run uses bundled PET→GRU JSON (no live login).
+LATAM_DRY_RUN=1
+LATAM_LOGIN=
+LATAM_PASSWORD=
+# LATAM_COOKIE=
+# LATAM_API_HOST=https://www.latamairlines.com
+# LATAM_REQUEST_DELAY_MS=400

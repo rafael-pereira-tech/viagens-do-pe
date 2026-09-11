@@ -16,6 +16,8 @@ crons = ["0 0 * * *", "0 6 * * *", "0 12 * * *", "0 18 * * *"]
 #   SMILES_API_KEY          (BE-3 guest search; SPA x-api-key from DevTools)
 #   SMILES_COOKIE / SMILES_ACCESS_TOKEN / SMILES_USER / SMILES_PASS  (optional member)
 #   TUDOAZUL_LOGIN / TUDOAZUL_PASSWORD  (BE-4 frozen secrets; placeholders only)
+#   LATAM_LOGIN / LATAM_PASSWORD        (BE-5 frozen secrets; placeholders only)
+#   LATAM_COOKIE / LATAM_ACCESS_TOKEN   (optional member session if captcha blocks login)
 #
 # Optional non-secret overrides can be added under [vars] later:
 #   FLIGHT_WINDOW_START, FLIGHT_WINDOW_END
@@ -24,3 +26,5 @@ crons = ["0 0 * * *", "0 6 * * *", "0 12 * * *", "0 18 * * *"]
 #   SMILES_REQUEST_DELAY_MS
 #   TUDOAZUL_DRY_RUN=1 (fixture parser, no live Azul)
 #   TUDOAZUL_API_HOST / TUDOAZUL_REQUEST_DELAY_MS
+#   LATAM_DRY_RUN=1    (fixture parser, no live LATAM)
+#   LATAM_API_HOST / LATAM_OFFERS_PATH / LATAM_LOGIN_PATH / LATAM_REQUEST_DELAY_MS
