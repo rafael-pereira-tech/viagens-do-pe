@@ -1,6 +1,6 @@
 # viagens-do-pe ingest worker (BE-2)
 
-Scheduled Cloudflare Worker that walks the PET route matrix for **1 Sep 2026 – 31 Dec 2026** and persists quotes. Smiles / GOL (PET→CGH) is a live HTTP collector (BE-3). TudoAzul and LATAM Pass remain stubs until BE-4/5.
+Scheduled Cloudflare Worker that walks the PET route matrix for **1 Sep 2026 – 31 Dec 2026** and persists quotes. Smiles / GOL (PET→CGH) and TudoAzul / AZUL (PET→VCP, PET→POA) are live HTTP collectors. LATAM Pass remains a stub until BE-5.
 
 ## Timezone
 
@@ -31,7 +31,7 @@ Preferred weekdays are ordered first; every other date in the window is still qu
 Swap airline modules without rewriting the cron:
 
 - `src/collectors/smiles/` — **BE-3 implemented** (GOL PET→CGH)
-- `src/collectors/tudoazul.ts` — stub until BE-4
+- `src/collectors/tudoazul/` — **BE-4 implemented** (AZUL PET→VCP and PET→POA)
 - `src/collectors/latam-pass.ts` — stub until BE-5
 
 Contract:
@@ -78,8 +78,65 @@ Do not commit credentials. Local: `workers/.dev.vars`. Production: `npx wrangler
 | `SMILES_FARE_TYPES` | No | Comma list, default `SMILES,SMILES_MONEY`. |
 | `SMILES_INCLUDE_CLUB` | No | `1` to keep club fares without a member session. |
 | `SMILES_REQUEST_DELAY_MS` | No | Default `400`. |
+| `AZUL_SUBSCRIPTION_KEY` | Yes (guest search) | Public SPA `Ocp-Apim-Subscription-Key` for token + availability. Copy from DevTools on `b2c-api.voeazul.com.br`. |
+| `AZUL_COOKIE` / `AZUL_ACCESS_TOKEN` | No | Browser session / bearer for the B2C API. |
+| `TUDOAZUL_DRY_RUN` | CI / local without Azul | `1` parses bundled PET→VCP and PET→POA JSON fixtures (no network). |
+| `AZUL_API_HOST` | No | Default `https://b2c-api.voeazul.com.br`. |
+| `AZUL_REQUEST_DELAY_MS` | No | Default `400`. |
 
-Unconfigured live ticks record **`auth_failed`** for every Smiles date (TudoAzul/LATAM stay `empty` stubs), so the ingest run is **`partial`**.
+Unconfigured live ticks record **`auth_failed`** for every Smiles and TudoAzul date (LATAM stays an `empty` stub), so the ingest run is **`partial`**.
+
+## TudoAzul / AZUL (BE-4)
+
+One `collect({ origin, destination, airline, program, flightDate })` job, two sources. `program` stays `tudoazul`. Airline is AZUL. The scheduler already prefers VCP Mon/Fri and queues every other date (including all PET→POA dates) — the collector does **not** hard-lock DOW.
+
+| Quote | `source` | `miles` | `amount_brl` | `taxes_brl` |
+| --- | --- | --- | --- | --- |
+| Award / pontos+reais | `tudoazul_web` | `pointsOptions[].points` (or `discountedPoints`) | **always `null`** | `taxesAndFees` |
+| Full cash BRL | `voeazul` | `null` | `fares[].total.amount` (BRL) | passenger tax charges when present |
+
+**Critical: Azul `fareMoney` / `totalMoney` is pontos+reais copay, not full cash BRL.** It is stored only as `raw_payload.copay_brl` (plus the original money fields). Missing fare → `null` / `empty`, **never price 0**.
+
+### TudoAzul points (primary)
+
+- UI: `https://www.voeazul.com.br/br/pt/home/selecao-voo?c[0].ds=PET&c[0].as=VCP&c[0].std=MM/DD/YYYY&p[0].t=ADT&p[0].c=1&p[0].cp=true&cc=BRL` (same for POA)
+- Upstream: `POST https://b2c-api.voeazul.com.br/reservationavailability/api/reservation/availability/v5/availability`
+- Guest JWT first: `POST https://b2c-api.voeazul.com.br/authentication/api/authentication/v1/token`
+- Body: `criteria[].stations.originStationCodes` / `destinationStationCodes`, `dates.beginDate=YYYY-MM-DDT00:00:00`, `passengers.types=[{type:ADT,count:1}]`, `codes.currencyCode=BRL`, `points=true`, `filters.loyalty=PointsAndMonetary`
+- Headers: `Ocp-Apim-Subscription-Key`, `Device: novosite`, `Culture: pt-BR`, browser `Accept` / `Origin` / `Referer` / `User-Agent`, optional `Authorization: Bearer` / `Cookie`
+- Parses gecko-normalized `trips[].journeys[].fares[].pointsOptions[]` and native Navitaire `journeysAvailableByMarket` + `passengerFares.points`
+- Filter carrier `AD` / `2Z` (partner airlines dropped)
+
+### Full cash BRL (separate source, same host)
+
+- UI: same `selecao-voo` URL with `p[0].cp=false`
+- Upstream: same availability v5 POST with `points=false` and `filters.loyalty=MonetaryOnly`
+- `fares[].total.amount` + `currency=BRL` (or Navitaire `passengerFares[].fareAmount`)
+- Same ingest job (companion), distinct `source=voeazul`. Points WAF vs cash WAF can independently yield `partial`.
+
+### Auth
+
+Placeholders only (no live login in CI):
+
+- `AZUL_SUBSCRIPTION_KEY` — public SPA `Ocp-Apim-Subscription-Key` (not a user password)
+- Optional `AZUL_COOKIE` / `AZUL_ACCESS_TOKEN` (practical member path if captcha blocks password login)
+- `TUDOAZUL_DRY_RUN=1` parses bundled PET→VCP and PET→POA fixtures (no network)
+
+### Rate / WAF
+
+- No official RPM. Naive / datacenter clients get **HTML 403 Access Denied** from Akamai
+- Browser Accept + `Device`/`Culture` set; sequential 400ms limiter shared by points then cash; backoff on 429/5xx; no burst
+- **HTML / Akamai / HTTP 406 → `scrape_failed`**. **401 / JSON 403 / missing config → `auth_failed`**. Never invent a 0 fare.
+
+### Statuses
+
+| Status | When |
+| --- | --- |
+| `success` | ≥1 persistable AZUL quote (points and/or voeazul cash) |
+| `empty` | 200 but no AZUL inventory / allowed fares |
+| `auth_failed` | missing config, 401, JSON 403, or guest token failed |
+| `scrape_failed` | network/5xx/429, HTML/non-JSON, Akamai block, HTTP 406 WAF |
+| `partial` | points ok + cash failed (or reverse); or run-level mix with other programs |
 
 ### Manual tick
 
@@ -88,8 +145,10 @@ cd workers
 cp .dev.vars.example .dev.vars
 # either:
 #   SMILES_DRY_RUN=1
+#   TUDOAZUL_DRY_RUN=1
 # or:
 #   SMILES_API_KEY=<from DevTools>
+#   AZUL_SUBSCRIPTION_KEY=<from DevTools>
 npm run dev
 ```
 
@@ -119,7 +178,7 @@ FLIGHT_WINDOW_END=2026-09-15
 | `empty` | HTTP 200 but no GOL inventory / no allowed fares. |
 | `auth_failed` | Missing config, 401/403, or password login failed. |
 | `scrape_failed` | Network/5xx/429 exhausted, non-JSON/HTML, or Akamai-style `{ "message": "Something went wrong" }` (HTTP 406 from datacenter IPs is common). |
-| `partial` | Run-level mix (Smiles failed, other programs empty; or persist errors). |
+| `partial` | Run-level mix (one program failed, others empty/success; miles ok + cash failed; or persist errors). |
 
 **Live API discovery notes:** the SPA (`@smiles/flight-availability`) calls `ApiFlightSearch` → `v1/airlines/search` with `NOT_CREDENTIALS` plus `x-api-key` from remote constants (`x-api-key=flight-search` in LaunchDarkly). This environment's AWS egress received **HTTP 406** from Akamai on both blue and green search hosts even with the historical public key — Workers on Cloudflare IPs may succeed; if not, set `SMILES_COOKIE` from a real browser session or keep `SMILES_DRY_RUN=1` until the WAF allows the guest key.
 
@@ -152,9 +211,12 @@ npx wrangler secret put INGEST_TRIGGER_SECRET
 npx wrangler secret put SMILES_API_KEY
 # optional member session:
 # npx wrangler secret put SMILES_COOKIE
+# BE-4 live Azul (omit if TUDOAZUL_DRY_RUN=1):
+npx wrangler secret put AZUL_SUBSCRIPTION_KEY
+# npx wrangler secret put AZUL_COOKIE
 ```
 
-Optional env overrides: `FLIGHT_WINDOW_START`, `FLIGHT_WINDOW_END` (YYYY-MM-DD), `SMILES_DRY_RUN`, `SMILES_ENV`, `SMILES_REQUEST_DELAY_MS`.
+Optional env overrides: `FLIGHT_WINDOW_START`, `FLIGHT_WINDOW_END` (YYYY-MM-DD), `SMILES_DRY_RUN`, `SMILES_ENV`, `SMILES_REQUEST_DELAY_MS`, `TUDOAZUL_DRY_RUN`, `AZUL_REQUEST_DELAY_MS`.
 
 Without real Supabase secrets the worker still runs collectors and returns a summary; it skips persistence (`persisted: false`). Do not point `SUPABASE_URL` at a dummy hostname — workerd fails hard on DNS errors. Leave the vars empty instead.
 

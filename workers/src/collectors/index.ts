@@ -2,7 +2,7 @@ import type { Program } from '../config';
 import type { Env } from '../env';
 import { latamPassCollector } from './latam-pass';
 import { createSmilesCollector } from './smiles';
-import { tudoAzulCollector } from './tudoazul';
+import { createTudoAzulCollector } from './tudoazul';
 import type { Collector } from './types';
 
 export type { CollectParams, CollectResult, Collector, Snapshot } from './types';
@@ -10,7 +10,7 @@ export type { CollectParams, CollectResult, Collector, Snapshot } from './types'
 export function createCollectors(env: Env = {}): Record<Program, Collector> {
   return {
     smiles: createSmilesCollector(env),
-    tudoazul: tudoAzulCollector,
+    tudoazul: createTudoAzulCollector(env),
     latam_pass: latamPassCollector,
   };
 }
@@ -23,5 +23,5 @@ export function getCollector(program: Program, env: Env = {}): Collector {
   return collector;
 }
 
-/** Default registry without Smiles credentials (auth_failed until env is passed). */
+/** Default registry without airline credentials (Smiles/TudoAzul auth_failed until env is passed). */
 export const collectors: Record<Program, Collector> = createCollectors();
