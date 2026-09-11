@@ -10,7 +10,14 @@ import {
   SEARCH_PET_VCP_CONNECTING,
   SEARCH_PET_VCP_POINTS,
 } from '../src/collectors/tudoazul/fixtures.ts';
-import { AZUL_AVAILABILITY_PATH, AZUL_TOKEN_PATH, TUDOAZUL_SOURCE, VOEAZUL_SOURCE } from '../src/collectors/tudoazul/constants.ts';
+import {
+  AZUL_AVAILABILITY_PATH,
+  AZUL_TOKEN_PATH,
+  TUDOAZUL_DRY_RUN_SOURCE,
+  TUDOAZUL_SOURCE,
+  VOEAZUL_DRY_RUN_SOURCE,
+  VOEAZUL_SOURCE,
+} from '../src/collectors/tudoazul/constants.ts';
 import type { CollectParams } from '../src/collectors/types.ts';
 
 const params: CollectParams = {
@@ -78,9 +85,10 @@ describe('tudoazul collector', () => {
     assert.equal(fetches, 0);
     assert.equal(result.status, 'success');
     assert.ok(result.snapshots.every((row) => row.flight_date === '2026-11-20'));
-    assert.ok(result.snapshots.some((row) => row.source === TUDOAZUL_SOURCE && row.miles === 18500 && row.amount_brl == null));
-    assert.ok(result.snapshots.some((row) => row.source === TUDOAZUL_SOURCE && row.miles === 7200 && row.amount_brl == null));
-    assert.ok(result.snapshots.some((row) => row.source === VOEAZUL_SOURCE && row.amount_brl === 529.9 && row.miles == null));
+    assert.ok(result.snapshots.some((row) => row.source === TUDOAZUL_DRY_RUN_SOURCE && row.miles === 18500 && row.amount_brl == null));
+    assert.ok(result.snapshots.some((row) => row.source === TUDOAZUL_DRY_RUN_SOURCE && row.miles === 7200 && row.amount_brl == null));
+    assert.ok(result.snapshots.some((row) => row.source === VOEAZUL_DRY_RUN_SOURCE && row.amount_brl === 529.9 && row.miles == null));
+    assert.ok(result.snapshots.every((row) => row.source.endsWith('_dry_run')));
     const mix = result.snapshots.find((row) => row.miles === 7200);
     assert.equal((mix?.raw_payload as { fare_money_brl?: number }).fare_money_brl, 248.5);
     assert.equal(mix?.amount_brl, null);
@@ -98,6 +106,27 @@ describe('tudoazul collector', () => {
     assert.equal(result.status, 'success');
     assert.ok(result.snapshots.some((row) => row.destination === 'POA' && row.miles === 9800 && row.amount_brl == null));
     assert.ok(result.snapshots.some((row) => row.destination === 'POA' && row.amount_brl === 389 && row.miles == null));
+    assert.ok(result.snapshots.every((row) => row.source.endsWith('_dry_run')));
+  });
+
+  it('uses a connection for PET→VCP dry-run dates before 2026-10-26', async () => {
+    const collector = createTudoAzulCollector({ TUDOAZUL_DRY_RUN: '1' }, { fetch: async () => new Response('nope') });
+    const result = await collector.collect({
+      origin: 'PET',
+      destination: 'VCP',
+      airline: 'AZUL',
+      program: 'tudoazul',
+      flightDate: '2026-09-15',
+    });
+    assert.equal(result.status, 'success');
+    assert.ok(result.snapshots.length > 0);
+    assert.ok(result.snapshots.every((row) => row.source.endsWith('_dry_run')));
+    assert.ok(
+      result.snapshots.every((row) => ((row.raw_payload as { stops?: number | null }).stops ?? 0) > 0),
+      'must not invent nonstop PET→VCP before 2026-10-26',
+    );
+    assert.ok(result.snapshots.some((row) => row.source === TUDOAZUL_DRY_RUN_SOURCE && row.miles === 18500));
+    assert.ok(result.snapshots.some((row) => row.source === VOEAZUL_DRY_RUN_SOURCE && row.amount_brl === 678.2));
   });
 
   it('maps 401 to auth_failed', async () => {

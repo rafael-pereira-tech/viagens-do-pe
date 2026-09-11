@@ -44,7 +44,14 @@ collect({ origin, destination, airline, program, flightDate }): Promise<CollectR
 
 ## Smiles / GOL (BE-3)
 
-Collector id (`source`): **`smiles_web`**. Program stays `smiles`. We talk to the same JSON search the Smiles website uses, not HTML scraping of `www.smiles.com.br` (that host's robots.txt disallows `/*?*`).
+One `collect({ origin, destination, airline, program, flightDate })` job, two sources. `program` stays `smiles`. Airline is GOL. We talk to the same JSON search the Smiles website uses, not HTML scraping of `www.smiles.com.br` (that host's robots.txt disallows `/*?*`).
+
+| Quote | `source` | `miles` | `amount_brl` | `taxes_brl` |
+| --- | --- | --- | --- | --- |
+| Award / Smiles+Money | `smiles_web` | Smiles `miles` | **always `null`** | `costTax` / `airlineTax` |
+| Full cash BRL | `voegol` | `null` | `offers[].total.amount` (BRL) | `null` unless present |
+
+**Critical: Smiles `money` is SMILES_MONEY copay, not full cash BRL.** Persist only on `raw_payload` as `copay_brl` / `smiles_money`. Missing fare → `null` / `empty`, **never invent price 0**. If only miles or only cash fails → `partial`.
 
 ```
 GET {SMILES_SEARCH_HOST}/v1/airlines/search
@@ -53,11 +60,19 @@ GET {SMILES_SEARCH_HOST}/v1/airlines/search
   &forceCongener=false
 ```
 
-Default host is `https://api-air-flightsearch-blue.smiles.com.br` (`SMILES_ENV=green` switches to the green replica). One sequential request per flight date, default **400ms** gap (`SMILES_REQUEST_DELAY_MS`), exponential backoff on 429/502/503/504 (max 3 tries). Tue/Thu/Sat are scheduler preferences only — the collector does **not** hard-fail other dates.
+Default host is `https://api-air-flightsearch-blue.smiles.com.br` (`SMILES_ENV=green` switches to the green replica). Sequential 400ms limiter shared by Smiles then VoeGol (`SMILES_REQUEST_DELAY_MS`), exponential backoff on 429/502/503/504 (max 3 tries). Tue/Thu/Sat are scheduler preferences only — the collector does **not** hard-fail other dates.
 
-Each GOL (G3) flight emits public **SMILES** (miles) and **SMILES_MONEY** (miles+BRL copay) rows. Club fares are skipped unless a member session is present (`SMILES_COOKIE` / `SMILES_ACCESS_TOKEN` / `SMILES_MEMBER_NUMBER` or `SMILES_INCLUDE_CLUB=1`). Partner airlines in the same payload are dropped. Taxes come from `fare.g3.costTax` or `airlineTax` when present (`null` means unknown). **Missing miles or cash is `null`, never `0`.** A payload `money: 0` on a miles-only fare is treated as no cash quote.
+Each GOL (G3) flight emits public **SMILES** and **SMILES_MONEY** award rows (`source=smiles_web`, `amount_brl` always null). Club fares are skipped unless a member session is present (`SMILES_COOKIE` / `SMILES_ACCESS_TOKEN` / `SMILES_MEMBER_NUMBER` or `SMILES_INCLUDE_CLUB=1`). Partner airlines in the same payload are dropped. Taxes come from `fare.g3.costTax` or `airlineTax` when present (`null` means unknown). A payload `money: 0` on a miles-only fare is treated as no copay.
 
-Live credentials are env secrets only. Until Pereira sends them privately to PM, `SMILES_DRY_RUN=1` (bundled PET→CGH fixtures) is the accepted path.
+### Full cash BRL (separate source)
+
+- UI: `https://www.voegol.com.br/itineraries?from=PET&to=CGH&departureDate=YYYY-MM-DD&numAdults=1`
+- Upstream: `POST https://b2c-api.voegol.com.br/api/sabre-default/flights?Flow=Issue&context=B2C`
+- Persist `itineraries[].offers[].total.amount` → `amount_brl`, currency BRL (`totalPrice.amount` fallback)
+- Same ingest job (companion), distinct `source=voegol`. Miles WAF vs cash WAF can independently yield `partial`.
+- `SMILES_DRY_RUN=1` parses bundled PET→CGH miles **and** VoeGol cash fixtures (no network) and persists `source` as `smiles_web_dry_run` / `voegol_dry_run` (live names stay unsuffixed). Never write credentials into `raw_payload`.
+
+Live credentials are env secrets only. Until Pereira sends them privately to PM, `SMILES_DRY_RUN=1` is the accepted path.
 
 ### Env / secrets
 
@@ -71,13 +86,14 @@ Do not commit credentials. Local: `workers/.dev.vars`. Production: `npx wrangler
 | `SMILES_MEMBER_NUMBER` | No | `memberNumber` query param (club pricing). |
 | `SMILES_USER` / `SMILES_PASS` | No | Best-effort `POST /oauth/token` (Auth0 password-realm). Usually blocked by captcha/WAF — prefer cookies. |
 | `SMILES_AUTH_CLIENT_ID` / `SMILES_AUTH_AUDIENCE` / `SMILES_AUTH_REALM` | No | Overrides for that login POST. |
-| `SMILES_DRY_RUN` | CI / local without Smiles | `1` parses bundled PET→CGH JSON fixtures (no network). Accepted until live credentials are provided privately. |
+| `SMILES_DRY_RUN` | CI / local without Smiles | `1` parses bundled PET→CGH miles + VoeGol cash JSON fixtures (no network). Accepted until live credentials are provided privately. |
 | `SMILES_LIVE` | No | Set `1` to force live mode if you only have cookies/token. |
 | `SMILES_ENV` | No | `blue` (default) or `green`. |
 | `SMILES_SEARCH_HOST` / `SMILES_LOGIN_HOST` | No | Full origin overrides. |
 | `SMILES_FARE_TYPES` | No | Comma list, default `SMILES,SMILES_MONEY`. |
 | `SMILES_INCLUDE_CLUB` | No | `1` to keep club fares without a member session. |
-| `SMILES_REQUEST_DELAY_MS` | No | Default `400`. |
+| `SMILES_REQUEST_DELAY_MS` | No | Default `400`. Shared by Smiles then VoeGol. |
+| `VOEGOL_API_HOST` | No | Default `https://b2c-api.voegol.com.br`. |
 | `TUDOAZUL_LOGIN` | Yes (live) | **Frozen** TudoAzul / Azul Fidelidade login (placeholder only). Not `AZUL_*`. |
 | `TUDOAZUL_PASSWORD` | Yes (live) | **Frozen** password (placeholder only). Never commit a real value. |
 | `TUDOAZUL_DRY_RUN` | CI / local without Azul | `1` parses bundled PET→VCP and PET→POA JSON fixtures (no network). Accepted until live credentials are provided privately. |
@@ -246,7 +262,7 @@ Frozen secrets (placeholders only — no real credentials in git or CI):
 
 | Status | When |
 | --- | --- |
-| `success` | At least one persistable GOL quote (`miles` and/or `amount_brl`). |
+| `success` | ≥1 persistable GOL quote (smiles_web miles and/or voegol cash) |
 | `empty` | HTTP 200 but no GOL inventory / no allowed fares. |
 | `auth_failed` | Missing config, 401/403, or password login failed. |
 | `scrape_failed` | Network/5xx/429 exhausted, non-JSON/HTML, or Akamai-style `{ "message": "Something went wrong" }` (HTTP 406 from datacenter IPs is common). |
@@ -293,7 +309,7 @@ npx wrangler secret put LATAM_PASS_LOGIN
 npx wrangler secret put LATAM_PASS_PASSWORD
 ```
 
-Optional env overrides: `FLIGHT_WINDOW_START`, `FLIGHT_WINDOW_END` (YYYY-MM-DD), `SMILES_DRY_RUN`, `SMILES_ENV`, `SMILES_REQUEST_DELAY_MS`, `TUDOAZUL_DRY_RUN`, `TUDOAZUL_REQUEST_DELAY_MS`, `TUDOAZUL_API_HOST`, `LATAM_DRY_RUN`, `LATAM_REQUEST_DELAY_MS`, `LATAM_API_HOST`.
+Optional env overrides: `FLIGHT_WINDOW_START`, `FLIGHT_WINDOW_END` (YYYY-MM-DD), `SMILES_DRY_RUN`, `SMILES_ENV`, `SMILES_REQUEST_DELAY_MS`, `VOEGOL_API_HOST`, `TUDOAZUL_DRY_RUN`, `TUDOAZUL_REQUEST_DELAY_MS`, `TUDOAZUL_API_HOST`, `LATAM_DRY_RUN`, `LATAM_REQUEST_DELAY_MS`, `LATAM_API_HOST`.
 
 Without real Supabase secrets the worker still runs collectors and returns a summary; it skips persistence (`persisted: false`). Do not point `SUPABASE_URL` at a dummy hostname — workerd fails hard on DNS errors. Leave the vars empty instead.
 

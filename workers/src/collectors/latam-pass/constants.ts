@@ -1,5 +1,6 @@
 /** Award / miles+money rows in `price_snapshots.source`. Distinct from `program: latam_pass`. */
 export const LATAM_PASS_SOURCE = 'latam_pass';
+export const LATAM_PASS_DRY_RUN_SOURCE = 'latam_pass_dry_run';
 
 /**
  * Full cash BRL from latamairlines.com (`redemption=false`).
@@ -7,6 +8,7 @@ export const LATAM_PASS_SOURCE = 'latam_pass';
  * distinct from program `latam_pass`). Never mix with LATAM Pass copay.
  */
 export const LATAM_WEB_SOURCE = 'latam_web';
+export const LATAM_WEB_DRY_RUN_SOURCE = 'latam_web_dry_run';
 
 export const LATAM_API_HOST = 'https://www.latamairlines.com';
 export const LATAM_ORIGIN = 'https://www.latamairlines.com';

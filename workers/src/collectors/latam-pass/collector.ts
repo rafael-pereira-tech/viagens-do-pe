@@ -1,5 +1,6 @@
 import type { Env } from '../../env';
 import type { CollectParams, CollectResult, Collector, Snapshot } from '../types';
+import { stampDryRunResult } from '../dry-run';
 import { isDryRun, isLiveEnabled, resolveSession } from './auth';
 import { LATAM_ORIGIN } from './constants';
 import { createLatamClient, requestHeaders, type LatamClient } from './client';
@@ -94,7 +95,7 @@ export function createLatamPassCollector(env: Env, deps: LatamPassCollectorDeps 
           params,
           'cash',
         );
-        return combine(resultFromParse(milesParsed), resultFromParse(cashParsed));
+        return stampDryRunResult(combine(resultFromParse(milesParsed), resultFromParse(cashParsed)));
       }
 
       if (!isLiveEnabled(env)) {

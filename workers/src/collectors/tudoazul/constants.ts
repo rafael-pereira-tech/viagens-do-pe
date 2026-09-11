@@ -1,11 +1,13 @@
 /** Award / pontos+reais rows in `price_snapshots.source`. Distinct from `program: tudoazul`. */
 export const TUDOAZUL_SOURCE = 'tudoazul';
+export const TUDOAZUL_DRY_RUN_SOURCE = 'tudoazul_dry_run';
 
 /**
  * Full cash BRL from the official Azul booking path (same B2C availability host,
  * `pricingMode=cash`). Never mix this with TudoAzul copay.
  */
 export const VOEAZUL_SOURCE = 'voeazul';
+export const VOEAZUL_DRY_RUN_SOURCE = 'voeazul_dry_run';
 
 export const AZUL_API_HOST = 'https://b2c-api.voeazul.com.br';
 export const AZUL_ORIGIN = 'https://www.voeazul.com.br';

@@ -1,13 +1,16 @@
 import type { Env } from '../../env';
 import type { CollectParams, CollectResult, Collector, Snapshot } from '../types';
+import { stampDryRunResult } from '../dry-run';
 import { isDryRun, isLiveEnabled, resolveSession } from './auth';
-import { AZUL_ORIGIN } from './constants';
+import { AZUL_ORIGIN, PET_VCP_DIRECT_FROM } from './constants';
 import { createAzulClient, requestHeaders, type AzulClient } from './client';
 import {
   SEARCH_PET_POA_CASH,
   SEARCH_PET_POA_POINTS,
   SEARCH_PET_VCP_CASH,
+  SEARCH_PET_VCP_CONNECTING,
   SEARCH_PET_VCP_POINTS,
+  SEARCH_PET_VCP_POINTS_CONNECTING,
 } from './fixtures';
 import { waitMs } from './http';
 import { azulBodyLooksLikeError, parseAzulAvailability } from './parser';
@@ -25,9 +28,20 @@ function shiftDates(payload: unknown, fromDate: string, flightDate: string): unk
   return JSON.parse(json.replaceAll(fromDate, flightDate));
 }
 
-function dryRunPayloads(destination: string): { pointsDate: string; points: unknown; cash: unknown } {
+function dryRunPayloads(
+  destination: string,
+  flightDate: string,
+): { pointsDate: string; points: unknown; cash: unknown } {
   if (destination === 'POA') {
     return { pointsDate: '2026-09-16', points: SEARCH_PET_POA_POINTS, cash: SEARCH_PET_POA_CASH };
+  }
+  // Direct PET→VCP only from 2026-10-26. Earlier dry-run must be a connection, never fake nonstop.
+  if (flightDate < PET_VCP_DIRECT_FROM) {
+    return {
+      pointsDate: '2026-09-14',
+      points: SEARCH_PET_VCP_POINTS_CONNECTING,
+      cash: SEARCH_PET_VCP_CONNECTING,
+    };
   }
   return { pointsDate: '2026-09-14', points: SEARCH_PET_VCP_POINTS, cash: SEARCH_PET_VCP_CASH };
 }
@@ -95,10 +109,10 @@ export function createTudoAzulCollector(env: Env, deps: TudoAzulCollectorDeps = 
       // PET→VCP nonstop from 2026-10-26 Mon/Fri; earlier empty or connections
       // (`stopsCount>0`) are inventory, never scrape_failed.
       if (isDryRun(env)) {
-        const { pointsDate, points, cash } = dryRunPayloads(params.destination);
+        const { pointsDate, points, cash } = dryRunPayloads(params.destination, params.flightDate);
         const pointsParsed = parseAzulAvailability(shiftDates(points, pointsDate, params.flightDate), params, 'points');
         const cashParsed = parseAzulAvailability(shiftDates(cash, pointsDate, params.flightDate), params, 'cash');
-        return combine(resultFromParse(pointsParsed), resultFromParse(cashParsed));
+        return stampDryRunResult(combine(resultFromParse(pointsParsed), resultFromParse(cashParsed)));
       }
 
       if (!isLiveEnabled(env)) {

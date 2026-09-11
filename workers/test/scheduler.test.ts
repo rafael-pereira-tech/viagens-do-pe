@@ -291,14 +291,27 @@ describe('runIngest', () => {
     assert.equal(summary.skipped, false);
     assert.equal(summary.status, 'partial');
     assert.equal(summary.jobCount, 4);
-    assert.equal(summary.snapshotCount, 5);
+    assert.equal(summary.snapshotCount, 7);
     const smiles = snapshots.filter((row) => row.program === 'smiles');
     assert.equal(smiles.length, summary.snapshotCount);
     assert.ok(smiles.every((row) => row.origin === 'PET' && row.destination === 'CGH'));
-    assert.ok(smiles.every((row) => row.source === 'smiles_web'));
+    const smilesWeb = smiles.filter((row) => row.source === 'smiles_web_dry_run');
+    const voegol = smiles.filter((row) => row.source === 'voegol_dry_run');
+    assert.equal(smilesWeb.length, 5);
+    assert.equal(voegol.length, 2);
+    assert.ok(smilesWeb.every((row) => row.amount_brl == null));
+    assert.ok(voegol.every((row) => row.miles == null && row.amount_brl != null && row.amount_brl > 0));
     assert.ok(smiles.every((row) => row.ingest_run_id === summary.runId));
     assert.ok(smiles.every((row) => row.collected_at === summary.collectedAt));
-    assert.ok(smiles.some((row) => row.miles === 7200 && row.amount_brl === 248.5));
+    assert.ok(
+      smilesWeb.some(
+        (row) =>
+          row.miles === 7200 &&
+          row.amount_brl == null &&
+          (row.raw_payload as { copay_brl?: number }).copay_brl === 248.5,
+      ),
+    );
+    assert.ok(voegol.some((row) => row.amount_brl === 548.9));
     assert.ok(
       summary.failures.every(
         (f) => (f.program === 'tudoazul' || f.program === 'latam_pass') && f.status === 'auth_failed',
@@ -328,18 +341,28 @@ describe('runIngest', () => {
     const smiles = snapshots.filter((row) => row.program === 'smiles');
     const azul = snapshots.filter((row) => row.program === 'tudoazul');
     const latam = snapshots.filter((row) => row.program === 'latam_pass');
-    assert.equal(smiles.length, 5);
+    assert.equal(smiles.length, 7);
     assert.ok(azul.length > 0);
     assert.ok(latam.length > 0);
     assert.equal(summary.snapshotCount, smiles.length + azul.length + latam.length);
+    assert.ok(smiles.some((row) => row.source === 'smiles_web_dry_run' && row.miles != null && row.amount_brl == null));
+    assert.ok(smiles.some((row) => row.source === 'voegol_dry_run' && row.amount_brl != null && row.miles == null));
+    assert.ok(smiles.filter((row) => row.source === 'smiles_web_dry_run').every((row) => row.amount_brl == null));
+    assert.ok(smiles.every((row) => row.source.endsWith('_dry_run')));
     assert.ok(azul.every((row) => row.origin === 'PET' && (row.destination === 'VCP' || row.destination === 'POA')));
-    assert.ok(azul.some((row) => row.source === 'tudoazul' && row.miles != null && row.amount_brl == null));
-    assert.ok(azul.some((row) => row.source === 'voeazul' && row.amount_brl != null && row.miles == null));
+    assert.ok(azul.some((row) => row.source === 'tudoazul_dry_run' && row.miles != null && row.amount_brl == null));
+    assert.ok(azul.some((row) => row.source === 'voeazul_dry_run' && row.amount_brl != null && row.miles == null));
+    assert.ok(
+      azul
+        .filter((row) => row.destination === 'VCP')
+        .every((row) => ((row.raw_payload as { stops?: number | null }).stops ?? 0) > 0),
+      'PET→VCP before 2026-10-26 must not invent nonstop',
+    );
     assert.ok(azul.every((row) => row.ingest_run_id === summary.runId));
     assert.ok(azul.every((row) => row.miles !== 0 && row.amount_brl !== 0));
     assert.ok(latam.every((row) => row.origin === 'PET' && row.destination === 'GRU'));
-    assert.ok(latam.some((row) => row.source === 'latam_pass' && row.miles != null && row.amount_brl == null));
-    assert.ok(latam.some((row) => row.source === 'latam_web' && row.amount_brl != null && row.miles == null));
+    assert.ok(latam.some((row) => row.source === 'latam_pass_dry_run' && row.miles != null && row.amount_brl == null));
+    assert.ok(latam.some((row) => row.source === 'latam_web_dry_run' && row.amount_brl != null && row.miles == null));
     assert.ok(latam.every((row) => row.ingest_run_id === summary.runId));
     assert.ok(latam.every((row) => row.miles !== 0 && row.amount_brl !== 0));
     assert.equal(runs[0]!.status, 'success');

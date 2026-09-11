@@ -15,7 +15,8 @@ export interface Env {
    * `SMILES_ACCESS_TOKEN` + `SMILES_MEMBER_NUMBER`. Password login is best-effort
    * (`SMILES_USER` / `SMILES_PASS`) and usually blocked by Auth0/captcha.
    *
-   * `SMILES_DRY_RUN=1` parses bundled PET→CGH fixtures (no network).
+   * `SMILES_DRY_RUN=1` parses bundled PET→CGH fixtures (no network) and
+   * persists `smiles_web_dry_run` / `voegol_dry_run`.
    */
   SMILES_API_KEY?: string;
   SMILES_USER?: string;
@@ -34,6 +35,8 @@ export interface Env {
   SMILES_FARE_TYPES?: string;
   SMILES_INCLUDE_CLUB?: string;
   SMILES_REQUEST_DELAY_MS?: string;
+  /** VoeGol cash companion host override. Default `https://b2c-api.voegol.com.br`. */
+  VOEGOL_API_HOST?: string;
 
   /**
    * TudoAzul / Azul (BE-4). Never commit real values.
