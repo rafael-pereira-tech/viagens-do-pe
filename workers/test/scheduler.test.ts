@@ -362,7 +362,7 @@ describe('runIngest', () => {
     assert.ok(azul.every((row) => row.miles !== 0 && row.amount_brl !== 0));
     assert.ok(latam.every((row) => row.origin === 'PET' && row.destination === 'GRU'));
     assert.ok(latam.some((row) => row.source === 'latam_pass_dry_run' && row.miles != null && row.amount_brl == null));
-    assert.ok(latam.some((row) => row.source === 'latamairlines_dry_run' && row.amount_brl != null && row.miles == null));
+    assert.ok(latam.some((row) => row.source === 'latam_web_dry_run' && row.amount_brl != null && row.miles == null));
     assert.ok(latam.every((row) => row.ingest_run_id === summary.runId));
     assert.ok(latam.every((row) => row.miles !== 0 && row.amount_brl !== 0));
     assert.equal(runs[0]!.status, 'success');

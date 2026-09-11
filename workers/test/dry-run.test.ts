@@ -9,6 +9,7 @@ describe('dry-run source suffix', () => {
     assert.equal(dryRunSource('voegol'), 'voegol_dry_run');
     assert.equal(dryRunSource('tudoazul'), 'tudoazul_dry_run');
     assert.equal(dryRunSource('voeazul'), 'voeazul_dry_run');
+    assert.equal(dryRunSource('latam_web'), 'latam_web_dry_run');
     assert.equal(dryRunSource('smiles_web_dry_run'), 'smiles_web_dry_run');
   });
 

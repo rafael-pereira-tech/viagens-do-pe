@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import type { CollectParams } from '../src/collectors/types.ts';
-import { LATAMAIRLINES_SOURCE, LATAM_PASS_SOURCE } from '../src/collectors/latam-pass/constants.ts';
+import { LATAM_WEB_SOURCE, LATAM_PASS_SOURCE } from '../src/collectors/latam-pass/constants.ts';
 import {
   SEARCH_EMPTY,
   SEARCH_GECKO_CASH,
@@ -71,9 +71,13 @@ describe('parseLatamOffers miles PET→GRU', () => {
     const morningRaw = morningMiles.raw_payload as {
       copay_brl?: number | null;
       price_without_tax_brl?: number | null;
+      dow_preference?: { published?: boolean; brief?: boolean; grid?: string };
     };
     assert.equal(morningRaw.copay_brl, null);
     assert.equal(morningRaw.price_without_tax_brl, 359.9);
+    assert.equal(morningRaw.dow_preference?.published, false);
+    assert.equal(morningRaw.dow_preference?.brief, true);
+    assert.equal(morningRaw.dow_preference?.grid, 'through_oct');
 
     const mix = parsed.snapshots.find((row) => row.miles === 7200);
     assert.ok(mix);
@@ -99,14 +103,15 @@ describe('parseLatamOffers miles PET→GRU', () => {
 });
 
 describe('parseLatamOffers cash PET→GRU', () => {
-  it('emits latamairlines full-cash rows and never invents 0', () => {
+  it('emits latam_web full-cash rows and never invents 0', () => {
     const parsed = parseLatamOffers(SEARCH_PET_GRU_CASH, gru, 'cash');
     assert.equal(parsed.snapshots.length, 2);
     for (const row of parsed.snapshots) {
-      assert.equal(row.source, LATAMAIRLINES_SOURCE);
+      assert.equal(row.source, LATAM_WEB_SOURCE);
       assert.equal(row.miles, null);
       assert.ok(row.amount_brl != null && row.amount_brl > 0);
       assert.notEqual(row.amount_brl, 0);
+      assert.equal((row.raw_payload as { dow_preference?: { published?: boolean } }).dow_preference?.published, false);
     }
     const morning = parsed.snapshots.find((row) => row.departure_time === '10:25:00' && row.amount_brl === 429.9);
     assert.ok(morning);
@@ -122,7 +127,7 @@ describe('parseLatamOffers cash PET→GRU', () => {
   it('persists a connecting PET→GRU journey', () => {
     const parsed = parseLatamOffers(SEARCH_PET_GRU_CONNECTING, gru, 'cash');
     assert.equal(parsed.snapshots.length, 1);
-    assert.equal(parsed.snapshots[0]!.source, LATAMAIRLINES_SOURCE);
+    assert.equal(parsed.snapshots[0]!.source, LATAM_WEB_SOURCE);
     assert.equal(parsed.snapshots[0]!.amount_brl, 678.2);
     assert.equal((parsed.snapshots[0]!.raw_payload as { stops?: number }).stops, 1);
   });
@@ -130,10 +135,13 @@ describe('parseLatamOffers cash PET→GRU', () => {
   it('parses gecko-normalized items[] cash', () => {
     const parsed = parseLatamOffers(SEARCH_GECKO_CASH, gru, 'cash');
     assert.equal(parsed.snapshots.length, 1);
-    assert.equal(parsed.snapshots[0]!.source, LATAMAIRLINES_SOURCE);
+    assert.equal(parsed.snapshots[0]!.source, LATAM_WEB_SOURCE);
     assert.equal(parsed.snapshots[0]!.amount_brl, 388.75);
     assert.equal(parsed.snapshots[0]!.miles, null);
     assert.equal(parsed.snapshots[0]!.departure_time, '11:10:00');
+    const raw = parsed.snapshots[0]!.raw_payload as { price?: { amount?: number }; dow_preference?: { brief?: boolean } };
+    assert.equal(raw.price?.amount, 388.75);
+    assert.equal(raw.dow_preference?.brief, true);
   });
 });
 

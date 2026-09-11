@@ -14,8 +14,8 @@ import {
   LATAM_PASS_DRY_RUN_SOURCE,
   LATAM_PASS_SOURCE,
   LATAM_SESSION_PATH,
-  LATAMAIRLINES_DRY_RUN_SOURCE,
-  LATAMAIRLINES_SOURCE,
+  LATAM_WEB_DRY_RUN_SOURCE,
+  LATAM_WEB_SOURCE,
 } from '../src/collectors/latam-pass/constants.ts';
 import type { CollectParams } from '../src/collectors/types.ts';
 
@@ -96,7 +96,7 @@ describe('latam-pass collector', () => {
     assert.ok(result.snapshots.every((row) => row.flight_date === '2026-11-20'));
     assert.ok(result.snapshots.some((row) => row.source === LATAM_PASS_DRY_RUN_SOURCE && row.miles === 12500 && row.amount_brl == null));
     assert.ok(result.snapshots.some((row) => row.source === LATAM_PASS_DRY_RUN_SOURCE && row.miles === 7200 && row.amount_brl == null));
-    assert.ok(result.snapshots.some((row) => row.source === LATAMAIRLINES_DRY_RUN_SOURCE && row.amount_brl === 429.9 && row.miles == null));
+    assert.ok(result.snapshots.some((row) => row.source === LATAM_WEB_DRY_RUN_SOURCE && row.amount_brl === 429.9 && row.miles == null));
     assert.ok(result.snapshots.every((row) => row.source.endsWith('_dry_run')));
     const mix = result.snapshots.find((row) => row.miles === 7200);
     assert.equal((mix?.raw_payload as { copay_brl?: number }).copay_brl, 198.5);
@@ -169,6 +169,26 @@ describe('latam-pass collector', () => {
     assert.deepEqual(result.snapshots, []);
   });
 
+  it('treats empty inventory on a non-operating DOW as empty, not scrape_failed', async () => {
+    const collector = createLatamPassCollector(LIVE, {
+      fetch: withLogin(async () => jsonResponse(SEARCH_EMPTY)),
+      sleep: async () => {},
+    });
+    const result = await collector.collect({ ...params, flightDate: '2026-09-15' }); // Tuesday
+    assert.equal(result.status, 'empty');
+    assert.deepEqual(result.snapshots, []);
+  });
+
+  it('treats empty inventory on a published operating day as empty, not scrape_failed', async () => {
+    const collector = createLatamPassCollector(LIVE, {
+      fetch: withLogin(async () => jsonResponse(SEARCH_EMPTY)),
+      sleep: async () => {},
+    });
+    const result = await collector.collect({ ...params, flightDate: '2026-09-17' }); // Thursday
+    assert.equal(result.status, 'empty');
+    assert.deepEqual(result.snapshots, []);
+  });
+
   it('logs in with LATAM_PASS_LOGIN / LATAM_PASS_PASSWORD then searches miles and cash', async () => {
     const urls: string[] = [];
     const redemptions: string[] = [];
@@ -205,8 +225,10 @@ describe('latam-pass collector', () => {
     assert.match(referers[0]!, /origin=PET/);
     assert.match(referers[0]!, /destination=GRU/);
     assert.ok(result.snapshots.some((row) => row.source === LATAM_PASS_SOURCE && row.miles === 12500));
-    assert.ok(result.snapshots.some((row) => row.source === LATAMAIRLINES_SOURCE && row.amount_brl === 429.9));
+    assert.ok(result.snapshots.some((row) => row.source === LATAM_WEB_SOURCE && row.amount_brl === 429.9));
     assert.equal(LATAM_PASS_SOURCE, 'latam_pass');
+    assert.equal(LATAM_WEB_SOURCE, 'latam_web');
+    assert.ok(urls.some((u) => u.includes('/bff/air-offers/offers/search')));
   });
 
   it('treats a connecting PET→GRU as success, not scrape_failed', async () => {
@@ -217,7 +239,7 @@ describe('latam-pass collector', () => {
     const result = await collector.collect(params);
     assert.equal(result.status, 'success');
     assert.equal(result.snapshots.length, 1);
-    assert.equal(result.snapshots[0]!.source, LATAMAIRLINES_SOURCE);
+    assert.equal(result.snapshots[0]!.source, LATAM_WEB_SOURCE);
     assert.equal(result.snapshots[0]!.amount_brl, 678.2);
     assert.equal((result.snapshots[0]!.raw_payload as { stops?: number }).stops, 1);
   });
@@ -236,7 +258,7 @@ describe('latam-pass collector', () => {
     assert.equal(result.status, 'partial');
     assert.ok(result.snapshots.some((row) => row.source === LATAM_PASS_SOURCE));
     assert.equal(
-      result.snapshots.some((row) => row.source === LATAMAIRLINES_SOURCE),
+      result.snapshots.some((row) => row.source === LATAM_WEB_SOURCE),
       false,
     );
   });

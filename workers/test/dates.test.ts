@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { FLIGHT_WINDOW, ROUTE_MATRIX } from '../src/config.ts';
-import { candidateDates, eachUtcDate, isPreferredDate, utcDow } from '../src/dates.ts';
+import { candidateDates, eachUtcDate, isLatamGruPublishedOperatingDay, isPreferredDate, latamGruDowPreference, utcDow } from '../src/dates.ts';
 
 describe('flight window', () => {
   it('is 1 Sep 2026 through 31 Dec 2026 (122 civil days)', () => {
@@ -35,9 +35,13 @@ describe('DOW preferences', () => {
     assert.equal(isPreferredDate(poa, '2026-09-07'), false);
   });
 
-  it('switches LATAM GRU preference after 31 Oct 2026', () => {
-    assert.equal(isPreferredDate(latam, '2026-10-30'), true); // Friday, pre-Nov
-    assert.equal(isPreferredDate(latam, '2026-10-31'), false); // Saturday still on Mon/Wed/Fri scheme
+  it('prefers LATAM GRU brief Mon/Wed/Fri through Oct, Wed/Fri/Sat after Oct', () => {
+    // Brief sort key — not the published Mon/Thu/Fri network.
+    assert.equal(isPreferredDate(latam, '2026-10-26'), true); // Monday
+    assert.equal(isPreferredDate(latam, '2026-10-28'), true); // Wednesday
+    assert.equal(isPreferredDate(latam, '2026-10-29'), false); // Thursday — published operating, not brief
+    assert.equal(isPreferredDate(latam, '2026-10-30'), true); // Friday
+    assert.equal(isPreferredDate(latam, '2026-10-31'), false); // Saturday still on through-Oct brief
     assert.equal(isPreferredDate(latam, '2026-11-02'), false); // Monday no longer preferred
     assert.equal(isPreferredDate(latam, '2026-11-04'), true); // Wednesday
     assert.equal(isPreferredDate(latam, '2026-11-07'), true); // Saturday
@@ -50,5 +54,33 @@ describe('DOW preferences', () => {
     assert.ok(firstNonPreferred > 0);
     assert.ok(dates.slice(0, firstNonPreferred).every((d) => isPreferredDate(gol, d)));
     assert.ok(dates.slice(firstNonPreferred).every((d) => !isPreferredDate(gol, d)));
+  });
+
+  it('tags LATAM GRU brief vs published DOW without dropping dates', () => {
+    const latamDates = candidateDates(latam, FLIGHT_WINDOW);
+    assert.equal(latamDates.length, 122);
+    assert.ok(latamDates.includes('2026-10-29')); // Thursday — published operating, still collected
+    assert.ok(latamDates.includes('2026-09-15')); // Tuesday — empty expected live, still queued
+
+    const wed = latamGruDowPreference('2026-10-28');
+    assert.equal(wed.brief, true);
+    assert.equal(wed.published, false);
+    assert.equal(wed.grid, 'through_oct');
+    assert.equal(isLatamGruPublishedOperatingDay('2026-10-28'), false);
+
+    const thu = latamGruDowPreference('2026-10-29');
+    assert.equal(thu.brief, false);
+    assert.equal(thu.published, true);
+    assert.equal(isLatamGruPublishedOperatingDay('2026-10-29'), true);
+
+    const fri = latamGruDowPreference('2026-10-30');
+    assert.equal(fri.brief, true);
+    assert.equal(fri.published, true);
+
+    const novWed = latamGruDowPreference('2026-11-04');
+    assert.equal(novWed.brief, true);
+    assert.equal(novWed.published, true);
+    assert.equal(novWed.grid, 'from_nov');
+    assert.equal(novWed.cutover, '2026-11-01');
   });
 });
