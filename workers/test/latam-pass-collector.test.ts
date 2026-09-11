@@ -176,6 +176,16 @@ describe('latam-pass collector', () => {
     assert.deepEqual(result.snapshots, []);
   });
 
+  it('treats empty inventory on a published operating day as empty, not scrape_failed', async () => {
+    const collector = createLatamPassCollector(LIVE, {
+      fetch: withLogin(async () => jsonResponse(SEARCH_EMPTY)),
+      sleep: async () => {},
+    });
+    const result = await collector.collect({ ...params, flightDate: '2026-09-17' }); // Thursday
+    assert.equal(result.status, 'empty');
+    assert.deepEqual(result.snapshots, []);
+  });
+
   it('logs in with LATAM_PASS_LOGIN / LATAM_PASS_PASSWORD then searches miles and cash', async () => {
     const urls: string[] = [];
     const redemptions: string[] = [];

@@ -28,29 +28,37 @@ export function utcDow(isoDate: string): number {
 }
 
 export type LatamDowPreference = {
-  /** Date is on the published 2026-09-11 operating grid. */
-  published: boolean;
-  /** Date is on the early brief grid (Mon/Wed/Fri through Oct). */
+  /** Date is on the brief preference grid (scheduler sort key, not a lock). */
   brief: boolean;
+  /**
+   * Date is on the published operating network. Used only to interpret
+   * empty inventory as `empty` rather than `scrape_failed`.
+   */
+  published: boolean;
   cutover: typeof LATAM_GRU_PUBLISHED_CUTOVER;
   grid: 'through_oct' | 'from_nov';
 };
 
 /**
  * Brief vs published PET→GRU DOW tag for `raw_payload.dow_preference`.
- * Never used to skip collection jobs.
+ * Never used to skip collection jobs or as the scheduler sort key.
  */
 export function latamGruDowPreference(flightDate: string): LatamDowPreference {
   const dow = utcDow(flightDate) as Dow;
   const fromNov = flightDate >= LATAM_GRU_PUBLISHED_CUTOVER;
-  const publishedDows = fromNov ? LATAM_GRU_DOWS_FROM_NOV : LATAM_GRU_DOWS_PUBLISHED_THROUGH_OCT;
   const briefDows = fromNov ? LATAM_GRU_DOWS_FROM_NOV : LATAM_GRU_DOWS_BRIEF_THROUGH_OCT;
+  const publishedDows = fromNov ? LATAM_GRU_DOWS_FROM_NOV : LATAM_GRU_DOWS_PUBLISHED_THROUGH_OCT;
   return {
-    published: publishedDows.includes(dow),
     brief: briefDows.includes(dow),
+    published: publishedDows.includes(dow),
     cutover: LATAM_GRU_PUBLISHED_CUTOVER,
     grid: fromNov ? 'from_nov' : 'through_oct',
   };
+}
+
+/** Published operating weekday — empty inventory on other days is expected `empty`. */
+export function isLatamGruPublishedOperatingDay(flightDate: string): boolean {
+  return latamGruDowPreference(flightDate).published;
 }
 
 export function preferredDowsFor(route: RouteSpec, flightDate: string): readonly number[] {

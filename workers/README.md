@@ -22,7 +22,7 @@ Configured in `wrangler.toml` `[triggers].crons`.
 | Smiles | GOL | PET→CGH | Tue / Thu / Sat |
 | TudoAzul | AZUL | PET→VCP | Mon / Fri |
 | TudoAzul | AZUL | PET→POA | none published — full window, equal priority |
-| LATAM Pass | LATAM | PET→GRU | **Published** Mon / Thu / Fri through Oct 2026; Wed / Fri / Sat from **2026-11-01** (early brief was Mon/Wed/Fri through Oct — tagged on `raw_payload.dow_preference`, not used to skip jobs) |
+| LATAM Pass | LATAM | PET→GRU | **Brief preference:** Mon / Wed / Fri through Oct 2026; Wed / Fri / Sat after. **Published network** (Mon / Thu / Fri through Oct; Wed / Fri / Sat from ~2026-11-01) is not the sort key — only to read empty≠scrape_failed on non-operating days |
 
 Preferred weekdays are ordered first; every other date in the window is still queued.
 
@@ -187,7 +187,7 @@ FLIGHT_WINDOW_END=2026-09-15
 
 ## LATAM Pass / LATAM (BE-5)
 
-One `collect({ origin, destination, airline, program, flightDate })` job, two sources. `program` stays `latam_pass`. Airline is LATAM. The scheduler prefers the **published** PET→GRU grid (Mon/Thu/Fri through Oct 2026; Wed/Fri/Sat from 2026-11-01) and still queues every other Sep–Dec date — the collector does **not** hard-lock DOW. Empty inventory on a non-operating weekday is `empty`, not `scrape_failed`. Each snapshot tags `raw_payload.dow_preference` with `{ published, brief, cutover, grid }` so early-brief Mon/Wed/Fri through Oct can be compared without filtering jobs.
+One `collect({ origin, destination, airline, program, flightDate })` job, two sources. `program` stays `latam_pass`. Airline is LATAM. The scheduler **preference-orders** the brief PET→GRU grid (Mon/Wed/Fri through Oct 2026; Wed/Fri/Sat after) and still queues every other Sep–Dec date — **not a hard lock**. The published network (Mon/Thu/Fri through Oct; Wed/Fri/Sat from ~2026-11-01) is **not** the sort key; it only explains why empty inventory on a non-operating weekday is `empty`, not `scrape_failed`. Each snapshot tags `raw_payload.dow_preference` with `{ brief, published, cutover, grid }`.
 
 | Quote | `source` | `miles` | `amount_brl` | `taxes_brl` |
 | --- | --- | --- | --- | --- |
@@ -217,7 +217,7 @@ Partner LATAM Pass award search is redeem-only (not availability). NDC / B2B LAT
 
 ### Route
 
-- **PET→GRU**: collect **all** dates 1 Sep–31 Dec 2026. Empty on a non-operating DOW is `empty`, not `scrape_failed`. Connections (`stopOvers>0`) are inventory, never `scrape_failed`.
+- **PET→GRU**: collect **all** dates 1 Sep–31 Dec 2026. Empty outside real inventory (including published non-operating DOWs) is `empty`, not `scrape_failed`. Connections (`stopOvers>0`) are inventory, never `scrape_failed`.
 
 ### Auth
 
