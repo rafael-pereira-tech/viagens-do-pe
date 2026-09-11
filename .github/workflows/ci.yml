@@ -55,16 +55,22 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - name: FE tests (vitest)
         run: pnpm test -- --reporter=verbose
+      - name: FE coverage (thresholds 35/45)
+        run: pnpm test:coverage
       - name: Workers tests (node:test)
         run: node --import tsx --test workers/test/api-*.test.ts workers/test/dates.test.ts workers/test/dry-run.test.ts workers/test/jobs.test.ts workers/test/status.test.ts workers/test/supabase-stamp.test.ts workers/test/scheduler.test.ts workers/test/smiles-*.test.ts workers/test/tudoazul-*.test.ts workers/test/latam-pass-*.test.ts workers/test/stub-collector.test.ts
       - name: Build check
         run: pnpm build
+      - name: Bundle size (size-limit)
+        run: pnpm size
 
   secure:
     name: secure / audit
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: pnpm/action-setup@v4
         with:
           version: 11
@@ -73,11 +79,16 @@ jobs:
           node-version: 24
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - name: pnpm audit (moderate+)
-        run: pnpm audit --audit-level=moderate || echo "::warning::audit found moderate+ issues"
+      - name: pnpm audit (high+, prod only)
+        run: pnpm audit --prod --audit-level=high
       - name: dependency review (PR only)
         if: github.event_name == 'pull_request'
         uses: actions/dependency-review-action@v4
-        continue-on-error: true
+        continue-on-error: true # TODO: enable Dependency Graph in Settings > Security to make required
         with:
-          fail-on-severity: moderate
+          fail-on-severity: high
+      - name: gitleaks (secret scan)
+        uses: gitleaks/gitleaks-action@v2
+        continue-on-error: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

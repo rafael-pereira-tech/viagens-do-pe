@@ -19,5 +19,17 @@ export default defineConfig({
     css: true,
     include: ['src/**/*.{test,spec}.{ts,tsx}'],
     exclude: ['node_modules', 'workers/**', 'dist/**'],
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'lcov', 'html'],
+      include: ['src/**/*.{ts,tsx}'],
+      exclude: ['src/components/ui/**', 'src/vite-env.d.ts', 'src/**/*.spec.*', 'src/**/*.test.*'],
+      thresholds: {
+        lines: 35,
+        branches: 45,
+        functions: 35,
+        statements: 35,
+      },
+    },
   },
 })
