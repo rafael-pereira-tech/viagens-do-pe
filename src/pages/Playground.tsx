@@ -35,7 +35,7 @@ export function Playground() {
   const [globalVariant, setGlobalVariant] = useState<Variant>('success')
   const [destination, setDestination] = useState<Destination>('GRU')
   const [chartMode, setChartMode] = useState<ChartMode>('both')
-  const [dryMode, setDryMode] = useState<DryMode>('only')
+  const [dryMode, setDryMode] = useState<DryMode>('include')
   const [draft, setDraft] = useState({ from: '', until: '', fonte: '' })
 
   const isLoading = globalVariant === 'loading'

@@ -50,16 +50,6 @@ export const PLACEHOLDER_OFFERS: OfferRow[] = [
     taxes_brl: 81,
     source: 'latam_web_dry_run',
   }),
-  // Live leftover (pre-#11): excluded by default dry-run-only. Visible in ?dry=1 / ?live=1.
-  row('GRU', 10, {
-    airline: 'GOL',
-    program: 'smiles',
-    departure_time: '11:00',
-    miles: 9_000,
-    amount_brl: 248.5,
-    taxes_brl: 50,
-    source: 'smiles_web',
-  }),
   row('GRU', 13, {
     airline: 'AZUL',
     program: 'tudoazul',

@@ -241,9 +241,10 @@ Dry-run after the S0 hotfix persists the **same live name + `_dry_run`**:
 `latam_pass_dry_run`, `latam_web_dry_run`. The FE should either pass
 `exclude_dry_run=1` or accept those rows and label them.
 
-Dashboard modes: **default is dry-run-only** (`?dry_run=1`) until the pre-#11
-`smiles_web` purge. `?dry=1` includes live+fixtures. `?live=1` (Produção) sends
-`exclude_dry_run=1`.
+Dashboard modes: **default includes dry-run** (no `exclude_dry_run`; `?dry=1`
+optional). The table is still fixture-only (`*_dry_run`); excluding fixtures
+empties KPIs. `?dry_run=1` keeps only fixtures. `?live=1` (Produção) sends
+`exclude_dry_run=1` when live batches exist.
 
 `exclude_dry_run` is **not** a cash-vs-miles switch. Program sources never
 count toward `min_amount_brl`.
@@ -301,7 +302,7 @@ import { fetchLatestSnapshots, fetchSnapshotStats, liveDashboardQuery, toOfferRo
 if (!API_URL || !READ_API_KEY) {
   // keep using src/data/placeholders.ts
 } else {
-  const filters = liveDashboardQuery(query) // PET, dry-run-only by default, from=today
+  const filters = liveDashboardQuery(query) // PET, include dry-run by default, from=today
   const [latest, stats, byDay] = await Promise.all([
     fetchLatestSnapshots(filters),
     fetchSnapshotStats({ ...filters, group_by: 'window' }),

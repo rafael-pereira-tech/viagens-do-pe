@@ -138,11 +138,16 @@ export function Dashboard() {
         error={effectiveError}
         onRetry={remote.refresh}
       />
-      {applied.dryMode === 'only' ? (
+      {applied.dryMode === 'include' ? (
         <p className="text-xs text-muted-foreground">
-          Padrão até o purge: só <code className="font-mono">*_dry_run</code> (KPIs sem smiles_web legado). Dados →
-          Produção usa <code className="font-mono">exclude_dry_run=1</code> (<code className="font-mono">?live=1</code>
-          ).
+          Padrão: inclui <code className="font-mono">*_dry_run</code> (a base ainda é só fixture; stats já estão
+          limpos). Dados → Produção manda <code className="font-mono">exclude_dry_run=1</code> (
+          <code className="font-mono">?live=1</code>) e pode esvaziar KPIs até existir ingest live.
+        </p>
+      ) : null}
+      {applied.dryMode === 'live' ? (
+        <p className="text-xs text-muted-foreground">
+          Produção: <code className="font-mono">exclude_dry_run=1</code>. Sem linhas live a tabela/KPIs ficam vazios.
         </p>
       ) : null}
       {applied.dia ? (

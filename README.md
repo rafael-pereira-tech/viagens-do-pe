@@ -62,9 +62,9 @@ Dados (select **Dados** / query):
 
 | Modo                                | UI                         | Query                  | API                                                                                 |
 | ----------------------------------- | -------------------------- | ---------------------- | ----------------------------------------------------------------------------------- |
-| **Só dry-run (padrão até o purge)** | Só dry-run (padrão)        | `?dry_run=1` (default) | sem `exclude_dry_run`; só `*_dry_run`. Evita `smiles_web` legado (`amount_brl=248.5`) nas KPIs/stats. |
-| Incluir dry-run                     | Incluir dry-run            | `?dry=1`               | live + fixtures                                                                     |
-| Produção                            | Produção (exclude dry-run) | `?live=1`              | `exclude_dry_run=1` — ligar depois do purge                                         |
+| **Incluir dry-run (padrão)** | Incluir dry-run (padrão)   | implícito ou `?dry=1` | sem `exclude_dry_run` — live + `*_dry_run`. A base ainda é só fixture; exclude esvaziaria KPIs. |
+| Só dry-run                   | Só dry-run                 | `?dry_run=1`          | só `*_dry_run`                                                                                  |
+| Produção                     | Produção (exclude dry-run) | `?live=1`             | `exclude_dry_run=1` — usar quando existirem batches live                                        |
 
 **Nunca** coloque `SUPABASE_SERVICE_ROLE_KEY` nem qualquer `VITE_SUPABASE*` no frontend — Security grepa o bundle.
 
@@ -97,7 +97,7 @@ Tokens semânticos em `src/index.css` (`:root` HSL). Primitivos em `src/componen
 - Sem URL ou sem chave: dados em `src/data/placeholders.ts`. Ofertas no passado são ignoradas.
 - Milheiro de milhas = `(taxes_brl / miles) * 1000`. Linhas só-cash (`voegol` / `voeazul` / `latam_web`) mostram —.
 - Fonte: `smiles_web`, `voegol`, `tudoazul`, `voeazul`, `latam_pass`, `latam_web`.
-- Query preservada: `to`, `from`, `until`, `fonte`, `dia`, `bars`, e modo de dados (`dry` / `dry_run`).
+- Query preservada: `to`, `from`, `until`, `fonte`, `dia`, `bars`, e modo de dados (`dry` / `dry_run` / `live`).
 
 ## Deploy — Cloudflare Pages
 

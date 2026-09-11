@@ -23,8 +23,8 @@ const LATEST_PAGE_LIMIT = 2000
 
 /**
  * Live dashboard fetch: PET → tab destination, no `dia` (chart needs the window).
- * Default is dry-run-only (`*_dry_run`) until legacy smiles_web purge.
- * `?live=1` sends `exclude_dry_run=1`. `?dry=1` includes both.
+ * Default includes dry-run fixtures (DB is still `*_dry_run` only).
+ * `?live=1` sends `exclude_dry_run=1`. `?dry_run=1` keeps only fixtures.
  */
 export function liveDashboardQuery(query: DashboardQuery, today = todayIso()): SnapshotListQuery {
   const filters = dashboardToSnapshotQuery({ ...query, dia: '' })
