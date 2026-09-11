@@ -128,8 +128,9 @@ export function Dashboard() {
       />
       {applied.dryMode === 'only' ? (
         <p className="text-xs text-muted-foreground">
-          Smoke: só fontes <code className="font-mono">*_dry_run</code> (evita smiles_web legado). Query:{' '}
-          <code className="font-mono">?dry_run=1</code>.
+          Padrão até o purge: só <code className="font-mono">*_dry_run</code> (KPIs sem smiles_web legado). Dados →
+          Produção usa <code className="font-mono">exclude_dry_run=1</code> (<code className="font-mono">?live=1</code>
+          ).
         </p>
       ) : null}
       {applied.dia ? (

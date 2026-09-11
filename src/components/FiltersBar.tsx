@@ -21,9 +21,9 @@ const ALL_FONTES = 'todas'
 const dateInputClass = 'h-10 bg-card tabular-nums'
 
 const DRY_MODES: { value: DryMode; label: string }[] = [
-  { value: 'live', label: 'Produção' },
-  { value: 'include', label: 'Incluir dry-run' },
   { value: 'only', label: 'Só dry-run' },
+  { value: 'include', label: 'Incluir dry-run' },
+  { value: 'live', label: 'Produção (exclude dry-run)' },
 ]
 
 export function FiltersBar({ draft, dryMode, onDraftChange, onDryModeChange, onApply, onClear }: Props) {

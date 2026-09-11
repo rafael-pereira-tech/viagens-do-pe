@@ -60,11 +60,11 @@ O Vite só expõe variáveis com prefixo `VITE_`. Reinicie `npm run dev` depois 
 
 Dados (select **Dados** / query):
 
-| Modo              | UI              | Query                   | API                                                                                                                         |
-| ----------------- | --------------- | ----------------------- | --------------------------------------------------------------------------------------------------------------------------- |
-| Produção (padrão) | Produção        | (sem `dry` / `dry_run`) | `exclude_dry_run=1` — sem fixtures                                                                                          |
-| Incluir dry-run   | Incluir dry-run | `?dry=1`                | sem `exclude_dry_run` — live + `*_dry_run`                                                                                  |
-| Só dry-run        | Só dry-run      | `?dry_run=1`            | sem exclude; cliente (e `fonte=*_dry_run`) fica só em fixtures. Use para smoke até o purge das linhas `smiles_web` pré-#11. |
+| Modo                                | UI                         | Query                  | API                                                                                 |
+| ----------------------------------- | -------------------------- | ---------------------- | ----------------------------------------------------------------------------------- |
+| **Só dry-run (padrão até o purge)** | Só dry-run                 | `?dry_run=1` (default) | sem exclude; só `*_dry_run`. Evita `smiles_web` legado (amount_brl=248.5) nas KPIs. |
+| Incluir dry-run                     | Incluir dry-run            | `?dry=1`               | live + fixtures                                                                     |
+| Produção                            | Produção (exclude dry-run) | `?live=1`              | `exclude_dry_run=1` — ligar depois do purge                                         |
 
 **Nunca** coloque `SUPABASE_SERVICE_ROLE_KEY` nem qualquer `VITE_SUPABASE*` no frontend — Security grepa o bundle.
 

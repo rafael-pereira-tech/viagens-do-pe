@@ -62,7 +62,11 @@ export function airlineForDestination(destination: string): AirlineId {
   return 'OTHER'
 }
 
-/** Chart bar fills for the active destination tab (D-2.1). */
+/**
+ * Chart bar fills for the active destination tab (D-2.1 tokens).
+ * TODO: when a day has mixed cias, fill = winning airline of that metric
+ * (do not stack three brands). Tokens already live in `src/index.css`.
+ */
 export function chartFillsForDestination(destination: string): AirlineChartFills {
   return FILLS[airlineForDestination(destination)]
 }

@@ -23,8 +23,8 @@ const LATEST_PAGE_LIMIT = 2000
 
 /**
  * Live dashboard fetch: PET → tab destination, no `dia` (chart needs the window).
- * Default `exclude_dry_run=1`. `?dry=1` includes fixtures. `?dry_run=1` prefers
- * `*_dry_run` (fonte is suffixed when set so the Worker eq-filter hits fixtures).
+ * Default is dry-run-only (`*_dry_run`) until legacy smiles_web purge.
+ * `?live=1` sends `exclude_dry_run=1`. `?dry=1` includes both.
  */
 export function liveDashboardQuery(query: DashboardQuery, today = todayIso()): SnapshotListQuery {
   const filters = dashboardToSnapshotQuery({ ...query, dia: '' })

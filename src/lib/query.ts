@@ -11,7 +11,7 @@ export const AIRPORT_LABEL: Record<Destination, string> = {
 
 export type ChartMode = 'both' | 'milhas' | 'brl'
 
-/** Prod default excludes fixtures. `include` = ?dry=1. `only` = ?dry_run=1 smoke. */
+/** Default is dry-run-only until legacy smiles_web purge. `live` = exclude_dry_run. */
 export type DryMode = 'live' | 'include' | 'only'
 
 export type DashboardQuery = {
@@ -33,7 +33,7 @@ export const defaultQuery: DashboardQuery = {
   dia: '',
   bars: 'both',
   ui: '',
-  dryMode: 'live',
+  dryMode: 'only',
 }
 
 function isDestination(value: string): value is Destination {
@@ -45,11 +45,13 @@ function isChartMode(value: string): value is ChartMode {
 }
 
 export function parseDryMode(params: URLSearchParams): DryMode {
-  const only = (params.get('dry_run') ?? '').toLowerCase()
-  if (only === '1' || only === 'true' || only === 'only') return 'only'
+  const live = (params.get('live') ?? params.get('prod') ?? params.get('exclude_dry_run') ?? '').toLowerCase()
+  if (live === '1' || live === 'true') return 'live'
   const include = (params.get('dry') ?? '').toLowerCase()
   if (include === '1' || include === 'true') return 'include'
-  return 'live'
+  const only = (params.get('dry_run') ?? '').toLowerCase()
+  if (only === '0' || only === 'false') return 'live'
+  return 'only'
 }
 
 export function parseQuery(params: URLSearchParams): DashboardQuery {
@@ -77,8 +79,9 @@ export function queryToSearchParams(query: DashboardQuery): URLSearchParams {
   if (query.dia) params.set('dia', query.dia)
   if (query.bars !== 'both') params.set('bars', query.bars)
   if (query.ui) params.set('ui', query.ui)
-  if (query.dryMode === 'only') params.set('dry_run', '1')
+  if (query.dryMode === 'live') params.set('live', '1')
   if (query.dryMode === 'include') params.set('dry', '1')
+  if (query.dryMode === 'only') params.set('dry_run', '1')
   return params
 }
 
