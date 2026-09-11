@@ -166,22 +166,32 @@ applied yet, latest falls back to in-memory distinct and sets
 
 Null mins mean no numeric quotes in the window (not a zero fare).
 
-## Sources
+## Sources (locked)
 
-| `source` / `fonte` | Program | Meaning |
-| --- | --- | --- |
-| `smiles_web` | `smiles` | GOL award miles (`amount_brl` is null) |
-| `voegol` | `smiles` | GOL full cash BRL |
-| `tudoazul` | `tudoazul` | Azul points (cash copay is **not** `amount_brl`) |
-| `voeazul` | `tudoazul` | Azul full cash BRL |
-| `latam_pass` | `latam_pass` | LATAM miles |
-| `latam_web` | `latam_pass` | LATAM cash |
+Award + cash companion pairs. Filter `fonte` / `source` on these ids.
 
-Dry-run ingest may persist the same ids **or** a `*_dry_run` suffix (e.g.
-`smiles_web_dry_run`). The FE should either:
+| Pair | Award / miles `source` | Cash companion `source` | Program |
+| --- | --- | --- | --- |
+| Smiles / GOL | `smiles_web` | `voegol` | `smiles` |
+| TudoAzul / AZUL | `tudoazul` | `voeazul` | `tudoazul` |
+| LATAM Pass / LATAM | `latam_pass` | **`latam_web`** | `latam_pass` |
 
-- pass `exclude_dry_run=1`, or
-- accept fixture rows and label them.
+LATAM cash is **`latam_web`**. Do **not** use `latamairlines` (that name is not a
+`price_snapshots.source`). Constants: `LIVE_SOURCES` in `src/types/api.ts`.
+
+| `source` / `fonte` | Meaning |
+| --- | --- |
+| `smiles_web` | GOL award miles (`amount_brl` is null) |
+| `voegol` | GOL full cash BRL |
+| `tudoazul` | Azul points (cash copay is **not** `amount_brl`) |
+| `voeazul` | Azul full cash BRL |
+| `latam_pass` | LATAM miles |
+| `latam_web` | LATAM full cash BRL |
+
+Dry-run after the S0 hotfix persists the **same live name + `_dry_run`**:
+`smiles_web_dry_run`, `voegol_dry_run`, `tudoazul_dry_run`, `voeazul_dry_run`,
+`latam_pass_dry_run`, `latam_web_dry_run`. The FE should either pass
+`exclude_dry_run=1` or accept those rows and label them.
 
 ## Auth and secrets
 
