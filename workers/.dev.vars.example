@@ -18,3 +18,10 @@ SMILES_API_KEY=
 # SMILES_PASS=
 # SMILES_REQUEST_DELAY_MS=400
 
+# BE-4 TudoAzul / Azul. Frozen secrets (placeholders only).
+# Dry-run uses bundled PET→VCP and PET→POA JSON (no live login).
+TUDOAZUL_DRY_RUN=1
+TUDOAZUL_LOGIN=
+TUDOAZUL_PASSWORD=
+# TUDOAZUL_API_HOST=https://b2c-api.voeazul.com.br
+# TUDOAZUL_REQUEST_DELAY_MS=400

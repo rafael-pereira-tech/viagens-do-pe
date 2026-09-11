@@ -2,21 +2,22 @@ import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { smilesCollector } from '../src/collectors/smiles/index.ts';
 import { latamPassCollector } from '../src/collectors/latam-pass.ts';
-import { tudoAzulCollector } from '../src/collectors/tudoazul.ts';
+import { tudoAzulCollector } from '../src/collectors/tudoazul/index.ts';
 
 describe('airline collectors', () => {
-  it('keeps TudoAzul and LATAM as empty stubs (BE-4/BE-5)', async () => {
-    const params = {
-      origin: 'PET' as const,
+  it('does not search TudoAzul until env is configured', async () => {
+    const azul = await tudoAzulCollector.collect({
+      origin: 'PET',
       destination: 'VCP',
-      airline: 'AZUL' as const,
-      program: 'tudoazul' as const,
+      airline: 'AZUL',
+      program: 'tudoazul',
       flightDate: '2026-09-01',
-    };
-    const azul = await tudoAzulCollector.collect(params);
-    assert.equal(azul.status, 'empty');
+    });
+    assert.equal(azul.status, 'auth_failed');
     assert.deepEqual(azul.snapshots, []);
+  });
 
+  it('keeps LATAM as an empty stub (BE-5)', async () => {
     const latam = await latamPassCollector.collect({
       origin: 'PET',
       destination: 'GRU',
@@ -25,6 +26,7 @@ describe('airline collectors', () => {
       flightDate: '2026-09-01',
     });
     assert.equal(latam.status, 'empty');
+    assert.deepEqual(latam.snapshots, []);
   });
 
   it('does not search Smiles until env is configured', async () => {

@@ -82,7 +82,7 @@ function baseDeps(store: SnapshotStore) {
 }
 
 describe('runIngest', () => {
-  it('runs the full matrix; unconfigured Smiles is auth_failed, other programs stay empty stubs', async () => {
+  it('runs the full matrix; unconfigured Smiles and TudoAzul are auth_failed, LATAM stays an empty stub', async () => {
     const { store, snapshots, runs } = memoryStore();
     const summary = await runIngest({ ...baseDeps(store), cron: '0 12 * * *' });
 
@@ -96,8 +96,14 @@ describe('runIngest', () => {
     assert.equal(smilesRoute?.status, 'auth_failed');
     assert.equal(smilesRoute?.origin, 'PET');
     assert.equal(smilesRoute?.destination, 'CGH');
-    assert.ok(summary.failures.length === 122);
-    assert.ok(summary.failures.every((f) => f.status === 'auth_failed' && f.program === 'smiles'));
+    const azulRoutes = summary.routes.filter((r) => r.program === 'tudoazul');
+    assert.equal(azulRoutes.length, 2);
+    assert.ok(azulRoutes.every((r) => r.status === 'auth_failed'));
+    assert.deepEqual(azulRoutes.map((r) => r.destination).sort(), ['POA', 'VCP']);
+    const latamRoute = summary.routes.find((r) => r.program === 'latam_pass');
+    assert.equal(latamRoute?.status, 'empty');
+    assert.equal(summary.failures.length, 122 * 3);
+    assert.ok(summary.failures.every((f) => f.status === 'auth_failed' && (f.program === 'smiles' || f.program === 'tudoazul')));
     assert.ok(summary.runId);
     assert.equal(summary.collectedAt, now.toISOString());
     assert.equal(snapshots.length, 0);
@@ -282,7 +288,7 @@ describe('runIngest', () => {
     });
 
     assert.equal(summary.skipped, false);
-    assert.equal(summary.status, 'success');
+    assert.equal(summary.status, 'partial');
     assert.equal(summary.jobCount, 4);
     assert.equal(summary.snapshotCount, 5);
     const smiles = snapshots.filter((row) => row.program === 'smiles');
@@ -292,6 +298,37 @@ describe('runIngest', () => {
     assert.ok(smiles.every((row) => row.ingest_run_id === summary.runId));
     assert.ok(smiles.every((row) => row.collected_at === summary.collectedAt));
     assert.ok(smiles.some((row) => row.miles === 7200 && row.amount_brl === 248.5));
+    assert.ok(summary.failures.every((f) => f.program === 'tudoazul' && f.status === 'auth_failed'));
+    assert.equal(summary.failures.length, 2);
+    assert.equal(runs[0]!.status, 'partial');
+  });
+
+  it('persists Smiles + TudoAzul dry-run snapshots for a one-day window', async () => {
+    const { store, snapshots, runs } = memoryStore();
+    const summary = await runIngest({
+      ...baseDeps(store),
+      env: {
+        SMILES_DRY_RUN: '1',
+        TUDOAZUL_DRY_RUN: '1',
+        FLIGHT_WINDOW_START: '2026-09-15',
+        FLIGHT_WINDOW_END: '2026-09-15',
+      },
+      cron: 'manual',
+    });
+
+    assert.equal(summary.skipped, false);
+    assert.equal(summary.status, 'success');
+    assert.equal(summary.jobCount, 4);
+    const smiles = snapshots.filter((row) => row.program === 'smiles');
+    const azul = snapshots.filter((row) => row.program === 'tudoazul');
+    assert.equal(smiles.length, 5);
+    assert.ok(azul.length > 0);
+    assert.equal(summary.snapshotCount, smiles.length + azul.length);
+    assert.ok(azul.every((row) => row.origin === 'PET' && (row.destination === 'VCP' || row.destination === 'POA')));
+    assert.ok(azul.some((row) => row.source === 'tudoazul' && row.miles != null && row.amount_brl == null));
+    assert.ok(azul.some((row) => row.source === 'voeazul' && row.amount_brl != null && row.miles == null));
+    assert.ok(azul.every((row) => row.ingest_run_id === summary.runId));
+    assert.ok(azul.every((row) => row.miles !== 0 && row.amount_brl !== 0));
     assert.equal(runs[0]!.status, 'success');
   });
 });

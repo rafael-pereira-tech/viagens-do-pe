@@ -34,4 +34,18 @@ export interface Env {
   SMILES_FARE_TYPES?: string;
   SMILES_INCLUDE_CLUB?: string;
   SMILES_REQUEST_DELAY_MS?: string;
+
+  /**
+   * TudoAzul / Azul (BE-4). Never commit real values.
+   *
+   * Frozen live secrets (placeholders only): `TUDOAZUL_LOGIN` + `TUDOAZUL_PASSWORD`.
+   * Do not use `AZUL_*` secret names. `TUDOAZUL_DRY_RUN=1` parses bundled
+   * PET→VCP / PET→POA fixtures (no network). Optional host/delay overrides
+   * are non-secrets.
+   */
+  TUDOAZUL_LOGIN?: string;
+  TUDOAZUL_PASSWORD?: string;
+  TUDOAZUL_DRY_RUN?: string;
+  TUDOAZUL_API_HOST?: string;
+  TUDOAZUL_REQUEST_DELAY_MS?: string;
 }
