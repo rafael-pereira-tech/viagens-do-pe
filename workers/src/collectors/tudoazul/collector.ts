@@ -82,7 +82,9 @@ function resultFromParse(parsed: ReturnType<typeof parseAzulAvailability>): Coll
 }
 
 export function createTudoAzulCollector(env: Env, deps: TudoAzulCollectorDeps = {}): Collector {
-  const fetchImpl = deps.fetch ?? fetch;
+  // Cloudflare's global fetch requires the global object as its receiver.
+  // Keep injected test clients untouched, but bind the production fallback.
+  const fetchImpl: typeof fetch = deps.fetch ?? ((input, init) => fetch(input, init));
   const sleep = deps.sleep ?? waitMs;
   const client = deps.client ?? createAzulClient(env, { fetch: fetchImpl, sleep, now: deps.now });
   let sessionPromise: Promise<AzulSession | { error: string }> | null = null;

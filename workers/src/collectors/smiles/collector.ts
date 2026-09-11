@@ -65,7 +65,9 @@ function resultFromParse(parsed: { snapshots: Snapshot[] }): CollectResult {
 }
 
 export function createSmilesCollector(env: Env, deps: SmilesCollectorDeps = {}): Collector {
-  const fetchImpl = deps.fetch ?? fetch;
+  // Cloudflare's global fetch requires the global object as its receiver.
+  // Keep injected test clients untouched, but bind the production fallback.
+  const fetchImpl: typeof fetch = deps.fetch ?? ((input, init) => fetch(input, init));
   const sleep = deps.sleep ?? waitMs;
   const client = deps.client ?? createSmilesClient(env, { fetch: fetchImpl, sleep, now: deps.now });
   let sessionPromise: Promise<SmilesSession | { error: string }> | null = null;
