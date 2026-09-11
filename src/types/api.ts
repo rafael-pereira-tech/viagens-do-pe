@@ -35,6 +35,7 @@ export type ApiPriceSnapshot = {
   program: string
   flight_date: string
   departure_time: string | null
+  stops: number | null
   miles: number | null
   amount_brl: number | null
   taxes_brl: number | null

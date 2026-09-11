@@ -1,6 +1,7 @@
 import type { Env } from '../../env';
 import { LATAM_API_HOST, LATAM_SESSION_PATH } from './constants';
 import type { LatamSession, LatamTokenResponse } from './types';
+import { anySourceEnabled } from '../capabilities';
 
 function truthy(value: string | undefined): boolean {
   if (!value) return false;
@@ -17,7 +18,7 @@ export function hasLatamCredentials(env: Env): boolean {
 }
 
 export function isLiveEnabled(env: Env): boolean {
-  return hasLatamCredentials(env);
+  return anySourceEnabled(env, 'latam_cash', 'latam_pass_points');
 }
 
 export function apiHost(env: Env): string {
@@ -75,10 +76,7 @@ export async function resolveSession(env: Env, deps: SessionDeps): Promise<Latam
   const login = env.LATAM_PASS_LOGIN?.trim();
   const password = env.LATAM_PASS_PASSWORD;
   if (!login || !password) {
-    return {
-      error:
-        'LATAM Pass collector is not configured. Set LATAM_PASS_LOGIN and LATAM_PASS_PASSWORD, or LATAM_DRY_RUN=1.',
-    };
+    return {};
   }
 
   const session: LatamSession = {};

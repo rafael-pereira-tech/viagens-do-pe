@@ -13,6 +13,7 @@ import {
   voegolBodyLooksLikeError,
 } from './parser';
 import type { SmilesSession } from './types';
+import { hasExplicitCapabilityFlags, sourceEnabled } from '../capabilities';
 
 export interface SmilesCollectorDeps {
   fetch?: typeof fetch;
@@ -123,12 +124,13 @@ export function createSmilesCollector(env: Env, deps: SmilesCollectorDeps = {}):
         return stampDryRunResult(combine(resultFromParse(milesParsed), resultFromParse(cashParsed)));
       }
 
-      if (!isLiveEnabled(env)) {
+      const pointsEnabled = sourceEnabled(env, 'smiles_points');
+      const cashEnabled = sourceEnabled(env, 'gol_cash');
+      if (!isLiveEnabled(env) && !hasExplicitCapabilityFlags(env)) {
         return {
           status: 'auth_failed',
           snapshots: [],
-          error:
-            'Smiles collector is not configured. Set SMILES_API_KEY or SMILES_COOKIE when live credentials are available, or SMILES_DRY_RUN=1 for fixtures.',
+          error: 'Smiles collector is not configured. Set SMILES_POINTS_ENABLED/GOL_CASH_ENABLED or SMILES_API_KEY.',
         };
       }
 
@@ -138,8 +140,12 @@ export function createSmilesCollector(env: Env, deps: SmilesCollectorDeps = {}):
         return { status: 'auth_failed', snapshots: [], error: session.error };
       }
 
-      const miles = await searchMiles(params, session);
-      const cash = await searchCash(params, session);
+      const miles = pointsEnabled
+        ? await searchMiles(params, session)
+        : { status: 'empty' as const, snapshots: [] };
+      const cash = cashEnabled
+        ? await searchCash(params, session)
+        : { status: 'empty' as const, snapshots: [] };
       return combine(miles, cash);
     },
   };

@@ -240,10 +240,8 @@ function GroupedBars({
                   <TooltipContent className="tabular-nums">
                     <span className="font-medium">{formatShortDate(point.date)}</span>
                     {' · '}
-                    {formatMiles(point.milhas)} milhas ({milesLabel})
-                    {' · '}
-                    {formatBrl(point.brl, true)} ({brlLabel})
-                    {' · '}
+                    {formatMiles(point.milhas)} milhas ({milesLabel}){' · '}
+                    {formatBrl(point.brl, true)} ({brlLabel}){' · '}
                     {point.sampleSize} oferta{point.sampleSize === 1 ? '' : 's'}
                   </TooltipContent>
                 </Tooltip>

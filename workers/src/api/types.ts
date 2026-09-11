@@ -36,6 +36,7 @@ export const SNAPSHOT_COLUMNS = [
   'program',
   'flight_date',
   'departure_time',
+  'stops',
   'miles',
   'amount_brl',
   'taxes_brl',
@@ -56,6 +57,7 @@ export interface PriceSnapshot {
   program: string;
   flight_date: string;
   departure_time: string | null;
+  stops: number | null;
   miles: number | null;
   amount_brl: number | null;
   taxes_brl: number | null;

@@ -116,6 +116,7 @@ function snapshotFromFare(
     program: params.program,
     flight_date: params.flightDate,
     departure_time: departure,
+    stops: flight.stops == null ? null : Number(flight.stops),
     miles,
     amount_brl: null,
     taxes_brl: fareTaxes(flight, fare),
@@ -221,6 +222,7 @@ function snapshotBase(
     program: params.program,
     flight_date: params.flightDate,
     departure_time: departureTimeOf(departureIso),
+    stops: null,
     currency: 'BRL',
   };
 }
@@ -317,6 +319,7 @@ function snapshotFromVoegolOffer(
   const departure = itineraryDeparture(itinerary);
   return {
     ...snapshotBase(params, departure),
+    stops: itinerary.stopsCount ?? null,
     miles: null,
     amount_brl: amount,
     taxes_brl: offerTaxes(offer),

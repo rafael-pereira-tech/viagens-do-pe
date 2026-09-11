@@ -52,6 +52,7 @@ export function toSnapshotRow(snapshot: Snapshot): Record<string, unknown> {
     ingest_run_id: snapshot.ingest_run_id,
   };
   if (snapshot.departure_time !== undefined) row.departure_time = snapshot.departure_time;
+  if (snapshot.stops !== undefined) row.stops = snapshot.stops != null && snapshot.stops >= 0 ? snapshot.stops : null;
   if (snapshot.miles !== undefined) {
     row.miles = snapshot.miles != null && snapshot.miles > 0 ? snapshot.miles : null;
   }

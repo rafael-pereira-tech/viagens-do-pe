@@ -2,6 +2,9 @@
 -- security_invoker keeps RLS on public.price_snapshots (no anon policies).
 -- The Worker queries this view with the service role (bypasses RLS).
 
+ALTER TABLE public.price_snapshots
+  ADD COLUMN IF NOT EXISTS stops smallint;
+
 CREATE OR REPLACE VIEW public.price_snapshots_latest
 WITH (security_invoker = true) AS
 SELECT DISTINCT ON (origin, destination, airline, program, source, flight_date)
@@ -12,6 +15,7 @@ SELECT DISTINCT ON (origin, destination, airline, program, source, flight_date)
   program,
   flight_date,
   departure_time,
+  stops,
   miles,
   amount_brl,
   taxes_brl,

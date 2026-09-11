@@ -1,4 +1,5 @@
 export interface Env {
+  ENVIRONMENT?: string;
   SUPABASE_URL?: string;
   SUPABASE_SERVICE_ROLE_KEY?: string;
   /** When set, POST /run requires `Authorization: Bearer <secret>`. */
@@ -16,6 +17,11 @@ export interface Env {
   /** Optional ISO date override (YYYY-MM-DD) for the collection window. */
   FLIGHT_WINDOW_START?: string;
   FLIGHT_WINDOW_END?: string;
+  /** When true, scan today through FLIGHT_WINDOW_DAYS instead of static dates. */
+  FLIGHT_WINDOW_ROLLING?: string;
+  FLIGHT_WINDOW_DAYS?: string;
+  /** Production MVP excludes PET→POA unless explicitly enabled. */
+  ROUTE_POA_ENABLED?: string;
 
   /**
    * Smiles (BE-3). Never commit real values.
@@ -29,6 +35,8 @@ export interface Env {
    * persists `smiles_web_dry_run` / `voegol_dry_run`.
    */
   SMILES_API_KEY?: string;
+  SMILES_POINTS_ENABLED?: string;
+  GOL_CASH_ENABLED?: string;
   SMILES_USER?: string;
   SMILES_PASS?: string;
   SMILES_COOKIE?: string;
@@ -58,6 +66,8 @@ export interface Env {
    */
   TUDOAZUL_LOGIN?: string;
   TUDOAZUL_PASSWORD?: string;
+  AZUL_POINTS_ENABLED?: string;
+  AZUL_CASH_ENABLED?: string;
   TUDOAZUL_DRY_RUN?: string;
   TUDOAZUL_API_HOST?: string;
   TUDOAZUL_REQUEST_DELAY_MS?: string;
@@ -72,6 +82,8 @@ export interface Env {
    */
   LATAM_PASS_LOGIN?: string;
   LATAM_PASS_PASSWORD?: string;
+  LATAM_CASH_ENABLED?: string;
+  LATAM_PASS_POINTS_ENABLED?: string;
   LATAM_DRY_RUN?: string;
   LATAM_API_HOST?: string;
   LATAM_OFFERS_PATH?: string;
