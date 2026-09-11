@@ -2,11 +2,11 @@
 export const API_URL = import.meta.env.VITE_API_URL ?? ''
 
 /**
- * Pages-safe Bearer sent as `Authorization: Bearer <VITE_READ_API_KEY>`.
- * Must match Worker secret `READ_API_KEY`. Not the service role, not
- * `INGEST_TRIGGER_SECRET`, and not the stub Entrar/Sair button.
+ * Optional Bearer: `VITE_READ_API_KEY` or alias `VITE_API_TOKEN`.
+ * Send when the Worker has `READ_API_KEY` / `API_READ_SECRET`.
+ * Not the service role, not `INGEST_TRIGGER_SECRET`, and not stub Entrar/Sair.
  */
 export const READ_API_KEY = import.meta.env.VITE_READ_API_KEY ?? import.meta.env.VITE_API_TOKEN ?? ''
 
-/** Live Worker reads need both the base URL and the dedicated Bearer. */
-export const CAN_FETCH_SNAPSHOTS = Boolean(API_URL && READ_API_KEY)
+/** Fetch live snapshots whenever the Worker base URL is set. */
+export const CAN_FETCH_SNAPSHOTS = Boolean(API_URL)

@@ -30,14 +30,14 @@
   --chart-3: 215 10% 46%;
   --chart-4: 222 22% 12%;
   --chart-5: 210 16% 93%;
-  /* D-2.1 airline chart brands (hex: Azul #0078B8, GOL #E65C00, LATAM #752B5C) */
-  --airline-azul: 201 100% 36%;
-  --airline-azul-soft: 201 55% 88%;
-  --airline-gol: 24 100% 45%;
-  --airline-gol-soft: 24 85% 88%;
-  --airline-latam: 320 46% 31%;
-  --airline-latam-soft: 320 30% 88%;
-  --airline-other: 215 16% 58%;
+  /* D-2.1 Designer lock — chart fill = winning cia of the day (do not invent hex) */
+  --airline-azul: 201 100% 36%; /* #0078B8 */
+  --airline-gol: 24 100% 45%; /* #E65C00 */
+  --airline-latam: 312 45% 32%; /* #752B5C */
+  --airline-other: 215 16% 46%;
+  --airline-azul-soft: 201 80% 94%;
+  --airline-gol-soft: 24 100% 94%;
+  --airline-latam-soft: 312 30% 94%;
   --airline-other-soft: 210 16% 93%;
   --success: 160 84% 30%;
   --success-soft: 152 76% 96%;
@@ -80,8 +80,8 @@
   --airline-azul-soft: 201 40% 28%;
   --airline-gol: 24 95% 55%;
   --airline-gol-soft: 24 45% 28%;
-  --airline-latam: 320 45% 58%;
-  --airline-latam-soft: 320 28% 28%;
+  --airline-latam: 312 45% 58%;
+  --airline-latam-soft: 312 28% 28%;
   --airline-other: 215 16% 65%;
   --airline-other-soft: 217 19% 22%;
   --success: 160 70% 45%;

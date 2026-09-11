@@ -1,4 +1,5 @@
 import { milheiroFromQuote } from '../lib/api.ts'
+import { airlineForDestination, airlineIdFromName, type AirlineId } from '../lib/airlines.ts'
 import { programLabel } from '../lib/filters.ts'
 import { formatShortDate } from '../lib/format.ts'
 import { isoFromToday, ORIGIN, todayIso, type Destination } from '../lib/query.ts'
@@ -39,7 +40,7 @@ export const PLACEHOLDER_OFFERS: OfferRow[] = [
     departure_time: '06:40',
     miles: 16_000,
     taxes_brl: 72,
-    source: 'latam_pass',
+    source: 'latam_pass_dry_run',
   }),
   row('GRU', 6, {
     airline: 'LATAM',
@@ -47,7 +48,17 @@ export const PLACEHOLDER_OFFERS: OfferRow[] = [
     departure_time: '09:15',
     amount_brl: 940,
     taxes_brl: 81,
-    source: 'latam_web',
+    source: 'latam_web_dry_run',
+  }),
+  // Live leftover (pre-#11): excluded by default dry-run-only. Visible in ?dry=1 / ?live=1.
+  row('GRU', 10, {
+    airline: 'GOL',
+    program: 'smiles',
+    departure_time: '11:00',
+    miles: 9_000,
+    amount_brl: 248.5,
+    taxes_brl: 50,
+    source: 'smiles_web',
   }),
   row('GRU', 13, {
     airline: 'AZUL',
@@ -55,7 +66,7 @@ export const PLACEHOLDER_OFFERS: OfferRow[] = [
     departure_time: '18:20',
     miles: 18_000,
     taxes_brl: 69,
-    source: 'tudoazul',
+    source: 'tudoazul_dry_run',
   }),
   row('GRU', 21, {
     airline: 'GOL',
@@ -63,7 +74,7 @@ export const PLACEHOLDER_OFFERS: OfferRow[] = [
     departure_time: '07:05',
     miles: 13_800,
     taxes_brl: 64,
-    source: 'smiles_web',
+    source: 'smiles_web_dry_run',
   }),
   row('GRU', 34, {
     airline: 'LATAM',
@@ -71,7 +82,7 @@ export const PLACEHOLDER_OFFERS: OfferRow[] = [
     departure_time: '12:40',
     amount_brl: 810,
     taxes_brl: 88,
-    source: 'latam_web',
+    source: 'latam_web_dry_run',
   }),
 
   row('CGH', -3, {
@@ -87,7 +98,7 @@ export const PLACEHOLDER_OFFERS: OfferRow[] = [
     departure_time: '08:10',
     miles: 12_400,
     taxes_brl: 61,
-    source: 'smiles_web',
+    source: 'smiles_web_dry_run',
   }),
   row('CGH', 12, {
     airline: 'GOL',
@@ -95,7 +106,7 @@ export const PLACEHOLDER_OFFERS: OfferRow[] = [
     departure_time: '15:30',
     amount_brl: 690,
     taxes_brl: 77,
-    source: 'voegol',
+    source: 'voegol_dry_run',
   }),
   row('CGH', 19, {
     airline: 'GOL',
@@ -103,7 +114,7 @@ export const PLACEHOLDER_OFFERS: OfferRow[] = [
     departure_time: '06:55',
     miles: 11_800,
     taxes_brl: 59,
-    source: 'smiles_web',
+    source: 'smiles_web_dry_run',
   }),
   row('CGH', 28, {
     airline: 'AZUL',
@@ -111,7 +122,7 @@ export const PLACEHOLDER_OFFERS: OfferRow[] = [
     departure_time: '19:45',
     amount_brl: 910,
     taxes_brl: 70,
-    source: 'voeazul',
+    source: 'voeazul_dry_run',
   }),
 
   row('VCP', -2, {
@@ -127,7 +138,7 @@ export const PLACEHOLDER_OFFERS: OfferRow[] = [
     departure_time: '10:25',
     miles: 14_200,
     taxes_brl: 66,
-    source: 'tudoazul',
+    source: 'tudoazul_dry_run',
   }),
   row('VCP', 16, {
     airline: 'AZUL',
@@ -135,7 +146,7 @@ export const PLACEHOLDER_OFFERS: OfferRow[] = [
     departure_time: '16:10',
     amount_brl: 580,
     taxes_brl: 74,
-    source: 'voeazul',
+    source: 'voeazul_dry_run',
   }),
   row('VCP', 27, {
     airline: 'GOL',
@@ -143,7 +154,7 @@ export const PLACEHOLDER_OFFERS: OfferRow[] = [
     departure_time: '13:50',
     miles: 21_500,
     taxes_brl: 83,
-    source: 'smiles_web',
+    source: 'smiles_web_dry_run',
   }),
 ]
 
@@ -209,9 +220,13 @@ export type ChartPoint = {
   milhas: number
   brl: number
   sampleSize: number
+  /** Winning airline of the day for that metric — bar fill, not a 3-cia stack. */
+  milesAirline: AirlineId
+  brlAirline: AirlineId
 }
 
-export function chartFromOffers(rows: OfferRow[]): ChartPoint[] {
+export function chartFromOffers(rows: OfferRow[], fallbackDestination = ''): ChartPoint[] {
+  const fallback = airlineForDestination(fallbackDestination)
   const byDate = new Map<string, OfferRow[]>()
   for (const row of rows) {
     const list = byDate.get(row.flight_date) ?? []
@@ -222,25 +237,46 @@ export function chartFromOffers(rows: OfferRow[]): ChartPoint[] {
   return [...byDate.entries()]
     .sort(([a], [b]) => a.localeCompare(b))
     .map(([date, group]) => {
-      const miles = group.map((r) => r.miles).filter((n): n is number => n != null)
-      const cash = group.map((r) => r.amount_brl).filter((n): n is number => n != null)
+      const milesWinner = minBy(
+        group.filter((r): r is OfferRow & { miles: number } => r.miles != null),
+        (r) => r.miles,
+      )
+      const cashWinner = minBy(
+        group.filter((r): r is OfferRow & { amount_brl: number } => r.amount_brl != null),
+        (r) => r.amount_brl,
+      )
       return {
         date,
-        milhas: miles.length ? Math.min(...miles) : 0,
-        brl: cash.length ? Math.min(...cash) : 0,
+        milhas: milesWinner?.miles ?? 0,
+        brl: cashWinner?.amount_brl ?? 0,
         sampleSize: group.length,
+        milesAirline: milesWinner ? airlineIdFromName(milesWinner.airline) : fallback,
+        brlAirline: cashWinner ? airlineIdFromName(cashWinner.airline) : fallback,
       }
     })
 }
 
-export function chartFromRouteDayStats(days: SnapshotRouteDayStats[], today = todayIso()): ChartPoint[] {
+export function chartFromRouteDayStats(
+  days: SnapshotRouteDayStats[],
+  offers: OfferRow[] = [],
+  fallbackDestination = '',
+  today = todayIso(),
+): ChartPoint[] {
+  const fromOffers = chartFromOffers(offers, fallbackDestination)
+  const byDate = new Map(fromOffers.map((point) => [point.date, point]))
+  const fallback = airlineForDestination(fallbackDestination)
   return [...days]
     .filter((day) => day.flight_date >= today)
     .sort((a, b) => a.flight_date.localeCompare(b.flight_date))
-    .map((day) => ({
-      date: day.flight_date,
-      milhas: day.min_miles ?? 0,
-      brl: day.min_amount_brl ?? 0,
-      sampleSize: day.snapshot_count,
-    }))
+    .map((day) => {
+      const row = byDate.get(day.flight_date)
+      return {
+        date: day.flight_date,
+        milhas: day.min_miles ?? 0,
+        brl: day.min_amount_brl ?? 0,
+        sampleSize: day.snapshot_count,
+        milesAirline: row?.milesAirline ?? fallback,
+        brlAirline: row?.brlAirline ?? fallback,
+      }
+    })
 }

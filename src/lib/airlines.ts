@@ -54,6 +54,16 @@ const FILLS: Record<AirlineId, AirlineChartFills> = {
   },
 }
 
+/** Designer map: GOL→gol, AZUL→azul, LATAM→latam. */
+export function airlineIdFromName(airline: string | null | undefined): AirlineId {
+  if (!airline) return 'OTHER'
+  const n = airline.trim().toUpperCase()
+  if (n === 'AZUL' || n.includes('AZUL')) return 'AZUL'
+  if (n === 'GOL' || n.includes('GOL')) return 'GOL'
+  if (n === 'LATAM' || n.includes('LATAM')) return 'LATAM'
+  return 'OTHER'
+}
+
 export function airlineForDestination(destination: string): AirlineId {
   const key = destination.toUpperCase()
   if (key in DESTINATION_AIRLINE) {
@@ -62,7 +72,24 @@ export function airlineForDestination(destination: string): AirlineId {
   return 'OTHER'
 }
 
-/** Chart bar fills for the active destination tab (D-2.1). */
+export function chartFillsForAirline(airline: AirlineId | string): AirlineChartFills {
+  const id =
+    airline === 'AZUL' || airline === 'GOL' || airline === 'LATAM' || airline === 'OTHER'
+      ? airline
+      : airlineIdFromName(airline)
+  return FILLS[id]
+}
+
+/**
+ * Fallback when a day has no winning-cia on the row (stats-only path).
+ * Per-bar fills should use `chartFillsForAirline` of that metric's winner.
+ */
 export function chartFillsForDestination(destination: string): AirlineChartFills {
   return FILLS[airlineForDestination(destination)]
 }
+
+export const AIRLINE_LEGEND: { id: AirlineId; label: string }[] = [
+  { id: 'AZUL', label: 'Azul' },
+  { id: 'GOL', label: 'GOL' },
+  { id: 'LATAM', label: 'LATAM' },
+]

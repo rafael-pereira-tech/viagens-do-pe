@@ -21,9 +21,13 @@ const PROGRAM_LABELS: Record<string, string> = {
   latam_pass: 'LATAM Pass',
 }
 
-function stripDryRunSuffix(source: string): { base: string; dryRun: boolean } {
+export function stripDryRunSuffix(source: string): { base: string; dryRun: boolean } {
   const dryRun = source.endsWith('_dry_run')
   return { base: dryRun ? source.slice(0, -'_dry_run'.length) : source, dryRun }
+}
+
+export function isDryRunSource(source: string): boolean {
+  return stripDryRunSuffix(source).dryRun
 }
 
 export function sourceLabel(source: string): string {
@@ -52,7 +56,12 @@ export function filterOffers(
     if (row.origin !== ORIGIN) return false
     if (row.destination !== query.to) return false
     if (!isFutureDate(row.flight_date, today)) return false
-    if (fonte && fonte.toLowerCase() !== 'todas' && row.source !== fonte) return false
+    if (query.dryMode === 'only' && !isDryRunSource(row.source)) return false
+    if (query.dryMode === 'live' && isDryRunSource(row.source)) return false
+    if (fonte && fonte.toLowerCase() !== 'todas') {
+      const { base } = stripDryRunSuffix(row.source)
+      if (row.source !== fonte && base !== fonte) return false
+    }
     if (query.from && row.flight_date < query.from) return false
     if (query.until && row.flight_date > query.until) return false
     if (!opts.ignoreDay && query.dia && row.flight_date !== query.dia) return false
