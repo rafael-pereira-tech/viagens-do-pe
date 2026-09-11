@@ -1,6 +1,18 @@
+import { Badge } from '@/components/ui/badge'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Skeleton } from '@/components/ui/skeleton'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
 import type { OfferRow } from '../types/priceSnapshot.ts'
 import { formatBrl, formatMiles, formatMilheiro, formatShortDate } from '../lib/format.ts'
-import { EmptyHint, Skeleton } from './Skeleton.tsx'
+import { FIELD_LABEL } from '../lib/ui.ts'
+import { EmptyHint } from './EmptyHint.tsx'
 
 type Props = {
   rows: OfferRow[]
@@ -10,66 +22,66 @@ type Props = {
 
 export function OffersTable({ rows, isLoading, onResetFilters }: Props) {
   return (
-    <section className="rounded-2xl border border-dashed border-slate-200 p-3 sm:p-4" aria-label="Ofertas">
-      <h2 className="mb-3 text-sm font-semibold text-slate-900">Ofertas futuras</h2>
-      {isLoading ? (
-        <TableSkeleton />
-      ) : rows.length === 0 ? (
-        <EmptyHint
-          title="Sem ofertas futuras nesta aba"
-          actionLabel="Limpar filtros"
-          onAction={onResetFilters}
-        />
-      ) : (
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[48rem] border-collapse text-left text-sm">
-            <thead className="sticky top-0 z-10 bg-white">
-              <tr className="border-b border-slate-100 text-[11px] font-semibold uppercase tracking-wide text-slate-400">
-                <th className="px-3 py-2">Data</th>
-                <th className="px-3 py-2">Cia / programa</th>
-                <th className="px-3 py-2">Fonte</th>
-                <th className="px-3 py-2 text-right">Milhas</th>
-                <th className="px-3 py-2 text-right">Taxas (BRL)</th>
-                <th className="px-3 py-2 text-right">Cash (BRL)</th>
-                <th className="px-3 py-2 text-right">Milheiro</th>
-              </tr>
-            </thead>
-            <tbody>
+    <Card size="sm" aria-label="Ofertas">
+      <CardHeader>
+        <CardTitle className="text-sm font-semibold">Ofertas futuras</CardTitle>
+      </CardHeader>
+      <CardContent>
+        {isLoading ? (
+          <TableSkeleton />
+        ) : rows.length === 0 ? (
+          <EmptyHint
+            title="Sem ofertas futuras nesta aba"
+            actionLabel="Limpar filtros"
+            onAction={onResetFilters}
+          />
+        ) : (
+          <Table className="min-w-[48rem]" containerClassName="max-h-[min(28rem,70vh)]">
+            <TableHeader className="sticky top-0 z-10 bg-card">
+              <TableRow className="hover:bg-transparent">
+                <TableHead className={FIELD_LABEL}>Data</TableHead>
+                <TableHead className={FIELD_LABEL}>Cia / programa</TableHead>
+                <TableHead className={FIELD_LABEL}>Fonte</TableHead>
+                <TableHead className={`${FIELD_LABEL} text-right`}>Milhas</TableHead>
+                <TableHead className={`${FIELD_LABEL} text-right`}>Taxas (BRL)</TableHead>
+                <TableHead className={`${FIELD_LABEL} text-right`}>Cash (BRL)</TableHead>
+                <TableHead className={`${FIELD_LABEL} text-right`}>Milheiro</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
               {rows.map((row) => (
-                <tr
+                <TableRow
                   key={`${row.destination}-${row.program}-${row.flight_date}-${row.source}-${row.airline}`}
-                  className="border-b border-slate-50 last:border-0 odd:bg-slate-50/60"
+                  className="odd:bg-muted/40"
                 >
-                  <td className="whitespace-nowrap px-3 py-3 text-slate-800">
+                  <TableCell className="text-card-foreground">
                     {formatShortDate(row.flight_date)}
-                  </td>
-                  <td className="whitespace-nowrap px-3 py-3 text-slate-600">
+                  </TableCell>
+                  <TableCell className="text-muted-foreground">
                     {row.airline} · {row.program}
-                  </td>
-                  <td className="px-3 py-3">
-                    <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-600">
-                      {row.source}
-                    </span>
-                  </td>
-                  <td className="px-3 py-3 text-right tabular-nums text-slate-800">
+                  </TableCell>
+                  <TableCell>
+                    <Badge variant="secondary">{row.source}</Badge>
+                  </TableCell>
+                  <TableCell className="text-right tabular-nums text-card-foreground">
                     {row.miles != null ? formatMiles(row.miles) : '—'}
-                  </td>
-                  <td className="px-3 py-3 text-right tabular-nums text-slate-800">
+                  </TableCell>
+                  <TableCell className="text-right tabular-nums text-card-foreground">
                     {row.taxes_brl != null ? formatBrl(row.taxes_brl, true) : '—'}
-                  </td>
-                  <td className="px-3 py-3 text-right tabular-nums text-slate-800">
+                  </TableCell>
+                  <TableCell className="text-right tabular-nums text-card-foreground">
                     {row.amount_brl != null ? formatBrl(row.amount_brl, true) : '—'}
-                  </td>
-                  <td className="px-3 py-3 text-right tabular-nums font-medium text-slate-900">
+                  </TableCell>
+                  <TableCell className="text-right tabular-nums font-medium text-card-foreground">
                     {formatMilheiro(row.milheiro)}
-                  </td>
-                </tr>
+                  </TableCell>
+                </TableRow>
               ))}
-            </tbody>
-          </table>
-        </div>
-      )}
-    </section>
+            </TableBody>
+          </Table>
+        )}
+      </CardContent>
+    </Card>
   )
 }
 

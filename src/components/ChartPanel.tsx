@@ -1,8 +1,11 @@
-import { useState } from 'react'
+import { Card, CardAction, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Skeleton } from '@/components/ui/skeleton'
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import type { ChartPoint } from '../data/placeholders.ts'
 import { formatBrl, formatMiles, formatShortDate } from '../lib/format.ts'
 import type { ChartMode } from '../lib/query.ts'
-import { EmptyHint, Skeleton } from './Skeleton.tsx'
+import { EmptyHint } from './EmptyHint.tsx'
 
 type Props = {
   points: ChartPoint[]
@@ -30,40 +33,51 @@ export function ChartPanel({
   onSelectDate,
 }: Props) {
   return (
-    <section className="rounded-2xl border border-dashed border-slate-200 p-4" aria-label="Gráfico de ofertas futuras">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <h2 className="text-sm font-semibold text-slate-900">
-          Ofertas futuras por data (PET → {destination})
-        </h2>
-        <div className="flex flex-wrap gap-1" role="group" aria-label="Série do gráfico">
-          {MODES.map((item) => {
-            const active = mode === item.key
-            return (
-              <button
-                key={item.key}
-                type="button"
-                onClick={() => onModeChange(item.key)}
-                className={[
-                  'rounded-full px-3 py-1 text-xs font-medium',
-                  active ? 'bg-blue-50 text-blue-700' : 'bg-slate-100 text-slate-600 hover:bg-slate-200',
-                ].join(' ')}
-              >
+    <Card size="sm" aria-label="Gráfico de ofertas futuras">
+      <CardHeader>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <CardTitle className="cursor-help text-sm font-semibold">
+              Ofertas futuras por data (PET → {destination})
+            </CardTitle>
+          </TooltipTrigger>
+          <TooltipContent>
+            Barras agrupadas pelas menores milhas e menor cash do dia. Clique numa data para filtrar a
+            tabela.
+          </TooltipContent>
+        </Tooltip>
+        <CardAction className="max-sm:col-span-2 max-sm:justify-self-start">
+          <ToggleGroup
+            type="single"
+            variant="outline"
+            size="sm"
+            spacing={0}
+            value={mode}
+            onValueChange={(value) => {
+              if (value) onModeChange(value as ChartMode)
+            }}
+            aria-label="Série do gráfico"
+          >
+            {MODES.map((item) => (
+              <ToggleGroupItem key={item.key} value={item.key}>
                 {item.label}
-              </button>
-            )
-          })}
-        </div>
-      </div>
-      {isLoading ? (
-        <div className="mt-4" aria-busy="true">
-          <Skeleton className="h-52 w-full" />
-        </div>
-      ) : points.length === 0 ? (
-        <EmptyHint title="Sem ofertas futuras nesta aba" />
-      ) : (
-        <GroupedBars points={points} mode={mode} selectedDate={selectedDate} onSelectDate={onSelectDate} />
-      )}
-    </section>
+              </ToggleGroupItem>
+            ))}
+          </ToggleGroup>
+        </CardAction>
+      </CardHeader>
+      <CardContent>
+        {isLoading ? (
+          <div aria-busy="true">
+            <Skeleton className="h-52 w-full" />
+          </div>
+        ) : points.length === 0 ? (
+          <EmptyHint title="Sem ofertas futuras nesta aba" />
+        ) : (
+          <GroupedBars points={points} mode={mode} selectedDate={selectedDate} onSelectDate={onSelectDate} />
+        )}
+      </CardContent>
+    </Card>
   )
 }
 
@@ -78,11 +92,11 @@ function seriesBars(
   const bars: { key: string; x: number; h: number; fill: string }[] = []
   let x = gx
   if (showMiles) {
-    bars.push({ key: 'milhas', x, h: milesH, fill: '#3b82f6' })
+    bars.push({ key: 'milhas', x, h: milesH, fill: 'hsl(var(--chart-1))' })
     x += barW + 3
   }
   if (showBrl) {
-    bars.push({ key: 'brl', x, h: brlH, fill: '#94a3b8' })
+    bars.push({ key: 'brl', x, h: brlH, fill: 'hsl(var(--chart-2))' })
   }
   return bars
 }
@@ -98,7 +112,6 @@ function GroupedBars({
   selectedDate: string
   onSelectDate: (isoDate: string) => void
 }) {
-  const [hover, setHover] = useState<ChartPoint | null>(null)
   const showMiles = mode === 'both' || mode === 'milhas'
   const showBrl = mode === 'both' || mode === 'brl'
   const series = Number(showMiles) + Number(showBrl)
@@ -112,11 +125,15 @@ function GroupedBars({
   const barW = Math.max(8, (groupW - gap) / Math.max(series, 1))
   const maxMiles = Math.max(...points.map((p) => p.milhas), 1)
   const maxBrl = Math.max(...points.map((p) => p.brl), 1)
-  const active = hover ?? points.find((p) => p.date === selectedDate) ?? null
 
   return (
-    <div className="relative mt-3">
-      <svg viewBox={`0 0 ${width} ${height}`} className="h-52 w-full" role="img" aria-label="Barras agrupadas por data futura">
+    <div className="relative mt-1">
+      <svg
+        viewBox={`0 0 ${width} ${height}`}
+        className="pointer-events-none h-52 w-full"
+        role="img"
+        aria-hidden="true"
+      >
         {points.map((point, i) => {
           const gx = pad.left + i * groupW + gap / 2
           const selected = point.date === selectedDate
@@ -129,19 +146,13 @@ function GroupedBars({
             showBrl,
           )
           return (
-            <g
-              key={point.date}
-              className="cursor-pointer"
-              onMouseEnter={() => setHover(point)}
-              onMouseLeave={() => setHover(null)}
-              onClick={() => onSelectDate(point.date)}
-            >
+            <g key={point.date}>
               <rect
                 x={pad.left + i * groupW}
                 y={pad.top}
                 width={groupW}
                 height={innerH}
-                fill={selected ? '#eff6ff' : 'transparent'}
+                fill={selected ? 'hsl(var(--primary) / 0.1)' : 'transparent'}
               />
               {bars.map((bar) => (
                 <rect
@@ -159,7 +170,7 @@ function GroupedBars({
                 x={pad.left + i * groupW + groupW / 2}
                 y={height - 12}
                 textAnchor="middle"
-                className="fill-slate-400"
+                className="fill-muted-foreground"
                 fontSize="11"
               >
                 {formatShortDate(point.date)}
@@ -168,29 +179,56 @@ function GroupedBars({
           )
         })}
       </svg>
-      {active ? (
-        <div className="pointer-events-none absolute left-1/2 top-2 -translate-x-1/2 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs text-slate-600 shadow-sm">
-          <span className="font-medium text-slate-900">{formatShortDate(active.date)}</span>
-          {' · '}
-          <span className="tabular-nums">{formatMiles(active.milhas)} milhas</span>
-          {' · '}
-          <span className="tabular-nums">{formatBrl(active.brl, true)}</span>
-          {' · '}
-          {active.sampleSize} oferta{active.sampleSize === 1 ? '' : 's'}
-        </div>
-      ) : null}
-      <div className="mt-1 flex flex-wrap items-center gap-4 text-xs text-slate-500">
+      <div className="absolute inset-0 flex pb-9" role="list" aria-label="Datas do gráfico">
+        {points.map((point) => {
+          const selected = point.date === selectedDate
+          return (
+            <Tooltip key={point.date} delayDuration={150}>
+              <TooltipTrigger asChild>
+                <button
+                  type="button"
+                  role="listitem"
+                  className="h-full flex-1 rounded-md focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none"
+                  aria-pressed={selected}
+                  aria-label={`${formatShortDate(point.date)}: ${formatMiles(point.milhas)} milhas, ${formatBrl(point.brl, true)}, ${point.sampleSize} ofertas`}
+                  onClick={() => onSelectDate(point.date)}
+                />
+              </TooltipTrigger>
+              <TooltipContent className="tabular-nums">
+                <span className="font-medium">{formatShortDate(point.date)}</span>
+                {' · '}
+                {formatMiles(point.milhas)} milhas
+                {' · '}
+                {formatBrl(point.brl, true)}
+                {' · '}
+                {point.sampleSize} oferta{point.sampleSize === 1 ? '' : 's'}
+              </TooltipContent>
+            </Tooltip>
+          )
+        })}
+      </div>
+      <div className="mt-1 flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
         {showMiles ? (
-          <span className="inline-flex items-center gap-1.5">
-            <span className="h-2.5 w-2.5 rounded-sm bg-blue-500" />
-            Menor milhas no dia
-          </span>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <span className="inline-flex cursor-help items-center gap-1.5">
+                <span className="h-2.5 w-2.5 rounded-sm bg-chart-1" />
+                Menor milhas no dia
+              </span>
+            </TooltipTrigger>
+            <TooltipContent>Menor quantidade de milhas entre as ofertas daquele dia</TooltipContent>
+          </Tooltip>
         ) : null}
         {showBrl ? (
-          <span className="inline-flex items-center gap-1.5">
-            <span className="h-2.5 w-2.5 rounded-sm bg-slate-400" />
-            Menor cash (BRL) no dia
-          </span>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <span className="inline-flex cursor-help items-center gap-1.5">
+                <span className="h-2.5 w-2.5 rounded-sm bg-chart-2" />
+                Menor cash (BRL) no dia
+              </span>
+            </TooltipTrigger>
+            <TooltipContent>Menor preço em dinheiro (cash) entre as ofertas daquele dia</TooltipContent>
+          </Tooltip>
         ) : null}
       </div>
     </div>
