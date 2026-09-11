@@ -52,7 +52,10 @@ export function filterOffers(
     if (row.origin !== ORIGIN) return false
     if (row.destination !== query.to) return false
     if (!isFutureDate(row.flight_date, today)) return false
-    if (fonte && fonte.toLowerCase() !== 'todas' && row.source !== fonte) return false
+    if (fonte && fonte.toLowerCase() !== 'todas') {
+      const { base } = stripDryRunSuffix(row.source)
+      if (row.source !== fonte && base !== fonte) return false
+    }
     if (query.from && row.flight_date < query.from) return false
     if (query.until && row.flight_date > query.until) return false
     if (!opts.ignoreDay && query.dia && row.flight_date !== query.dia) return false

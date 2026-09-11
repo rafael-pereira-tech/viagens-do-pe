@@ -2,6 +2,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Toggle } from '@/components/ui/toggle'
 import { FILTER_FONTES, sourceLabel } from '../lib/filters.ts'
 import { todayIso, type DashboardQuery } from '../lib/query.ts'
 import { FIELD_LABEL } from '../lib/ui.ts'
@@ -10,7 +11,9 @@ type Draft = Pick<DashboardQuery, 'from' | 'until' | 'fonte'>
 
 type Props = {
   draft: Draft
+  dry: boolean
   onDraftChange: (patch: Partial<Draft>) => void
+  onDryChange: (dry: boolean) => void
   onApply: () => void
   onClear: () => void
 }
@@ -18,7 +21,7 @@ type Props = {
 const ALL_FONTES = 'todas'
 const dateInputClass = 'h-10 bg-card tabular-nums'
 
-export function FiltersBar({ draft, onDraftChange, onApply, onClear }: Props) {
+export function FiltersBar({ draft, dry, onDraftChange, onDryChange, onApply, onClear }: Props) {
   const minDate = todayIso()
 
   return (
@@ -75,7 +78,17 @@ export function FiltersBar({ draft, onDraftChange, onApply, onClear }: Props) {
               </Select>
             </div>
           </div>
-          <div className="flex shrink-0 justify-end gap-2">
+          <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">
+            <Toggle
+              variant="outline"
+              size="lg"
+              pressed={dry}
+              onPressedChange={onDryChange}
+              aria-label="Incluir fontes dry-run"
+              className="h-10 px-3"
+            >
+              Incluir dry-run
+            </Toggle>
             <Button type="button" variant="outline" className="h-10 px-4" onClick={onClear}>
               Limpar
             </Button>

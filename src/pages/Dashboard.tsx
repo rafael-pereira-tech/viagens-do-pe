@@ -96,7 +96,9 @@ export function Dashboard() {
       <DestinationTabs active={applied.to} onChange={onTab} />
       <FiltersBar
         draft={draft}
+        dry={applied.dry}
         onDraftChange={(patch) => setDraft((d) => ({ ...d, ...patch }))}
+        onDryChange={(dry) => commit({ ...applied, dry })}
         onApply={applyFilters}
         onClear={clearFilters}
       />

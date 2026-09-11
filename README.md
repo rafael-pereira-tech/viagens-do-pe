@@ -41,10 +41,11 @@ npm run preview
 
 ## Variáveis de ambiente
 
-| Variável            | Obrigatória                           | Uso                                                                                                                                                                                                                 |
-| ------------------- | ------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `VITE_API_URL`      | Não                                   | Base URL do Workers read API. Vazia = stubs locais. Padrão no `.env.example`: `https://viagens-do-pe-ingest.rafaellimapereira.workers.dev`. Contrato: [`docs/api-price-snapshots.md`](docs/api-price-snapshots.md). |
-| `VITE_READ_API_KEY` | Sim, se `VITE_API_URL` estiver setado | Bearer `Authorization` para o Worker (`READ_API_KEY`). **Nunca** `SUPABASE_*`. Entrar/Sair não autoriza. Sem a chave, o Dashboard fica nos stubs.                                                                  |
+| Variável            | Obrigatória                  | Uso                                                                                                                                                                                                                 |
+| ------------------- | ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `VITE_API_URL`      | Não                          | Base URL do Workers read API. Vazia = stubs locais. Padrão no `.env.example`: `https://viagens-do-pe-ingest.rafaellimapereira.workers.dev`. Contrato: [`docs/api-price-snapshots.md`](docs/api-price-snapshots.md). |
+| `VITE_READ_API_KEY` | Só se o Worker exigir Bearer | `Authorization: Bearer …` para `READ_API_KEY`. **Nunca** `SUPABASE_*`. Entrar/Sair não autoriza.                                                                                                                    |
+| `VITE_API_TOKEN`    | Alias de `VITE_READ_API_KEY` | Use quando o Worker tiver `API_READ_SECRET`. Mesmo valor, mesmo header.                                                                                                                                             |
 
 ### Local
 
@@ -55,7 +56,9 @@ cp .env.example .env
 npm run dev
 ```
 
-O Vite só expõe variáveis com prefixo `VITE_`. Reinicie `npm run dev` depois de mudar o `.env`. Sem `VITE_API_URL` **ou** sem `VITE_READ_API_KEY`, o Dashboard usa `src/data/placeholders.ts`. O client está em `src/lib/api.ts` e recusa fetch sem Bearer. Query extra: `?dry=1` inclui fontes `*_dry_run` (o padrão é `exclude_dry_run=1`).
+O Vite só expõe variáveis com prefixo `VITE_`. Reinicie `npm run dev` depois de mudar o `.env`. Sem `VITE_API_URL` o Dashboard usa `src/data/placeholders.ts`. Com a URL, o client chama o Worker; 404/401 viram faixa de erro (o `/api/v1` pode 404 até o Platform redeploy). Se o Worker tiver `API_READ_SECRET` / `READ_API_KEY`, defina `VITE_API_TOKEN` ou `VITE_READ_API_KEY`.
+
+Padrão da API: `exclude_dry_run=1`. O toggle **Incluir dry-run** (ou `?dry=1`) inclui fontes `*_dry_run`.
 
 **Nunca** coloque `SUPABASE_SERVICE_ROLE_KEY` nem qualquer `VITE_SUPABASE*` no frontend — Security grepa o bundle.
 
@@ -65,8 +68,8 @@ O Vite só expõe variáveis com prefixo `VITE_`. Reinicie `npm run dev` depois 
 
 1. Pages → projeto → **Settings** → **Environment variables**.
 2. Adicione `VITE_API_URL=https://viagens-do-pe-ingest.rafaellimapereira.workers.dev` (Production e Preview).
-3. Adicione `VITE_READ_API_KEY` com o **mesmo** valor do secret `READ_API_KEY` do Worker. Não invente chave; não use `SUPABASE_*` nem `INGEST_TRIGGER_SECRET`.
-4. **Redeploy** o deploy mais recente (ou um push novo) — mudar o env sem rebuild não atualiza o JS.
+3. Se o Worker tiver `API_READ_SECRET` ou `READ_API_KEY`, adicione `VITE_API_TOKEN` (ou `VITE_READ_API_KEY`) com o **mesmo** valor. Não invente chave; não use `SUPABASE_*` nem `INGEST_TRIGGER_SECRET`.
+4. **Redeploy** o deploy mais recente (ou um push novo) — mudar o env sem rebuild não atualiza o JS. Sem rebuild, 404/401 no `/api/v1` são esperados até o Platform publicar o Worker.
 
 ## D-2 + shadcn (FE-1.1)
 
@@ -97,7 +100,7 @@ Tokens semânticos em `src/index.css` (`:root` HSL). Primitivos em `src/componen
 3. Output: `dist`
 4. Node: `24` (veja `.nvmrc`)
 5. SPA: `public/_redirects` (`/* /index.html 200`) vai para `dist`.
-6. **Obrigatório para dados reais:** `VITE_API_URL` + `VITE_READ_API_KEY` no ambiente de build + **redeploy** (veja [Cloudflare Pages](#cloudflare-pages) acima).
+6. **Para dados reais:** `VITE_API_URL` no build + **redeploy**. `VITE_API_TOKEN` / `VITE_READ_API_KEY` só se o Worker exigir Bearer (veja [Cloudflare Pages](#cloudflare-pages) acima).
 
 Ou Wrangler:
 

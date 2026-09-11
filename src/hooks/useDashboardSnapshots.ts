@@ -1,5 +1,11 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { fetchLatestSnapshots, fetchSnapshotStats, liveDashboardQuery, toOfferRow } from '../lib/api.ts'
+import {
+  describeFetchError,
+  fetchLatestSnapshots,
+  fetchSnapshotStats,
+  liveDashboardQuery,
+  toOfferRow,
+} from '../lib/api.ts'
 import { CAN_FETCH_SNAPSHOTS } from '../lib/config.ts'
 import type { DashboardQuery } from '../lib/query.ts'
 import type { SnapshotRouteDayStats, SnapshotWindowStats } from '../types/api.ts'
@@ -75,11 +81,10 @@ export function useDashboardSnapshots(query: DashboardQuery): DashboardSnapshots
       })
       .catch((err: unknown) => {
         if (signal.aborted) return
-        const detail = err instanceof Error ? err.message : 'erro desconhecido'
         setOffers([])
         setWindowStats(null)
         setRouteDay([])
-        setError(`Não foi possível carregar as ofertas (${detail}).`)
+        setError(describeFetchError(err))
         setIsLoading(false)
       })
 

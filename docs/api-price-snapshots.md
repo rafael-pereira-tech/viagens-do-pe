@@ -10,34 +10,34 @@ Same Workers project as ingest: `workers/` (`viagens-do-pe-ingest`).
 
 ## Endpoints
 
-| Method | Path | Purpose |
-| --- | --- | --- |
-| `GET` | `/health` | Ingest liveness (unchanged) |
-| `GET` | `/api/v1/health` | Read API liveness |
-| `GET` | `/api/v1/snapshots` | Paginated history |
-| `GET` | `/api/v1/snapshots/latest` | Latest row per route/day/source |
-| `GET` | `/api/v1/snapshots/stats` | Min miles / min `amount_brl` over the window |
-| `OPTIONS` | `/api/v1/*` | CORS preflight |
+| Method    | Path                       | Purpose                                      |
+| --------- | -------------------------- | -------------------------------------------- |
+| `GET`     | `/health`                  | Ingest liveness (unchanged)                  |
+| `GET`     | `/api/v1/health`           | Read API liveness                            |
+| `GET`     | `/api/v1/snapshots`        | Paginated history                            |
+| `GET`     | `/api/v1/snapshots/latest` | Latest row per route/day/source              |
+| `GET`     | `/api/v1/snapshots/stats`  | Min miles / min `amount_brl` over the window |
+| `OPTIONS` | `/api/v1/*`                | CORS preflight                               |
 
 ## Query filters
 
 All list/latest/stats endpoints accept:
 
-| Param | PostgREST | Notes |
-| --- | --- | --- |
-| `origin` | `eq` | 3-letter IATA (`PET`) |
-| `destination` | `eq` | 3-letter IATA (`GRU`, `CGH`, `VCP`, `POA`) |
-| `airline` | `eq` | `GOL` \| `AZUL` \| `LATAM` (uppercased) |
-| `program` | `eq` | `smiles` \| `tudoazul` \| `latam_pass` (lowercased) |
-| `source` / `fonte` | `eq` | Collector id. `fonte=todas` is ignored (dashboard) |
-| `flight_date` / `dia` | `eq` | Exact civil `YYYY-MM-DD` |
-| `flight_date_from` / `flight_date_to` | `gte` / `lte` | Civil date range |
-| `collected_at` | `eq` or day window | ISO timestamp → `eq`; `YYYY-MM-DD` → that UTC day |
-| `collected_at_from` / `collected_at_to` | `gte` / `lte` | ISO-8601 or `YYYY-MM-DD` |
-| `include_raw` | select | `1` to include redacted `raw_payload` (omitted by default) |
-| `exclude_dry_run` | see below | Drop collector **fixture** rows. Does **not** change cash-vs-miles KPI rules |
-| `limit` / `offset` | page | List default **100** (max 500). Latest default 500 (max 2000). **Ignored on `/stats`** |
-| `group_by` | — | Stats only: `window` (default) or `route_day` |
+| Param                                   | PostgREST          | Notes                                                                                  |
+| --------------------------------------- | ------------------ | -------------------------------------------------------------------------------------- |
+| `origin`                                | `eq`               | 3-letter IATA (`PET`)                                                                  |
+| `destination`                           | `eq`               | 3-letter IATA (`GRU`, `CGH`, `VCP`, `POA`)                                             |
+| `airline`                               | `eq`               | `GOL` \| `AZUL` \| `LATAM` (uppercased)                                                |
+| `program`                               | `eq`               | `smiles` \| `tudoazul` \| `latam_pass` (lowercased)                                    |
+| `source` / `fonte`                      | `eq`               | Collector id. `fonte=todas` is ignored (dashboard)                                     |
+| `flight_date` / `dia`                   | `eq`               | Exact civil `YYYY-MM-DD`                                                               |
+| `flight_date_from` / `flight_date_to`   | `gte` / `lte`      | Civil date range                                                                       |
+| `collected_at`                          | `eq` or day window | ISO timestamp → `eq`; `YYYY-MM-DD` → that UTC day                                      |
+| `collected_at_from` / `collected_at_to` | `gte` / `lte`      | ISO-8601 or `YYYY-MM-DD`                                                               |
+| `include_raw`                           | select             | `1` to include redacted `raw_payload` (omitted by default)                             |
+| `exclude_dry_run`                       | see below          | Drop collector **fixture** rows. Does **not** change cash-vs-miles KPI rules           |
+| `limit` / `offset`                      | page               | List default **100** (max 500). Latest default 500 (max 2000). **Ignored on `/stats`** |
+| `group_by`                              | —                  | Stats only: `window` (default) or `route_day`                                          |
 
 Aliases: `flight_date_gte` / `flight_date_lte`, `collected_at_gte` / `collected_at_lte`.
 
@@ -161,12 +161,12 @@ on those paths.
 `limit` / `offset` are ignored. `snapshot_count` is `COUNT(*)` of the
 filtered set (award + cash + any other matching source).
 
-| Field | How it is computed |
-| --- | --- |
-| `min_miles` | `MIN(miles)` on **award / program** sources only: `smiles_web`, `tudoazul`, `latam_pass` (and `_dry_run` variants unless excluded) |
-| `min_amount_brl` | `MIN(amount_brl)` on **cash companions** only: `voegol`, `voeazul`, `latam_web`, `latam` (and `_dry_run` variants unless excluded) |
-| `snapshot_count` | `COUNT(*)` of all matching rows |
-| `latest_collected_at` | `MAX(collected_at)` of all matching rows |
+| Field                 | How it is computed                                                                                                                 |
+| --------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| `min_miles`           | `MIN(miles)` on **award / program** sources only: `smiles_web`, `tudoazul`, `latam_pass` (and `_dry_run` variants unless excluded) |
+| `min_amount_brl`      | `MIN(amount_brl)` on **cash companions** only: `voegol`, `voeazul`, `latam_web`, `latam` (and `_dry_run` variants unless excluded) |
+| `snapshot_count`      | `COUNT(*)` of all matching rows                                                                                                    |
+| `latest_collected_at` | `MAX(collected_at)` of all matching rows                                                                                           |
 
 Award rows must not drive cash KPIs. Pre-hotfix `smiles_web` (and other
 program) rows may still have a copay stored in `amount_brl`; those values
@@ -218,23 +218,23 @@ with no total, or the fetch cap is hit. Do not treat
 
 Award + cash companion pairs. Filter `fonte` / `source` on these ids.
 
-| Pair | Award / miles `source` | Cash companion `source` | Program |
-| --- | --- | --- | --- |
-| Smiles / GOL | `smiles_web` | `voegol` | `smiles` |
-| TudoAzul / AZUL | `tudoazul` | `voeazul` | `tudoazul` |
-| LATAM Pass / LATAM | `latam_pass` | **`latam_web`** | `latam_pass` |
+| Pair               | Award / miles `source` | Cash companion `source` | Program      |
+| ------------------ | ---------------------- | ----------------------- | ------------ |
+| Smiles / GOL       | `smiles_web`           | `voegol`                | `smiles`     |
+| TudoAzul / AZUL    | `tudoazul`             | `voeazul`               | `tudoazul`   |
+| LATAM Pass / LATAM | `latam_pass`           | **`latam_web`**         | `latam_pass` |
 
 LATAM cash is **`latam_web`**. Do **not** use `latamairlines` (that name is not a
 `price_snapshots.source`). Constants: `LIVE_SOURCES` in `src/types/api.ts`.
 
-| `source` / `fonte` | Meaning |
-| --- | --- |
-| `smiles_web` | GOL award miles (`amount_brl` is null) |
-| `voegol` | GOL full cash BRL |
-| `tudoazul` | Azul points (cash copay is **not** `amount_brl`) |
-| `voeazul` | Azul full cash BRL |
-| `latam_pass` | LATAM miles |
-| `latam_web` | LATAM full cash BRL |
+| `source` / `fonte` | Meaning                                          |
+| ------------------ | ------------------------------------------------ |
+| `smiles_web`       | GOL award miles (`amount_brl` is null)           |
+| `voegol`           | GOL full cash BRL                                |
+| `tudoazul`         | Azul points (cash copay is **not** `amount_brl`) |
+| `voeazul`          | Azul full cash BRL                               |
+| `latam_pass`       | LATAM miles                                      |
+| `latam_web`        | LATAM full cash BRL                              |
 
 Dry-run after the S0 hotfix persists the **same live name + `_dry_run`**:
 `smiles_web_dry_run`, `voegol_dry_run`, `tudoazul_dry_run`, `voeazul_dry_run`,
@@ -253,11 +253,11 @@ Supabase client or anon key until tight SELECT RLS exists.
 The dashboard **Entrar / Sair** buttons are a UI stub. They do **not** authorize
 snapshot data. The Worker checks a real Bearer on every `/api/v1/snapshots*` call.
 
-| Who | Credential | Header |
-| --- | --- | --- |
-| Worker → Supabase | `SUPABASE_SERVICE_ROLE_KEY` (Worker secret only) | PostgREST `Authorization` / `apikey` — **never** in `VITE_*` |
-| FE / curl → Worker | `READ_API_KEY` (Worker secret) = `VITE_READ_API_KEY` (Pages env) | `Authorization: Bearer <READ_API_KEY>` |
-| Ingest `POST /run` | `INGEST_TRIGGER_SECRET` | **Not accepted** on read routes |
+| Who                | Credential                                                       | Header                                                       |
+| ------------------ | ---------------------------------------------------------------- | ------------------------------------------------------------ |
+| Worker → Supabase  | `SUPABASE_SERVICE_ROLE_KEY` (Worker secret only)                 | PostgREST `Authorization` / `apikey` — **never** in `VITE_*` |
+| FE / curl → Worker | `READ_API_KEY` (Worker secret) = `VITE_READ_API_KEY` (Pages env) | `Authorization: Bearer <READ_API_KEY>`                       |
+| Ingest `POST /run` | `INGEST_TRIGGER_SECRET`                                          | **Not accepted** on read routes                              |
 
 `READ_API_KEY` must be **distinct** from `INGEST_TRIGGER_SECRET`. Reusing the
 ingest trigger is rejected (`read_api_key_reuses_ingest_secret`). A later
@@ -314,11 +314,13 @@ Pages build settings (then **redeploy**):
 
 ```
 VITE_API_URL=https://viagens-do-pe-ingest.rafaellimapereira.workers.dev
-VITE_READ_API_KEY=<same value as Worker READ_API_KEY>
+VITE_API_TOKEN=<same value as Worker API_READ_SECRET or READ_API_KEY>
+# alias:
+VITE_READ_API_KEY=<same value>
 ```
 
-`src/lib/api.ts` always sends `Authorization: Bearer ${VITE_READ_API_KEY}` and
-refuses to fetch if that env is empty.
+`src/lib/api.ts` sends `Authorization: Bearer …` only when `VITE_API_TOKEN` or
+`VITE_READ_API_KEY` is set. 404/401 from `/api/v1` surface as an inline error.
 
 ## Env (Worker)
 
