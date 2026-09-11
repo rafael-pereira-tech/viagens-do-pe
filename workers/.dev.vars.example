@@ -1,0 +1,8 @@
+# Copy to .dev.vars (gitignored) for `wrangler dev`. Do not put real credentials in git.
+#
+# Leave SUPABASE_* empty to run stub collectors without writing to Postgres.
+# Placeholder hosts (YOUR_PROJECT.supabase.co) are ignored on purpose: workerd
+# throws an uncatchable error if DNS lookup fails.
+SUPABASE_URL=
+SUPABASE_SERVICE_ROLE_KEY=
+INGEST_TRIGGER_SECRET=dev-only-trigger-secret

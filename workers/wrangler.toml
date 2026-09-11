@@ -1,0 +1,18 @@
+name = "viagens-do-pe-ingest"
+main = "src/index.ts"
+compatibility_date = "2026-09-11"
+workers_dev = true
+
+# Cron triggers are always evaluated in UTC by Cloudflare.
+# 00:00 / 06:00 / 12:00 / 18:00 UTC =
+# 21:00 / 03:00 / 09:00 / 15:00 America/Sao_Paulo (UTC-3; Brazil has no DST).
+[triggers]
+crons = ["0 0 * * *", "0 6 * * *", "0 12 * * *", "0 18 * * *"]
+
+# Secrets (set locally in .dev.vars, in prod via `wrangler secret put`):
+#   SUPABASE_URL
+#   SUPABASE_SERVICE_ROLE_KEY
+#   INGEST_TRIGGER_SECRET   (optional; required to authorize POST /run)
+#
+# Optional non-secret overrides can be added under [vars] later:
+#   FLIGHT_WINDOW_START, FLIGHT_WINDOW_END
