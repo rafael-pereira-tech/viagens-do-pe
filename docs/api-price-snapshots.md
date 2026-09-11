@@ -255,7 +255,7 @@ if (!API_URL || !READ_API_KEY) {
   const offers = latest.data.map(toOfferRow)
   const minMiles = Array.isArray(stats.data) ? null : stats.data.min_miles
   const minCash = Array.isArray(stats.data) ? null : stats.data.min_amount_brl
-  void byDay
+  const chartDays = Array.isArray(byDay.data) ? byDay.data : []
 }
 ```
 
