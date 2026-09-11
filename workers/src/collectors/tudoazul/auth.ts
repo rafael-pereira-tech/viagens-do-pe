@@ -11,14 +11,13 @@ export function isDryRun(env: Env): boolean {
   return truthy(env.TUDOAZUL_DRY_RUN);
 }
 
+/** Locked BE-4 secrets. Both must be present for live collection. */
+export function hasTudoAzulCredentials(env: Env): boolean {
+  return Boolean(env.TUDOAZUL_LOGIN?.trim() && env.TUDOAZUL_PASSWORD);
+}
+
 export function isLiveEnabled(env: Env): boolean {
-  return Boolean(
-    env.AZUL_SUBSCRIPTION_KEY?.trim() ||
-      env.AZUL_ACCESS_TOKEN?.trim() ||
-      env.AZUL_COOKIE?.trim() ||
-      truthy(env.TUDOAZUL_LIVE) ||
-      truthy(env.AZUL_LIVE),
-  );
+  return hasTudoAzulCredentials(env);
 }
 
 export function apiHost(env: Env): string {
@@ -46,16 +45,20 @@ interface TokenDeps {
 }
 
 /**
- * Guest JWT from the public SPA token endpoint. Member login is not wired
- * (Auth0/captcha); pass `AZUL_ACCESS_TOKEN` / `AZUL_COOKIE` from a browser session.
+ * Member JWT via `TUDOAZUL_LOGIN` / `TUDOAZUL_PASSWORD` on the SPA token host.
+ * Captcha/WAF may block password login — `TUDOAZUL_DRY_RUN=1` is the accepted
+ * path until live credentials are provided privately.
  */
 export async function resolveSession(env: Env, deps: TokenDeps): Promise<AzulSession | { error: string }> {
+  const login = env.TUDOAZUL_LOGIN?.trim();
+  const password = env.TUDOAZUL_PASSWORD;
+  if (!login || !password) {
+    return { error: 'TudoAzul collector is not configured. Set TUDOAZUL_LOGIN and TUDOAZUL_PASSWORD, or TUDOAZUL_DRY_RUN=1.' };
+  }
+
   const session: AzulSession = {
-    cookie: env.AZUL_COOKIE?.trim() || env.TUDOAZUL_COOKIE?.trim() || undefined,
-    accessToken: env.AZUL_ACCESS_TOKEN?.trim() || env.TUDOAZUL_ACCESS_TOKEN?.trim() || undefined,
     subscriptionKey: env.AZUL_SUBSCRIPTION_KEY?.trim() || undefined,
   };
-  if (session.accessToken) return session;
 
   const url = `${apiHost(env)}${AZUL_TOKEN_PATH}`;
   let response: Response;
@@ -63,29 +66,34 @@ export async function resolveSession(env: Env, deps: TokenDeps): Promise<AzulSes
     response = await deps.fetch(url, {
       method: 'POST',
       headers: deps.headers,
-      body: JSON.stringify({}),
+      body: JSON.stringify({
+        login,
+        username: login,
+        password,
+        grantType: 'password',
+      }),
     });
   } catch (err) {
-    return { error: `Azul token network error: ${err instanceof Error ? err.message : String(err)}` };
+    return { error: `TudoAzul login network error: ${err instanceof Error ? err.message : String(err)}` };
   }
 
   const text = await response.text();
-  if (response.status === 401) {
-    return { error: `Azul token ${response.status} (auth_failed)` };
+  if (response.status === 401 || response.status === 403) {
+    return { error: `TudoAzul login ${response.status} (auth_failed)` };
   }
   if (!response.ok) {
-    return { error: `Azul token ${response.status}: ${text.slice(0, 240)}` };
+    return { error: `TudoAzul login ${response.status}: ${text.slice(0, 240)}` };
   }
 
   let payload: unknown;
   try {
     payload = text.trim() ? JSON.parse(text) : {};
   } catch {
-    return { error: 'Azul token returned non-JSON' };
+    return { error: 'TudoAzul login returned non-JSON' };
   }
   const token = readToken(payload);
   if (!token) {
-    return { error: 'Azul token JSON missing access token' };
+    return { error: 'TudoAzul login JSON missing access token' };
   }
   session.accessToken = token;
   return session;

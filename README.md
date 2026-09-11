@@ -73,7 +73,7 @@ npx wrangler pages deploy dist
 Scheduled collection lives in [`workers/`](workers/). **Smiles / GOL PET→CGH** (`source: smiles_web`) and **TudoAzul / AZUL PET→VCP + PET→POA** (`tudoazul_web` miles, `voeazul` cash) are implemented. LATAM Pass stays a stub until BE-5.
 
 - Cron: 00:00, 06:00, 12:00, 18:00 **UTC** (21:00, 03:00, 09:00, 15:00 America/Sao_Paulo)
-- Local: `cd workers && npm install && npm run dev` — see [`workers/README.md`](workers/README.md) for `SMILES_*` / `AZUL_*` secrets, dry-run fixtures, and a manual `/run` tick
+- Local: `cd workers && npm install && npm run dev` — see [`workers/README.md`](workers/README.md) for `SMILES_*` / `TUDOAZUL_LOGIN`+`TUDOAZUL_PASSWORD` placeholders, dry-run fixtures, and a manual `/run` tick
 
 ## Schema
 

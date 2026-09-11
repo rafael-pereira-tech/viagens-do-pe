@@ -104,7 +104,7 @@ export function createTudoAzulCollector(env: Env, deps: TudoAzulCollectorDeps = 
           status: 'auth_failed',
           snapshots: [],
           error:
-            'TudoAzul collector is not configured. Set AZUL_SUBSCRIPTION_KEY or AZUL_COOKIE when live credentials are available, or TUDOAZUL_DRY_RUN=1 for fixtures.',
+            'TudoAzul collector is not configured. Set TUDOAZUL_LOGIN and TUDOAZUL_PASSWORD, or TUDOAZUL_DRY_RUN=1 for fixtures.',
         };
       }
 
@@ -112,8 +112,6 @@ export function createTudoAzulCollector(env: Env, deps: TudoAzulCollectorDeps = 
         const headers = requestHeaders(
           env,
           {
-            cookie: env.AZUL_COOKIE?.trim() || env.TUDOAZUL_COOKIE?.trim() || undefined,
-            accessToken: env.AZUL_ACCESS_TOKEN?.trim() || env.TUDOAZUL_ACCESS_TOKEN?.trim() || undefined,
             subscriptionKey: env.AZUL_SUBSCRIPTION_KEY?.trim() || undefined,
           },
           AZUL_ORIGIN,

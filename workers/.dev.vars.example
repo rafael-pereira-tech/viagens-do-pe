@@ -18,13 +18,11 @@ SMILES_API_KEY=
 # SMILES_PASS=
 # SMILES_REQUEST_DELAY_MS=400
 
-# BE-4 TudoAzul / Azul. Dry-run uses bundled PET→VCP and PET→POA JSON (no live login).
-# For live guest search, copy Ocp-Apim-Subscription-Key from DevTools on
-# b2c-api.voeazul.com.br/authentication/api/authentication/v1/token
-# (or reservationavailability .../v5/availability).
+# BE-4 TudoAzul / Azul. Frozen secrets (placeholders only).
+# Dry-run uses bundled PET→VCP and PET→POA JSON (no live login).
 TUDOAZUL_DRY_RUN=1
-AZUL_SUBSCRIPTION_KEY=
-# AZUL_ACCESS_TOKEN=
-# AZUL_COOKIE=
+TUDOAZUL_LOGIN=
+TUDOAZUL_PASSWORD=
+# Optional public SPA Ocp-Apim-Subscription-Key (not a user password):
+# AZUL_SUBSCRIPTION_KEY=
 # AZUL_REQUEST_DELAY_MS=400
-

@@ -147,7 +147,7 @@ export function createAzulClient(
           ok: false,
           status: 0,
           error:
-            'TudoAzul collector is not configured (set AZUL_SUBSCRIPTION_KEY or AZUL_ACCESS_TOKEN / AZUL_COOKIE, or TUDOAZUL_DRY_RUN=1)',
+            'TudoAzul collector is not configured (set TUDOAZUL_LOGIN and TUDOAZUL_PASSWORD, or TUDOAZUL_DRY_RUN=1)',
           kind: 'auth_failed',
         };
       }

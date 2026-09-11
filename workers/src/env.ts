@@ -38,20 +38,15 @@ export interface Env {
   /**
    * TudoAzul / Azul (BE-4). Never commit real values.
    *
-   * Live guest search needs `AZUL_SUBSCRIPTION_KEY` (public SPA
-   * `Ocp-Apim-Subscription-Key` from DevTools on b2c-api.voeazul.com.br).
-   * Optional session: `AZUL_COOKIE` and/or `AZUL_ACCESS_TOKEN`.
-   *
+   * Frozen live secrets (placeholders only): `TUDOAZUL_LOGIN` + `TUDOAZUL_PASSWORD`.
    * `TUDOAZUL_DRY_RUN=1` parses bundled PET→VCP / PET→POA fixtures (no network).
+   *
+   * Optional public SPA `Ocp-Apim-Subscription-Key` is not a user password.
    */
-  AZUL_SUBSCRIPTION_KEY?: string;
-  AZUL_ACCESS_TOKEN?: string;
-  AZUL_COOKIE?: string;
-  TUDOAZUL_ACCESS_TOKEN?: string;
-  TUDOAZUL_COOKIE?: string;
+  TUDOAZUL_LOGIN?: string;
+  TUDOAZUL_PASSWORD?: string;
   TUDOAZUL_DRY_RUN?: string;
-  TUDOAZUL_LIVE?: string;
-  AZUL_LIVE?: string;
+  AZUL_SUBSCRIPTION_KEY?: string;
   AZUL_API_HOST?: string;
   AZUL_REQUEST_DELAY_MS?: string;
   TUDOAZUL_REQUEST_DELAY_MS?: string;
