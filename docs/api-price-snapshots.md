@@ -315,7 +315,8 @@ if (!API_URL || !READ_API_KEY) {
 }
 ```
 
-Pages build settings (then **redeploy**):
+The Worker read API is **live with Bearer** (`API_READ_SECRET` / `READ_API_KEY`).
+Cloudflare Pages needs **both** build-time vars, then **redeploy**:
 
 ```
 VITE_API_URL=https://viagens-do-pe-ingest.rafaellimapereira.workers.dev
@@ -324,8 +325,9 @@ VITE_API_TOKEN=<same value as Worker API_READ_SECRET or READ_API_KEY>
 VITE_READ_API_KEY=<same value>
 ```
 
-`src/lib/api.ts` sends `Authorization: Bearer …` only when `VITE_API_TOKEN` or
-`VITE_READ_API_KEY` is set. 404/401 from `/api/v1` surface as an inline error.
+`src/lib/api.ts` sends `Authorization: Bearer …` when `VITE_API_TOKEN` or
+`VITE_READ_API_KEY` is set. URL without token → 401. Never invent a key;
+never `VITE_SUPABASE*`.
 
 ## Env (Worker)
 

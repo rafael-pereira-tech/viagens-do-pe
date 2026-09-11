@@ -30,6 +30,13 @@ export function isDryRunSource(source: string): boolean {
   return stripDryRunSuffix(source).dryRun
 }
 
+/** Cash companions for Menor BRL — never award `amount_brl` (e.g. leftover smiles_web copay). */
+const CASH_COMPANION_BASES = new Set(['voegol', 'voeazul', 'latam_web', 'latam'])
+
+export function isCashCompanionSource(source: string): boolean {
+  return CASH_COMPANION_BASES.has(stripDryRunSuffix(source).base)
+}
+
 export function sourceLabel(source: string): string {
   const { base, dryRun } = stripDryRunSuffix(source)
   const label = SOURCE_LABELS[base as LiveSource] ?? base

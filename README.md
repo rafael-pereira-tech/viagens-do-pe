@@ -41,11 +41,11 @@ npm run preview
 
 ## Variáveis de ambiente
 
-| Variável            | Obrigatória                  | Uso                                                                                                                                                                                                                 |
-| ------------------- | ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `VITE_API_URL`      | Não                          | Base URL do Workers read API. Vazia = stubs locais. Padrão no `.env.example`: `https://viagens-do-pe-ingest.rafaellimapereira.workers.dev`. Contrato: [`docs/api-price-snapshots.md`](docs/api-price-snapshots.md). |
-| `VITE_READ_API_KEY` | Só se o Worker exigir Bearer | `Authorization: Bearer …` para `READ_API_KEY`. **Nunca** `SUPABASE_*`. Entrar/Sair não autoriza.                                                                                                                    |
-| `VITE_API_TOKEN`    | Alias de `VITE_READ_API_KEY` | Use quando o Worker tiver `API_READ_SECRET`. Mesmo valor, mesmo header.                                                                                                                                             |
+| Variável            | Obrigatória                                         | Uso                                                                                                                                                                                                                 |
+| ------------------- | --------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `VITE_API_URL`      | Sim no Pages (dados reais)                          | Base URL do Workers read API. Vazia = stubs locais. Padrão no `.env.example`: `https://viagens-do-pe-ingest.rafaellimapereira.workers.dev`. Contrato: [`docs/api-price-snapshots.md`](docs/api-price-snapshots.md). |
+| `VITE_API_TOKEN`    | Sim no Pages se o Worker tiver `API_READ_SECRET`    | `Authorization: Bearer …` — **mesmo valor** que `API_READ_SECRET` / `READ_API_KEY`. Worker está live com Bearer. **Nunca** `SUPABASE_*`. Entrar/Sair não autoriza.                                                 |
+| `VITE_READ_API_KEY` | Alias de `VITE_API_TOKEN`                           | Mesmo header. Use um ou outro, não invente chave.                                                                                                                                                                   |
 
 ### Local
 
@@ -56,7 +56,7 @@ cp .env.example .env
 npm run dev
 ```
 
-O Vite só expõe variáveis com prefixo `VITE_`. Reinicie `npm run dev` depois de mudar o `.env`. Sem `VITE_API_URL` o Dashboard usa `src/data/placeholders.ts`. Com a URL, o client chama o Worker; 404/401 viram faixa de erro (o `/api/v1` pode 404 até o Platform redeploy). Se o Worker tiver `API_READ_SECRET` / `READ_API_KEY`, defina `VITE_API_TOKEN` ou `VITE_READ_API_KEY`.
+O Vite só expõe variáveis com prefixo `VITE_`. Reinicie `npm run dev` depois de mudar o `.env`. Sem `VITE_API_URL` o Dashboard usa `src/data/placeholders.ts`. Com a URL, o client chama o Worker e manda `Authorization: Bearer` se `VITE_API_TOKEN` ou `VITE_READ_API_KEY` existir. O Worker de ingest está **live com Bearer** (`API_READ_SECRET` / `READ_API_KEY`) — sem token o `/api/v1` responde 401.
 
 Dados (select **Dados** / query):
 
@@ -73,9 +73,11 @@ Dados (select **Dados** / query):
 `VITE_*` é inlined no `npm run build`. Sem a variável no ambiente de build, o site de produção fica nos stubs.
 
 1. Pages → projeto → **Settings** → **Environment variables**.
-2. Adicione `VITE_API_URL=https://viagens-do-pe-ingest.rafaellimapereira.workers.dev` (Production e Preview).
-3. Se o Worker tiver `API_READ_SECRET` ou `READ_API_KEY`, adicione `VITE_API_TOKEN` (ou `VITE_READ_API_KEY`) com o **mesmo** valor. Não invente chave; não use `SUPABASE_*` nem `INGEST_TRIGGER_SECRET`.
-4. **Redeploy** o deploy mais recente (ou um push novo) — mudar o env sem rebuild não atualiza o JS. Sem rebuild, 404/401 no `/api/v1` são esperados até o Platform publicar o Worker.
+2. Adicione **as duas** (Production e Preview), porque o Worker está live com Bearer (`API_READ_SECRET`):
+   - `VITE_API_URL=https://viagens-do-pe-ingest.rafaellimapereira.workers.dev`
+   - `VITE_API_TOKEN` = o **mesmo** valor de `API_READ_SECRET` / `READ_API_KEY` no Worker. Alias: `VITE_READ_API_KEY`.
+3. Não invente chave; não use `SUPABASE_*` nem `INGEST_TRIGGER_SECRET`.
+4. **Redeploy** o deploy mais recente (ou um push novo) — mudar o env sem rebuild não atualiza o JS. Sem as duas variáveis + rebuild, o site fica em stubs (URL vazia) ou 401 (URL sem token).
 
 ## D-2 + shadcn (FE-1.1)
 
@@ -93,8 +95,8 @@ Tokens semânticos em `src/index.css` (`:root` HSL). Primitivos em `src/componen
 ## D-1 v2 (comportamento)
 
 - Origem fixa PET · ida — sem picker de rota; sem nav Alertas/Fontes.
-- Com `VITE_API_URL` + `VITE_READ_API_KEY`: KPIs, gráfico e tabela vêm de `/api/v1/snapshots/latest` + `/stats` (`group_by=window` e `route_day`).
-- Sem URL ou sem chave: dados em `src/data/placeholders.ts`. Ofertas no passado são ignoradas.
+- Com `VITE_API_URL` o Dashboard chama `/api/v1/snapshots/latest` + `/stats`. Com `API_READ_SECRET` no Worker, Pages também precisa de `VITE_API_TOKEN` (Bearer). Sem URL = stubs locais; URL sem token = 401 inline.
+- Ofertas no passado são ignoradas.
 - Milheiro de milhas = `(taxes_brl / miles) * 1000`. Linhas só-cash (`voegol` / `voeazul` / `latam_web`) mostram —.
 - Fonte: `smiles_web`, `voegol`, `tudoazul`, `voeazul`, `latam_pass`, `latam_web`.
 - Query preservada: `to`, `from`, `until`, `fonte`, `dia`, `bars`, e modo de dados (`dry` / `dry_run` / `live`).
@@ -106,7 +108,7 @@ Tokens semânticos em `src/index.css` (`:root` HSL). Primitivos em `src/componen
 3. Output: `dist`
 4. Node: `24` (veja `.nvmrc`)
 5. SPA: `public/_redirects` (`/* /index.html 200`) vai para `dist`.
-6. **Para dados reais:** `VITE_API_URL` no build + **redeploy**. `VITE_API_TOKEN` / `VITE_READ_API_KEY` só se o Worker exigir Bearer (veja [Cloudflare Pages](#cloudflare-pages) acima).
+6. **Para dados reais:** `VITE_API_URL` **e** `VITE_API_TOKEN` no build (Worker live com `API_READ_SECRET`) + **redeploy**. Veja [Cloudflare Pages](#cloudflare-pages) acima.
 
 Ou Wrangler:
 
