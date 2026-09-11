@@ -41,11 +41,11 @@ npm run preview
 
 ## Variáveis de ambiente
 
-| Variável            | Obrigatória                                         | Uso                                                                                                                                                                                                                 |
-| ------------------- | --------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `VITE_API_URL`      | Sim no Pages (dados reais)                          | Base URL do Workers read API. Vazia = stubs locais. Padrão no `.env.example`: `https://viagens-do-pe-ingest.rafaellimapereira.workers.dev`. Contrato: [`docs/api-price-snapshots.md`](docs/api-price-snapshots.md). |
-| `VITE_API_TOKEN`    | Sim no Pages se o Worker tiver `API_READ_SECRET`    | `Authorization: Bearer …` — **mesmo valor** que `API_READ_SECRET` / `READ_API_KEY`. Worker está live com Bearer. **Nunca** `SUPABASE_*`. Entrar/Sair não autoriza.                                                 |
-| `VITE_READ_API_KEY` | Alias de `VITE_API_TOKEN`                           | Mesmo header. Use um ou outro, não invente chave.                                                                                                                                                                   |
+| Variável            | Obrigatória                                      | Uso                                                                                                                                                                                                                 |
+| ------------------- | ------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `VITE_API_URL`      | Sim no Pages (dados reais)                       | Base URL do Workers read API. Vazia = stubs locais. Padrão no `.env.example`: `https://viagens-do-pe-ingest.rafaellimapereira.workers.dev`. Contrato: [`docs/api-price-snapshots.md`](docs/api-price-snapshots.md). |
+| `VITE_API_TOKEN`    | Sim no Pages se o Worker tiver `API_READ_SECRET` | `Authorization: Bearer …` — **mesmo valor** que `API_READ_SECRET` / `READ_API_KEY`. Worker está live com Bearer. **Nunca** `SUPABASE_*`. Entrar/Sair não autoriza.                                                  |
+| `VITE_READ_API_KEY` | Alias de `VITE_API_TOKEN`                        | Mesmo header. Use um ou outro, não invente chave.                                                                                                                                                                   |
 
 ### Local
 
@@ -60,11 +60,11 @@ O Vite só expõe variáveis com prefixo `VITE_`. Reinicie `npm run dev` depois 
 
 Dados (select **Dados** / query):
 
-| Modo                                | UI                         | Query                  | API                                                                                                   |
-| ----------------------------------- | -------------------------- | ---------------------- | ----------------------------------------------------------------------------------------------------- |
-| **Produção (padrão)**               | Produção (exclude dry-run) | `?live=1`              | `exclude_dry_run=1` — somente batches reais                                                           |
-| Incluir dry-run                     | Incluir dry-run            | `?dry=1`               | live + fixtures                                                                                       |
-| Só dry-run                          | Só dry-run                 | `?dry_run=1`           | somente `*_dry_run`                                                                                   |
+| Modo                  | UI                         | Query        | API                                         |
+| --------------------- | -------------------------- | ------------ | ------------------------------------------- |
+| **Produção (padrão)** | Produção (exclude dry-run) | `?live=1`    | `exclude_dry_run=1` — somente batches reais |
+| Incluir dry-run       | Incluir dry-run            | `?dry=1`     | live + fixtures                             |
+| Só dry-run            | Só dry-run                 | `?dry_run=1` | somente `*_dry_run`                         |
 
 **Nunca** coloque `SUPABASE_SERVICE_ROLE_KEY` nem qualquer `VITE_SUPABASE*` no frontend — Security grepa o bundle.
 

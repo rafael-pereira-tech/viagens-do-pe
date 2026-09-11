@@ -166,8 +166,7 @@ export function kpisFromOffers(rows: OfferRow[], stats?: SnapshotWindowStats | n
   )
   const lowestCash = minBy(
     rows.filter(
-      (row): row is OfferRow & { amount_brl: number } =>
-        row.amount_brl != null && isCashCompanionSource(row.source),
+      (row): row is OfferRow & { amount_brl: number } => row.amount_brl != null && isCashCompanionSource(row.source),
     ),
     (row) => row.amount_brl,
   )
@@ -240,8 +239,7 @@ export function chartFromOffers(rows: OfferRow[], fallbackDestination = ''): Cha
       )
       const cashWinner = minBy(
         group.filter(
-          (r): r is OfferRow & { amount_brl: number } =>
-            r.amount_brl != null && isCashCompanionSource(r.source),
+          (r): r is OfferRow & { amount_brl: number } => r.amount_brl != null && isCashCompanionSource(r.source),
         ),
         (r) => r.amount_brl,
       )
