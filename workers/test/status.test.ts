@@ -22,4 +22,10 @@ describe('aggregateStatus', () => {
     assert.equal(aggregateStatus(['empty', 'auth_failed']), 'partial');
     assert.equal(aggregateStatus(['auth_failed', 'scrape_failed']), 'partial');
   });
+
+  it('never returns success when any job failed', () => {
+    assert.notEqual(aggregateStatus(['success', 'success', 'scrape_failed']), 'success');
+    assert.notEqual(aggregateStatus(['empty', 'partial']), 'success');
+    assert.notEqual(aggregateStatus(['auth_failed']), 'success');
+  });
 });

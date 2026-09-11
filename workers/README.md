@@ -40,11 +40,21 @@ Contract:
 collect({ origin, destination, airline, program, flightDate }): Promise<CollectResult>
 ```
 
-`CollectResult.snapshots` matches `public.price_snapshots` (`miles`, `amount_brl`, `taxes_brl`, `currency`, `source`, `raw_payload`, …). Job status is `success | empty | auth_failed | scrape_failed | partial`. Stubs currently return `{ status: "empty", snapshots: [] }`.
+`CollectResult.snapshots` matches `public.price_snapshots` (`miles`, `amount_brl`, `taxes_brl`, `currency`, `source`, `raw_payload`, …). The scheduler overwrites `collected_at` and `ingest_run_id` on the write path. Job status is `success | empty | auth_failed | scrape_failed | partial`. Stubs currently return `{ status: "empty", snapshots: [] }`.
 
-## Run status
+## Run status and overlap
 
-Each cron tick writes one `public.ingest_runs` row (see `supabase/migrations/20260911180100_ingest_runs.sql`). `details` JSONB holds per-route summaries and any failed jobs.
+Each cron tick that acquires the lock writes one `public.ingest_runs` row (`supabase/migrations/20260911180100_ingest_runs.sql`).
+
+Terminal QA statuses: `success | empty | auth_failed | scrape_failed | partial`. `running` is the in-progress lease only. A later tick **never** updates an earlier terminal row, and a failed job **never** rolls the run up to `success`.
+
+Skip-if-running (no destructive overlap):
+
+1. Isolate lock so `/run` and cron in the same Worker cannot stack
+2. Partial unique index `ingest_runs_one_running_uidx` — a second tick gets a conflict and **skips** (HTTP 409 on `/run`). It does not write snapshots or a success row
+3. Stale `running` rows past `lease_expires_at` (15 minutes) are reaped as `scrape_failed`, never as `success`
+
+Every snapshot write is stamped with `collected_at` (batch time) and `ingest_run_id` (FK to that run). The persist helper refuses unstamped rows. Snapshots are insert-only.
 
 ## Secrets
 

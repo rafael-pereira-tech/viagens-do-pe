@@ -1,43 +1,104 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import type { CollectParams, CollectResult, Snapshot } from '../src/collectors/types.ts';
+import { SkipIfRunningLock } from '../src/lock.ts';
 import { runIngest } from '../src/scheduler.ts';
-import type { IngestRunInsert, SnapshotStore } from '../src/supabase.ts';
+import type { IngestRunFinish, IngestRunStart, SnapshotStore } from '../src/supabase.ts';
+import { toSnapshotRow } from '../src/supabase.ts';
+
+interface MemoryRun extends IngestRunStart {
+  status: string;
+  finished_at: string | null;
+  snapshot_count: number;
+  job_count: number;
+  error_message: string | null;
+  details: unknown;
+}
 
 function memoryStore() {
   const snapshots: Snapshot[] = [];
-  const runs: IngestRunInsert[] = [];
+  const runs: MemoryRun[] = [];
+  let running: MemoryRun | null = null;
+
   const store: SnapshotStore = {
+    async expireStaleRuns(nowIso) {
+      if (running && running.lease_expires_at < nowIso) {
+        running.status = 'scrape_failed';
+        running.finished_at = nowIso;
+        running.error_message = 'lease expired before completion';
+        running = null;
+        return 1;
+      }
+      return 0;
+    },
+    async beginRun(run) {
+      if (running) return { acquired: false, reason: 'already_running' };
+      const row: MemoryRun = {
+        ...run,
+        status: 'running',
+        finished_at: null,
+        snapshot_count: 0,
+        job_count: 0,
+        error_message: null,
+        details: { phase: 'started' },
+      };
+      running = row;
+      runs.push(row);
+      return { acquired: true };
+    },
     async insertSnapshots(rows) {
+      for (const row of rows) toSnapshotRow(row);
       snapshots.push(...rows);
       return rows.length;
     },
-    async insertRun(run) {
-      runs.push(run);
+    async finishRun(id, patch: IngestRunFinish) {
+      const row = runs.find((r) => r.id === id);
+      if (!row || row.status !== 'running') return false;
+      row.status = patch.status;
+      row.finished_at = patch.finished_at;
+      row.snapshot_count = patch.snapshot_count;
+      row.job_count = patch.job_count;
+      row.error_message = patch.error_message;
+      row.details = patch.details;
+      if (running?.id === id) running = null;
+      return true;
     },
   };
+
   return { store, snapshots, runs };
+}
+
+const now = new Date('2026-09-11T12:00:00Z');
+
+function baseDeps(store: SnapshotStore) {
+  return {
+    env: {},
+    cron: '0 12 * * *',
+    scheduledTime: now,
+    now,
+    store,
+    lock: new SkipIfRunningLock(),
+  };
 }
 
 describe('runIngest', () => {
   it('runs the full stub matrix and records an empty ingest_run', async () => {
     const { store, snapshots, runs } = memoryStore();
-    const summary = await runIngest({
-      env: {},
-      cron: '0 12 * * *',
-      scheduledTime: new Date('2026-09-11T12:00:00Z'),
-      store,
-    });
+    const summary = await runIngest({ ...baseDeps(store), cron: '0 12 * * *' });
 
+    assert.equal(summary.skipped, false);
     assert.equal(summary.status, 'empty');
     assert.equal(summary.jobCount, 122 * 4);
     assert.equal(summary.snapshotCount, 0);
     assert.equal(summary.persisted, true);
     assert.equal(summary.routes.length, 4);
+    assert.ok(summary.runId);
+    assert.equal(summary.collectedAt, now.toISOString());
     assert.equal(snapshots.length, 0);
     assert.equal(runs.length, 1);
     assert.equal(runs[0]!.status, 'empty');
     assert.equal(runs[0]!.cron, '0 12 * * *');
+    assert.equal(runs[0]!.collected_at, summary.collectedAt);
   });
 
   it('skips persistence when Supabase env is missing or a placeholder', async () => {
@@ -47,14 +108,17 @@ describe('runIngest', () => {
         SUPABASE_SERVICE_ROLE_KEY: 'your-service-role-key',
       },
       cron: 'manual',
-      scheduledTime: new Date('2026-09-11T12:00:00Z'),
+      scheduledTime: now,
+      now,
+      lock: new SkipIfRunningLock(),
     });
+    assert.equal(summary.skipped, false);
     assert.equal(summary.status, 'empty');
     assert.equal(summary.persisted, false);
     assert.equal(summary.jobCount, 122 * 4);
   });
 
-  it('persists collector snapshots and reports success', async () => {
+  it('stamps collected_at and ingest_run_id on every snapshot write', async () => {
     const { store, snapshots, runs } = memoryStore();
     const collect = async (params: CollectParams): Promise<CollectResult> => {
       if (params.destination !== 'CGH' || params.flightDate !== '2026-09-01') {
@@ -79,23 +143,21 @@ describe('runIngest', () => {
       };
     };
 
-    const summary = await runIngest({
-      env: {},
-      cron: 'manual',
-      scheduledTime: new Date('2026-09-11T12:00:00Z'),
-      collect,
-      store,
-    });
+    const summary = await runIngest({ ...baseDeps(store), cron: 'manual', collect });
 
+    assert.equal(summary.skipped, false);
     assert.equal(summary.status, 'success');
     assert.equal(summary.snapshotCount, 1);
     assert.equal(snapshots.length, 1);
     assert.equal(snapshots[0]!.miles, 12000);
+    assert.equal(snapshots[0]!.ingest_run_id, summary.runId);
+    assert.equal(snapshots[0]!.collected_at, summary.collectedAt);
     assert.equal(runs[0]!.status, 'success');
+    assert.equal(runs[0]!.id, summary.runId);
   });
 
-  it('maps collector throws to scrape_failed and overall partial when mixed with empty', async () => {
-    const { store } = memoryStore();
+  it('does not mark the run successful when any job fails', async () => {
+    const { store, runs } = memoryStore();
     const collect = async (params: CollectParams): Promise<CollectResult> => {
       if (params.destination === 'GRU' && params.flightDate === '2026-09-01') {
         throw new Error('boom');
@@ -103,17 +165,101 @@ describe('runIngest', () => {
       return { status: 'empty', snapshots: [] };
     };
 
-    const summary = await runIngest({
-      env: {},
-      cron: 'manual',
-      scheduledTime: new Date('2026-09-11T12:00:00Z'),
-      collect,
-      store,
-    });
+    const summary = await runIngest({ ...baseDeps(store), cron: 'manual', collect });
 
     assert.equal(summary.status, 'partial');
+    assert.notEqual(summary.status, 'success');
     assert.equal(summary.failures.length, 1);
     assert.equal(summary.failures[0]!.status, 'scrape_failed');
     assert.equal(summary.failures[0]!.error, 'boom');
+    assert.equal(runs[0]!.status, 'partial');
+  });
+
+  it('skips an overlapping tick and never records it as success', async () => {
+    const { store, runs, snapshots } = memoryStore();
+    const held = await store.beginRun({
+      id: '00000000-0000-0000-0000-000000000099',
+      started_at: now.toISOString(),
+      collected_at: now.toISOString(),
+      lease_expires_at: new Date(now.getTime() + 60_000).toISOString(),
+      cron: '0 6 * * *',
+    });
+    assert.equal(held.acquired, true);
+
+    const summary = await runIngest(baseDeps(store));
+
+    assert.equal(summary.skipped, true);
+    assert.equal(summary.skipReason, 'already_running');
+    assert.equal(summary.status, null);
+    assert.notEqual(summary.status, 'success');
+    assert.equal(summary.persisted, false);
+    assert.equal(snapshots.length, 0);
+    assert.equal(runs.length, 1);
+    assert.equal(runs[0]!.id, '00000000-0000-0000-0000-000000000099');
+    assert.equal(runs[0]!.status, 'running');
+  });
+
+  it('skips a second in-isolate tick without writing success', async () => {
+    const lock = new SkipIfRunningLock();
+    let release!: () => void;
+    let entered!: () => void;
+    const gate = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    const started = new Promise<void>((resolve) => {
+      entered = resolve;
+    });
+    const collect = async (): Promise<CollectResult> => {
+      entered();
+      await gate;
+      return { status: 'empty', snapshots: [] };
+    };
+
+    const first = runIngest({
+      env: {},
+      cron: '0 12 * * *',
+      scheduledTime: now,
+      now,
+      collect,
+      store: null,
+      lock,
+    });
+    await started;
+    const second = await runIngest({
+      env: {},
+      cron: '0 18 * * *',
+      scheduledTime: now,
+      now,
+      collect,
+      store: null,
+      lock,
+    });
+    assert.equal(second.skipped, true);
+    assert.equal(second.status, null);
+    release();
+    const firstSummary = await first;
+    assert.equal(firstSummary.skipped, false);
+    assert.equal(firstSummary.status, 'empty');
+  });
+
+  it('reaps a stale running lease as scrape_failed, not success', async () => {
+    const { store, runs } = memoryStore();
+    const staleNow = new Date('2026-09-11T11:00:00Z');
+    await store.beginRun({
+      id: '00000000-0000-0000-0000-000000000001',
+      started_at: staleNow.toISOString(),
+      collected_at: staleNow.toISOString(),
+      lease_expires_at: new Date('2026-09-11T11:10:00Z').toISOString(),
+      cron: '0 6 * * *',
+    });
+
+    const summary = await runIngest(baseDeps(store));
+
+    assert.equal(summary.skipped, false);
+    assert.equal(summary.status, 'empty');
+    const stale = runs.find((r) => r.id === '00000000-0000-0000-0000-000000000001');
+    assert.equal(stale?.status, 'scrape_failed');
+    assert.notEqual(stale?.status, 'success');
+    assert.equal(runs.at(-1)?.status, 'empty');
   });
 });

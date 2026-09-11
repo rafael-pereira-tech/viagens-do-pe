@@ -8,27 +8,37 @@ export const RUN_STATUSES = [
 
 export type RunStatus = (typeof RUN_STATUSES)[number];
 
+/** In-progress lease only. Never a QA/day outcome. */
+export const RUNNING_STATUS = 'running' as const;
+export type IngestRunStatus = RunStatus | typeof RUNNING_STATUS;
+
 export function isRunStatus(value: string): value is RunStatus {
   return (RUN_STATUSES as readonly string[]).includes(value);
 }
 
+export function isFailureStatus(status: RunStatus): boolean {
+  return status === 'auth_failed' || status === 'scrape_failed' || status === 'partial';
+}
+
 /**
  * Combine per-job statuses into a run-level status.
- * success + empty → success (some quotes, some no-inventory days).
- * Any mix of success/empty with failures → partial.
+ * Any failure → never `success` (a failed job cannot mark the run/day successful).
+ * Unanimous auth_failed / scrape_failed is preserved; mixed failures are partial.
+ * success + empty → success (quotes plus no-inventory days).
  */
 export function aggregateStatus(statuses: readonly RunStatus[]): RunStatus {
   if (statuses.length === 0) return 'empty';
 
-  const unique = new Set(statuses);
-  if (unique.size === 1) return statuses[0]!;
+  const failures = statuses.filter(isFailureStatus);
+  if (failures.length > 0) {
+    if (failures.length === statuses.length) {
+      const unique = new Set(failures);
+      if (unique.size === 1) return failures[0]!;
+    }
+    return 'partial';
+  }
 
-  const failed = statuses.filter((s) => s === 'auth_failed' || s === 'scrape_failed' || s === 'partial');
-  const collected = statuses.filter((s) => s === 'success' || s === 'empty');
-
-  if (failed.length > 0 && collected.length > 0) return 'partial';
-  if (failed.length === statuses.length) return 'partial';
-  if (unique.has('success')) return 'success';
-  if (unique.has('empty') && !unique.has('success')) return 'empty';
+  if (statuses.every((s) => s === 'empty')) return 'empty';
+  if (statuses.every((s) => s === 'success' || s === 'empty')) return 'success';
   return 'partial';
 }

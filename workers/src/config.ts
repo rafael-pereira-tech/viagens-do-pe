@@ -11,6 +11,9 @@ export const FLIGHT_WINDOW = {
   end: '2026-12-31',
 } as const;
 
+/** Workers Paid cron ceiling is 15 minutes; overlapping ticks skip rather than stack. */
+export const INGEST_LEASE_MS = 15 * 60 * 1000;
+
 export type Airline = 'GOL' | 'AZUL' | 'LATAM';
 export type Program = 'smiles' | 'tudoazul' | 'latam_pass';
 

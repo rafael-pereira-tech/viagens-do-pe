@@ -11,7 +11,9 @@ export interface CollectParams {
 
 /**
  * Collector output shaped for `public.price_snapshots`.
- * `id` / `collected_at` / `created_at` are assigned by Postgres.
+ * `id` / `created_at` are assigned by Postgres. The scheduler stamps
+ * `collected_at` and `ingest_run_id` on every write path — collectors
+ * should leave those unset.
  */
 export interface Snapshot {
   origin: string;
@@ -26,6 +28,8 @@ export interface Snapshot {
   currency: string;
   source: string;
   raw_payload?: unknown;
+  collected_at?: string;
+  ingest_run_id?: string;
 }
 
 export interface CollectResult {

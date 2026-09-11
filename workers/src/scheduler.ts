@@ -1,10 +1,16 @@
-import { FLIGHT_WINDOW, type Airline, type Program } from './config';
+import { FLIGHT_WINDOW, INGEST_LEASE_MS, type Airline, type Program } from './config';
 import { getCollector } from './collectors';
 import type { CollectParams, CollectResult, Collector, Snapshot } from './collectors/types';
 import type { Env } from './env';
+import { isolateLock, type SkipIfRunningLock } from './lock';
 import { buildJobs } from './jobs';
-import { aggregateStatus, type RunStatus } from './status';
-import { createSupabase, isPersistableSnapshot, type SnapshotStore } from './supabase';
+import { aggregateStatus, isFailureStatus, type RunStatus } from './status';
+import {
+  createSupabase,
+  isPersistableSnapshot,
+  stampSnapshot,
+  type SnapshotStore,
+} from './supabase';
 
 export interface RouteRunSummary {
   origin: string;
@@ -28,7 +34,11 @@ export interface JobFailure {
 }
 
 export interface IngestSummary {
-  status: RunStatus;
+  skipped: boolean;
+  skipReason?: 'already_running';
+  status: RunStatus | null;
+  runId: string;
+  collectedAt: string;
   cron: string;
   startedAt: string;
   finishedAt: string;
@@ -45,8 +55,10 @@ export interface IngestDeps {
   env: Env;
   cron: string;
   scheduledTime: Date;
+  now?: Date;
   collect?: (params: CollectParams) => Promise<CollectResult>;
   store?: SnapshotStore | null;
+  lock?: SkipIfRunningLock;
 }
 
 function resolveWindow(env: Env): { start: string; end: string } {
@@ -67,16 +79,72 @@ function routeKey(job: { origin: string; destination: string; airline: string; p
   return `${job.origin}-${job.destination}-${job.airline}-${job.program}`;
 }
 
+function skippedSummary(opts: {
+  runId: string;
+  collectedAt: string;
+  cron: string;
+  startedAt: string;
+  window: { start: string; end: string };
+}): IngestSummary {
+  return {
+    skipped: true,
+    skipReason: 'already_running',
+    status: null,
+    runId: opts.runId,
+    collectedAt: opts.collectedAt,
+    cron: opts.cron,
+    startedAt: opts.startedAt,
+    finishedAt: new Date().toISOString(),
+    jobCount: 0,
+    snapshotCount: 0,
+    window: opts.window,
+    routes: [],
+    failures: [],
+    persisted: false,
+  };
+}
+
+function newRunId(): string {
+  return crypto.randomUUID();
+}
+
 export async function runIngest(deps: IngestDeps): Promise<IngestSummary> {
-  const started = deps.scheduledTime;
-  const startedAt = started.toISOString();
+  const now = deps.now ?? new Date();
+  const startedAt = deps.scheduledTime.toISOString();
+  const collectedAt = now.toISOString();
+  const runId = newRunId();
   const window = resolveWindow(deps.env);
+  const lock = deps.lock ?? isolateLock;
   const collect =
     deps.collect ??
     ((params: CollectParams) => getCollector(params.program).collect(params));
   const store = deps.store === undefined ? createSupabase(deps.env) : deps.store;
 
+  if (!lock.tryAcquire(runId)) {
+    const summary = skippedSummary({ runId, collectedAt, cron: deps.cron, startedAt, window });
+    console.log(JSON.stringify({ msg: 'ingest_skipped', reason: 'already_running', scope: 'isolate' }));
+    return summary;
+  }
+
+  let acquiredDb = false;
   try {
+    if (store) {
+      await store.expireStaleRuns(collectedAt);
+      const began = await store.beginRun({
+        id: runId,
+        started_at: startedAt,
+        collected_at: collectedAt,
+        lease_expires_at: new Date(now.getTime() + INGEST_LEASE_MS).toISOString(),
+        cron: deps.cron,
+      });
+      if (!began.acquired) {
+        const summary = skippedSummary({ runId, collectedAt, cron: deps.cron, startedAt, window });
+        console.log(JSON.stringify({ msg: 'ingest_skipped', reason: 'already_running', scope: 'postgres' }));
+        return summary;
+      }
+      acquiredDb = true;
+    }
+
     const jobs = buildJobs(window);
     const statuses: RunStatus[] = [];
     const pending: Snapshot[] = [];
@@ -116,7 +184,9 @@ export async function runIngest(deps: IngestDeps): Promise<IngestSummary> {
       }
 
       statuses.push(result.status);
-      pending.push(...result.snapshots);
+      for (const snapshot of result.snapshots) {
+        pending.push(stampSnapshot(snapshot, runId, collectedAt));
+      }
 
       const key = routeKey(job);
       const current = acc.get(key) ?? {
@@ -135,7 +205,7 @@ export async function runIngest(deps: IngestDeps): Promise<IngestSummary> {
       current.statuses.push(result.status);
       acc.set(key, current);
 
-      if (result.status === 'auth_failed' || result.status === 'scrape_failed') {
+      if (isFailureStatus(result.status)) {
         failures.push({
           origin: job.origin,
           destination: job.destination,
@@ -160,7 +230,10 @@ export async function runIngest(deps: IngestDeps): Promise<IngestSummary> {
     }));
 
     let status = aggregateStatus(statuses);
-    let persisted = false;
+    if (status === 'success' && failures.length > 0) {
+      status = 'partial';
+    }
+
     let error: string | undefined;
     const persistable = pending.filter(isPersistableSnapshot);
 
@@ -169,13 +242,16 @@ export async function runIngest(deps: IngestDeps): Promise<IngestSummary> {
         await store.insertSnapshots(persistable);
       } catch (err) {
         error = err instanceof Error ? err.message : String(err);
-        status = 'partial';
+        status = status === 'success' || status === 'empty' ? 'partial' : status;
       }
     }
 
     const finishedAt = new Date().toISOString();
     const summary: IngestSummary = {
+      skipped: false,
       status,
+      runId,
+      collectedAt,
       cron: deps.cron,
       startedAt,
       finishedAt,
@@ -184,27 +260,28 @@ export async function runIngest(deps: IngestDeps): Promise<IngestSummary> {
       window,
       routes,
       failures,
-      persisted,
+      persisted: false,
       error,
     };
 
-    if (store) {
+    if (store && acquiredDb) {
       try {
-        await store.insertRun({
-          started_at: summary.startedAt,
+        const finished = await store.finishRun(runId, {
           finished_at: summary.finishedAt,
-          status: summary.status,
-          cron: summary.cron,
+          status: summary.status!,
           snapshot_count: summary.snapshotCount,
           job_count: summary.jobCount,
           error_message: summary.error ?? null,
-          details: {
-            window,
-            routes,
-            failures,
-          },
+          details: { window, routes, failures, collected_at: collectedAt },
         });
-        summary.persisted = true;
+        summary.persisted = finished;
+        if (!finished) {
+          const lost = 'lost running lease before finish (expired or reaped)';
+          summary.error = summary.error ? `${summary.error}; ${lost}` : lost;
+          if (summary.status === 'success' || summary.status === 'empty') {
+            summary.status = 'partial';
+          }
+        }
       } catch (err) {
         const message = err instanceof Error ? err.message : String(err);
         summary.error = summary.error ? `${summary.error}; ingest_runs: ${message}` : message;
@@ -218,6 +295,7 @@ export async function runIngest(deps: IngestDeps): Promise<IngestSummary> {
       JSON.stringify({
         msg: 'ingest_complete',
         status: summary.status,
+        runId: summary.runId,
         cron: summary.cron,
         jobCount: summary.jobCount,
         snapshotCount: summary.snapshotCount,
@@ -227,8 +305,12 @@ export async function runIngest(deps: IngestDeps): Promise<IngestSummary> {
     return summary;
   } catch (err) {
     const finishedAt = new Date().toISOString();
+    const message = err instanceof Error ? err.message : String(err);
     const summary: IngestSummary = {
+      skipped: false,
       status: 'scrape_failed',
+      runId,
+      collectedAt,
       cron: deps.cron,
       startedAt,
       finishedAt,
@@ -238,26 +320,26 @@ export async function runIngest(deps: IngestDeps): Promise<IngestSummary> {
       routes: [],
       failures: [],
       persisted: false,
-      error: err instanceof Error ? err.message : String(err),
+      error: message,
     };
-    if (store) {
+    if (store && acquiredDb) {
       try {
-        await store.insertRun({
-          started_at: summary.startedAt,
-          finished_at: summary.finishedAt,
-          status: summary.status,
-          cron: summary.cron,
+        summary.persisted = await store.finishRun(runId, {
+          finished_at: finishedAt,
+          status: 'scrape_failed',
           snapshot_count: 0,
           job_count: 0,
-          error_message: summary.error ?? null,
-          details: { window, error: summary.error },
+          error_message: message,
+          details: { window, error: message },
         });
       } catch {
-        // Swallow persist errors on the fatal path; the cron log still has the summary.
+        // Isolate lock still releases in finally; cron logs keep the summary.
       }
     }
-    console.log(JSON.stringify({ msg: 'ingest_failed', ...summary }));
+    console.log(JSON.stringify({ msg: 'ingest_failed', status: summary.status, runId }));
     return summary;
+  } finally {
+    lock.release(runId);
   }
 }
 

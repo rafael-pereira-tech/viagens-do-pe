@@ -16,6 +16,7 @@ function authorizeManualRun(request: Request, env: Env): Response | null {
 export default {
   async scheduled(controller, env) {
     // Await the run so Cron Trigger status reflects ingest completion.
+    // Overlap skips return normally (do not throw) so Cloudflare does not retry.
     await runIngest({
       env,
       cron: controller.cron,
@@ -38,7 +39,7 @@ export default {
         cron: 'manual',
         scheduledTime: new Date(),
       });
-      return Response.json(summary);
+      return Response.json(summary, { status: summary.skipped ? 409 : 200 });
     }
 
     return new Response('Not found', { status: 404 });
