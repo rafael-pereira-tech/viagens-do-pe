@@ -18,7 +18,9 @@ describe('StateView', () => {
   })
 
   it('renders error with alert role', () => {
-    render(<StateView variant="error" title="Erro" description="falha" actionLabel="Tentar de novo" onAction={vi.fn()} />)
+    render(
+      <StateView variant="error" title="Erro" description="falha" actionLabel="Tentar de novo" onAction={vi.fn()} />,
+    )
     expect(screen.getByRole('alert')).toBeInTheDocument()
     expect(screen.getByText('falha')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Tentar de novo' })).toBeInTheDocument()

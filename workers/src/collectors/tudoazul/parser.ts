@@ -156,6 +156,7 @@ function snapshotBase(params: CollectParams, journey: AzulJourney): Omit<Snapsho
     program: params.program,
     flight_date: params.flightDate,
     departure_time: departureTimeOf(journeyDeparture(journey)),
+    stops: journey.stopsCount ?? journey.stops ?? null,
     currency: 'BRL',
   };
 }

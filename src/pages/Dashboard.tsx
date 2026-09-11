@@ -8,7 +8,7 @@ import { KpiStrip } from '../components/KpiStrip.tsx'
 import { OffersTable } from '../components/OffersTable.tsx'
 import { chartFromOffers, chartFromRouteDayStats, kpisFromOffers, PLACEHOLDER_OFFERS } from '../data/placeholders.ts'
 import { useDashboardSnapshots } from '../hooks/useDashboardSnapshots.ts'
-import { CAN_FETCH_SNAPSHOTS } from '../lib/config.ts'
+import { CAN_FETCH_SNAPSHOTS, CONFIG_ERROR } from '../lib/config.ts'
 import { applyQuery } from '../lib/filters.ts'
 import { formatShortDate } from '../lib/format.ts'
 import {
@@ -52,7 +52,10 @@ export function Dashboard() {
 
   const live = CAN_FETCH_SNAPSHOTS
   const remote = useDashboardSnapshots(applied)
-  const sourceRows = live ? remote.offers : PLACEHOLDER_OFFERS
+  const sourceRows = useMemo(
+    () => (live ? remote.offers : CONFIG_ERROR ? [] : PLACEHOLDER_OFFERS),
+    [live, remote.offers],
+  )
   const tabRows = useMemo(() => applyQuery(sourceRows, applied, { ignoreDay: true }), [applied, sourceRows])
   const rows = useMemo(() => applyQuery(sourceRows, applied), [applied, sourceRows])
   const useApiStats = live && applied.dryMode !== 'only'
@@ -64,7 +67,7 @@ export function Dashboard() {
   const isLoading = applied.ui === 'loading' || (live && remote.isLoading)
   const forcedError = applied.ui === 'error' ? 'Erro simulado via ?ui=error — verifique o retry.' : null
   const forcedEmpty = applied.ui === 'empty'
-  const effectiveError = forcedError ?? remote.error
+  const effectiveError = forcedError ?? CONFIG_ERROR ?? remote.error
   const effectiveIsLoading = forcedEmpty ? false : isLoading
   const effectiveRows = forcedEmpty ? [] : rows
   const effectivePoints = forcedEmpty ? [] : chart
@@ -150,6 +153,7 @@ export function Dashboard() {
           Tabela filtrada por {formatShortDate(applied.dia)}. Clique de novo na barra para limpar o dia.
         </p>
       ) : null}
+      {live && remote.offers.length > 0 ? <FreshnessNotice rows={remote.offers} /> : null}
       <OffersTable
         rows={effectiveIsLoading ? [] : effectiveRows}
         isLoading={effectiveIsLoading}
@@ -158,5 +162,16 @@ export function Dashboard() {
         onRetry={remote.refresh}
       />
     </div>
+  )
+}
+
+function FreshnessNotice({ rows }: { rows: { collected_at: string }[] }) {
+  const latest = rows.reduce((max, row) => (row.collected_at > max ? row.collected_at : max), '')
+  const ageHours = latest ? (Date.now() - Date.parse(latest)) / 3_600_000 : Number.POSITIVE_INFINITY
+  if (!Number.isFinite(ageHours) || ageHours <= 12) return null
+  return (
+    <p className="text-xs text-amber-700" role="status">
+      Dados atualizados há {Math.floor(ageHours)}h; a última coleta pode estar desatualizada.
+    </p>
   )
 }

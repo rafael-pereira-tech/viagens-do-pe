@@ -8,6 +8,7 @@ import { SEARCH_PET_GRU_CASH, SEARCH_PET_GRU_MILES } from './fixtures';
 import { waitMs } from './http';
 import { latamBodyLooksLikeError, parseLatamOffers } from './parser';
 import type { LatamPricingMode, LatamSession } from './types';
+import { hasExplicitCapabilityFlags, sourceEnabled } from '../capabilities';
 
 export interface LatamPassCollectorDeps {
   fetch?: typeof fetch;
@@ -98,12 +99,13 @@ export function createLatamPassCollector(env: Env, deps: LatamPassCollectorDeps 
         return stampDryRunResult(combine(resultFromParse(milesParsed), resultFromParse(cashParsed)));
       }
 
-      if (!isLiveEnabled(env)) {
+      const pointsEnabled = sourceEnabled(env, 'latam_pass_points');
+      const cashEnabled = sourceEnabled(env, 'latam_cash');
+      if (!isLiveEnabled(env) && !hasExplicitCapabilityFlags(env)) {
         return {
           status: 'auth_failed',
           snapshots: [],
-          error:
-            'LATAM Pass collector is not configured. Set LATAM_PASS_LOGIN and LATAM_PASS_PASSWORD, or LATAM_DRY_RUN=1 for fixtures.',
+          error: 'LATAM collector is not configured. Set LATAM_PASS_LOGIN/LATAM_PASS_PASSWORD or LATAM_CASH_ENABLED.',
         };
       }
 
@@ -116,8 +118,12 @@ export function createLatamPassCollector(env: Env, deps: LatamPassCollectorDeps 
         return { status: 'auth_failed', snapshots: [], error: session.error };
       }
 
-      const miles = await searchMode(params, session, 'miles');
-      const cash = await searchMode(params, session, 'cash');
+      const miles = pointsEnabled
+        ? await searchMode(params, session, 'miles')
+        : { status: 'empty' as const, snapshots: [] };
+      const cash = cashEnabled
+        ? await searchMode(params, session, 'cash')
+        : { status: 'empty' as const, snapshots: [] };
       return combine(miles, cash);
     },
   };

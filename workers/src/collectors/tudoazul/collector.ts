@@ -15,6 +15,7 @@ import {
 import { waitMs } from './http';
 import { azulBodyLooksLikeError, parseAzulAvailability } from './parser';
 import type { AzulPricingMode, AzulSession } from './types';
+import { hasExplicitCapabilityFlags, sourceEnabled } from '../capabilities';
 
 export interface TudoAzulCollectorDeps {
   fetch?: typeof fetch;
@@ -115,12 +116,13 @@ export function createTudoAzulCollector(env: Env, deps: TudoAzulCollectorDeps = 
         return stampDryRunResult(combine(resultFromParse(pointsParsed), resultFromParse(cashParsed)));
       }
 
-      if (!isLiveEnabled(env)) {
+      const pointsEnabled = sourceEnabled(env, 'azul_points');
+      const cashEnabled = sourceEnabled(env, 'azul_cash');
+      if (!isLiveEnabled(env) && !hasExplicitCapabilityFlags(env)) {
         return {
           status: 'auth_failed',
           snapshots: [],
-          error:
-            'TudoAzul collector is not configured. Set TUDOAZUL_LOGIN and TUDOAZUL_PASSWORD, or TUDOAZUL_DRY_RUN=1 for fixtures.',
+          error: 'TudoAzul collector is not configured. Set TUDOAZUL_LOGIN/TUDOAZUL_PASSWORD or AZUL_POINTS_ENABLED/AZUL_CASH_ENABLED.',
         };
       }
 
@@ -133,8 +135,12 @@ export function createTudoAzulCollector(env: Env, deps: TudoAzulCollectorDeps = 
         return { status: 'auth_failed', snapshots: [], error: session.error };
       }
 
-      const points = await searchMode(params, session, 'points');
-      const cash = await searchMode(params, session, 'cash');
+      const points = pointsEnabled
+        ? await searchMode(params, session, 'points')
+        : { status: 'empty' as const, snapshots: [] };
+      const cash = cashEnabled
+        ? await searchMode(params, session, 'cash')
+        : { status: 'empty' as const, snapshots: [] };
       return combine(points, cash);
     },
   };

@@ -1,4 +1,4 @@
-import { FLIGHT_WINDOW, INGEST_LEASE_MS, type Airline, type Program } from './config';
+import { FLIGHT_WINDOW, INGEST_LEASE_MS, ROUTE_MATRIX, type Airline, type Program, type RouteSpec } from './config';
 import { createCollectors } from './collectors';
 import type { CollectParams, CollectResult, Collector, Snapshot } from './collectors/types';
 import type { Env } from './env';
@@ -61,11 +61,33 @@ export interface IngestDeps {
   lock?: SkipIfRunningLock;
 }
 
-function resolveWindow(env: Env): { start: string; end: string } {
+function truthy(value: string | undefined): boolean {
+  return value === '1' || value?.toLowerCase() === 'true' || value?.toLowerCase() === 'yes';
+}
+
+function isoDateUtc(date: Date): string {
+  return date.toISOString().slice(0, 10);
+}
+
+function resolveWindow(env: Env, now: Date): { start: string; end: string } {
+  if (truthy(env.FLIGHT_WINDOW_ROLLING)) {
+    const start = env.FLIGHT_WINDOW_START || isoDateUtc(now);
+    const span = Math.max(1, Number(env.FLIGHT_WINDOW_DAYS || 45));
+    const endDate = new Date(`${start}T00:00:00Z`);
+    endDate.setUTCDate(endDate.getUTCDate() + span - 1);
+    return { start, end: env.FLIGHT_WINDOW_END || isoDateUtc(endDate) };
+  }
   return {
     start: env.FLIGHT_WINDOW_START || FLIGHT_WINDOW.start,
     end: env.FLIGHT_WINDOW_END || FLIGHT_WINDOW.end,
   };
+}
+
+function activeRoutes(env: Env): readonly RouteSpec[] {
+  const production = env.ENVIRONMENT === 'production';
+  if (production && !truthy(env.ROUTE_POA_ENABLED)) return ROUTE_MATRIX.filter((route) => route.destination !== 'POA');
+  if (env.ROUTE_POA_ENABLED === '0') return ROUTE_MATRIX.filter((route) => route.destination !== 'POA');
+  return ROUTE_MATRIX;
 }
 
 function normalizeResult(result: CollectResult): CollectResult {
@@ -113,7 +135,8 @@ export async function runIngest(deps: IngestDeps): Promise<IngestSummary> {
   const startedAt = deps.scheduledTime.toISOString();
   const collectedAt = now.toISOString();
   const runId = newRunId();
-  const window = resolveWindow(deps.env);
+  const window = resolveWindow(deps.env, now);
+  const activeRouteSpecs = activeRoutes(deps.env);
   const lock = deps.lock ?? isolateLock;
   const registry = createCollectors(deps.env);
   const collect =
@@ -146,7 +169,7 @@ export async function runIngest(deps: IngestDeps): Promise<IngestSummary> {
       acquiredDb = true;
     }
 
-    const jobs = buildJobs(window);
+    const jobs = buildJobs(window, activeRouteSpecs);
     const statuses: RunStatus[] = [];
     const pending: Snapshot[] = [];
     const failures: JobFailure[] = [];

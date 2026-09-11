@@ -1,6 +1,7 @@
 import type { Env } from '../../env';
 import { AZUL_API_HOST, AZUL_TOKEN_PATH } from './constants';
 import type { AzulSession, AzulTokenResponse } from './types';
+import { anySourceEnabled } from '../capabilities';
 
 function truthy(value: string | undefined): boolean {
   if (!value) return false;
@@ -17,7 +18,7 @@ export function hasTudoAzulCredentials(env: Env): boolean {
 }
 
 export function isLiveEnabled(env: Env): boolean {
-  return hasTudoAzulCredentials(env);
+  return anySourceEnabled(env, 'azul_points', 'azul_cash');
 }
 
 export function apiHost(env: Env): string {
@@ -53,7 +54,7 @@ export async function resolveSession(env: Env, deps: TokenDeps): Promise<AzulSes
   const login = env.TUDOAZUL_LOGIN?.trim();
   const password = env.TUDOAZUL_PASSWORD;
   if (!login || !password) {
-    return { error: 'TudoAzul collector is not configured. Set TUDOAZUL_LOGIN and TUDOAZUL_PASSWORD, or TUDOAZUL_DRY_RUN=1.' };
+    return {};
   }
 
   const session: AzulSession = {};

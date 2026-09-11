@@ -3,11 +3,43 @@ main = "src/index.ts"
 compatibility_date = "2026-09-11"
 workers_dev = true
 
+[observability]
+enabled = true
+head_sampling_rate = 1
+
 # Cron triggers are always evaluated in UTC by Cloudflare.
-# 00:00 / 06:00 / 12:00 / 18:00 UTC =
-# 21:00 / 03:00 / 09:00 / 15:00 America/Sao_Paulo (UTC-3; Brazil has no DST).
+# 09:00 / 21:00 UTC = 06:00 / 18:00 America/Sao_Paulo (UTC-3).
 [triggers]
-crons = ["0 0 * * *", "0 6 * * *", "0 12 * * *", "0 18 * * *"]
+crons = ["0 9 * * *", "0 21 * * *"]
+
+[vars]
+ENVIRONMENT = "production"
+FLIGHT_WINDOW_ROLLING = "1"
+FLIGHT_WINDOW_DAYS = "45"
+ROUTE_POA_ENABLED = "0"
+CURRENT_READ_MODEL = "1"
+SMILES_POINTS_ENABLED = "1"
+GOL_CASH_ENABLED = "1"
+AZUL_POINTS_ENABLED = "1"
+AZUL_CASH_ENABLED = "1"
+LATAM_CASH_ENABLED = "1"
+LATAM_PASS_POINTS_ENABLED = "0"
+
+[env.staging]
+name = "viagens-do-pe-ingest-staging"
+workers_dev = true
+[env.staging.vars]
+ENVIRONMENT = "staging"
+FLIGHT_WINDOW_ROLLING = "0"
+FLIGHT_WINDOW_DAYS = "45"
+ROUTE_POA_ENABLED = "0"
+CURRENT_READ_MODEL = "1"
+SMILES_POINTS_ENABLED = "1"
+GOL_CASH_ENABLED = "1"
+AZUL_POINTS_ENABLED = "1"
+AZUL_CASH_ENABLED = "1"
+LATAM_CASH_ENABLED = "1"
+LATAM_PASS_POINTS_ENABLED = "0"
 
 # Secrets (set locally in .dev.vars, in prod via `wrangler secret put`):
 #   SUPABASE_URL
@@ -18,6 +50,9 @@ crons = ["0 0 * * *", "0 6 * * *", "0 12 * * *", "0 18 * * *"]
 #   SMILES_COOKIE / SMILES_ACCESS_TOKEN / SMILES_USER / SMILES_PASS  (optional member)
 #   TUDOAZUL_LOGIN / TUDOAZUL_PASSWORD  (BE-4 frozen secrets; placeholders only)
 #   LATAM_PASS_LOGIN / LATAM_PASS_PASSWORD  (BE-5 frozen secrets; placeholders only)
+#   Guest capability flags are non-secret and are defined in [vars]:
+#   SMILES_POINTS_ENABLED, GOL_CASH_ENABLED, AZUL_POINTS_ENABLED,
+#   AZUL_CASH_ENABLED, LATAM_CASH_ENABLED, LATAM_PASS_POINTS_ENABLED
 #
 # Optional non-secret overrides can be added under [vars] later:
 #   FLIGHT_WINDOW_START, FLIGHT_WINDOW_END

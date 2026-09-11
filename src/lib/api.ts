@@ -143,6 +143,7 @@ export function toOfferRow(row: ApiPriceSnapshot): OfferRow {
     program: row.program,
     flight_date: row.flight_date,
     departure_time: row.departure_time ?? undefined,
+    stops: row.stops ?? undefined,
     miles: miles ?? undefined,
     amount_brl: amount ?? undefined,
     taxes_brl: row.taxes_brl ?? undefined,
