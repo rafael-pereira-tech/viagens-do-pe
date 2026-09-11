@@ -11,6 +11,9 @@ export const AIRPORT_LABEL: Record<Destination, string> = {
 
 export type ChartMode = 'both' | 'milhas' | 'brl'
 
+/** Prod default excludes fixtures. `include` = ?dry=1. `only` = ?dry_run=1 smoke. */
+export type DryMode = 'live' | 'include' | 'only'
+
 export type DashboardQuery = {
   to: Destination
   from: string
@@ -19,8 +22,7 @@ export type DashboardQuery = {
   dia: string
   bars: ChartMode
   ui: '' | 'loading'
-  /** When true (`?dry=1`), include `*_dry_run` snapshot sources. */
-  dry: boolean
+  dryMode: DryMode
 }
 
 export const defaultQuery: DashboardQuery = {
@@ -31,7 +33,7 @@ export const defaultQuery: DashboardQuery = {
   dia: '',
   bars: 'both',
   ui: '',
-  dry: false,
+  dryMode: 'live',
 }
 
 function isDestination(value: string): value is Destination {
@@ -42,12 +44,18 @@ function isChartMode(value: string): value is ChartMode {
   return value === 'both' || value === 'milhas' || value === 'brl'
 }
 
+export function parseDryMode(params: URLSearchParams): DryMode {
+  const only = (params.get('dry_run') ?? '').toLowerCase()
+  if (only === '1' || only === 'true' || only === 'only') return 'only'
+  const include = (params.get('dry') ?? '').toLowerCase()
+  if (include === '1' || include === 'true') return 'include'
+  return 'live'
+}
+
 export function parseQuery(params: URLSearchParams): DashboardQuery {
   const toParam = (params.get('to') ?? '').toUpperCase()
   const barsParam = params.get('bars') ?? ''
   const uiParam = params.get('ui') ?? ''
-  const dryParam = (params.get('dry') ?? '').toLowerCase()
-
   return {
     to: isDestination(toParam) ? toParam : 'GRU',
     from: params.get('from') ?? '',
@@ -56,7 +64,7 @@ export function parseQuery(params: URLSearchParams): DashboardQuery {
     dia: params.get('dia') ?? '',
     bars: isChartMode(barsParam) ? barsParam : 'both',
     ui: uiParam === 'loading' ? 'loading' : '',
-    dry: dryParam === '1' || dryParam === 'true',
+    dryMode: parseDryMode(params),
   }
 }
 
@@ -69,7 +77,8 @@ export function queryToSearchParams(query: DashboardQuery): URLSearchParams {
   if (query.dia) params.set('dia', query.dia)
   if (query.bars !== 'both') params.set('bars', query.bars)
   if (query.ui) params.set('ui', query.ui)
-  if (query.dry) params.set('dry', '1')
+  if (query.dryMode === 'only') params.set('dry_run', '1')
+  if (query.dryMode === 'include') params.set('dry', '1')
   return params
 }
 

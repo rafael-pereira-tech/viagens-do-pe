@@ -37,12 +37,12 @@ export function useDashboardSnapshots(query: DashboardQuery): DashboardSnapshots
         from: query.from,
         until: query.until,
         fonte: query.fonte,
-        dry: query.dry,
+        dryMode: query.dryMode,
         dia: '',
         bars: 'both',
         ui: '',
       }),
-    [query.to, query.from, query.until, query.fonte, query.dry],
+    [query.to, query.from, query.until, query.fonte, query.dryMode],
   )
   const [offers, setOffers] = useState<OfferRow[]>([])
   const [windowStats, setWindowStats] = useState<SnapshotWindowStats | null>(null)
@@ -68,15 +68,16 @@ export function useDashboardSnapshots(query: DashboardQuery): DashboardSnapshots
     setError(null)
 
     const { signal } = ac
+    const dryOnly = query.dryMode === 'only'
     Promise.all([
       fetchLatestSnapshots(filters, { signal }),
-      fetchSnapshotStats({ ...filters, group_by: 'window' }, { signal }),
-      fetchSnapshotStats({ ...filters, group_by: 'route_day' }, { signal }),
+      dryOnly ? Promise.resolve(null) : fetchSnapshotStats({ ...filters, group_by: 'window' }, { signal }),
+      dryOnly ? Promise.resolve(null) : fetchSnapshotStats({ ...filters, group_by: 'route_day' }, { signal }),
     ])
       .then(([latest, windowRes, dayRes]) => {
         setOffers(latest.data.map(toOfferRow))
-        setWindowStats(windowStatsFrom(windowRes.data))
-        setRouteDay(routeDayFrom(dayRes.data))
+        setWindowStats(windowRes ? windowStatsFrom(windowRes.data) : null)
+        setRouteDay(dayRes ? routeDayFrom(dayRes.data) : [])
         setIsLoading(false)
       })
       .catch((err: unknown) => {
@@ -89,7 +90,7 @@ export function useDashboardSnapshots(query: DashboardQuery): DashboardSnapshots
       })
 
     return () => ac.abort()
-  }, [filters, live, nonce])
+  }, [filters, live, nonce, query.dryMode])
 
   return { offers, windowStats, routeDay, isLoading, error, refresh }
 }

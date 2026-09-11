@@ -19,6 +19,7 @@ import {
   type ChartMode,
   type DashboardQuery,
   type Destination,
+  type DryMode,
 } from '../lib/query.ts'
 
 type FilterDraft = Pick<DashboardQuery, 'from' | 'until' | 'fonte'>
@@ -54,8 +55,10 @@ export function Dashboard() {
   const sourceRows = live ? remote.offers : PLACEHOLDER_OFFERS
   const tabRows = useMemo(() => applyQuery(sourceRows, applied, { ignoreDay: true }), [applied, sourceRows])
   const rows = useMemo(() => applyQuery(sourceRows, applied), [applied, sourceRows])
-  const kpis = kpisFromOffers(tabRows, live ? remote.windowStats : undefined)
-  const chart = live && remote.routeDay.length > 0 ? chartFromRouteDayStats(remote.routeDay) : chartFromOffers(tabRows)
+  const useApiStats = live && applied.dryMode !== 'only'
+  const kpis = kpisFromOffers(tabRows, useApiStats ? remote.windowStats : undefined)
+  const chart =
+    useApiStats && remote.routeDay.length > 0 ? chartFromRouteDayStats(remote.routeDay) : chartFromOffers(tabRows)
   const isLoading = applied.ui === 'loading' || (live && remote.isLoading)
 
   function commit(next: DashboardQuery) {
@@ -75,7 +78,7 @@ export function Dashboard() {
       to: applied.to,
       bars: applied.bars,
       ui: applied.ui,
-      dry: applied.dry,
+      dryMode: applied.dryMode,
     })
   }
 
@@ -96,9 +99,9 @@ export function Dashboard() {
       <DestinationTabs active={applied.to} onChange={onTab} />
       <FiltersBar
         draft={draft}
-        dry={applied.dry}
+        dryMode={applied.dryMode}
         onDraftChange={(patch) => setDraft((d) => ({ ...d, ...patch }))}
-        onDryChange={(dry) => commit({ ...applied, dry })}
+        onDryModeChange={(dryMode: DryMode) => commit({ ...applied, dryMode })}
         onApply={applyFilters}
         onClear={clearFilters}
       />
@@ -123,6 +126,12 @@ export function Dashboard() {
         onModeChange={onBars}
         onSelectDate={onSelectDate}
       />
+      {applied.dryMode === 'only' ? (
+        <p className="text-xs text-muted-foreground">
+          Smoke: só fontes <code className="font-mono">*_dry_run</code> (evita smiles_web legado). Query:{' '}
+          <code className="font-mono">?dry_run=1</code>.
+        </p>
+      ) : null}
       {applied.dia ? (
         <p className="text-xs text-muted-foreground">
           Tabela filtrada por {formatShortDate(applied.dia)}. Clique de novo na barra para limpar o dia.

@@ -58,7 +58,13 @@ npm run dev
 
 O Vite só expõe variáveis com prefixo `VITE_`. Reinicie `npm run dev` depois de mudar o `.env`. Sem `VITE_API_URL` o Dashboard usa `src/data/placeholders.ts`. Com a URL, o client chama o Worker; 404/401 viram faixa de erro (o `/api/v1` pode 404 até o Platform redeploy). Se o Worker tiver `API_READ_SECRET` / `READ_API_KEY`, defina `VITE_API_TOKEN` ou `VITE_READ_API_KEY`.
 
-Padrão da API: `exclude_dry_run=1`. O toggle **Incluir dry-run** (ou `?dry=1`) inclui fontes `*_dry_run`.
+Dados (select **Dados** / query):
+
+| Modo              | UI              | Query                   | API                                                                                                                         |
+| ----------------- | --------------- | ----------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| Produção (padrão) | Produção        | (sem `dry` / `dry_run`) | `exclude_dry_run=1` — sem fixtures                                                                                          |
+| Incluir dry-run   | Incluir dry-run | `?dry=1`                | sem `exclude_dry_run` — live + `*_dry_run`                                                                                  |
+| Só dry-run        | Só dry-run      | `?dry_run=1`            | sem exclude; cliente (e `fonte=*_dry_run`) fica só em fixtures. Use para smoke até o purge das linhas `smiles_web` pré-#11. |
 
 **Nunca** coloque `SUPABASE_SERVICE_ROLE_KEY` nem qualquer `VITE_SUPABASE*` no frontend — Security grepa o bundle.
 
@@ -91,7 +97,7 @@ Tokens semânticos em `src/index.css` (`:root` HSL). Primitivos em `src/componen
 - Sem URL ou sem chave: dados em `src/data/placeholders.ts`. Ofertas no passado são ignoradas.
 - Milheiro de milhas = `(taxes_brl / miles) * 1000`. Linhas só-cash (`voegol` / `voeazul` / `latam_web`) mostram —.
 - Fonte: `smiles_web`, `voegol`, `tudoazul`, `voeazul`, `latam_pass`, `latam_web`.
-- Query preservada: `to`, `from`, `until`, `fonte`, `dia`, `bars` (e `dry` opcional).
+- Query preservada: `to`, `from`, `until`, `fonte`, `dia`, `bars`, e modo de dados (`dry` / `dry_run`).
 
 ## Deploy — Cloudflare Pages
 

@@ -22,15 +22,21 @@ export function dashboardToSnapshotQuery(query: DashboardQuery): SnapshotListQue
 const LATEST_PAGE_LIMIT = 2000
 
 /**
- * Live dashboard fetch: PET → tab destination, no `dia` (chart needs the window),
- * `exclude_dry_run=1` unless `?dry=1`, and `flight_date_from` defaults to today.
+ * Live dashboard fetch: PET → tab destination, no `dia` (chart needs the window).
+ * Default `exclude_dry_run=1`. `?dry=1` includes fixtures. `?dry_run=1` prefers
+ * `*_dry_run` (fonte is suffixed when set so the Worker eq-filter hits fixtures).
  */
 export function liveDashboardQuery(query: DashboardQuery, today = todayIso()): SnapshotListQuery {
   const filters = dashboardToSnapshotQuery({ ...query, dia: '' })
+  const fonte =
+    query.dryMode === 'only' && filters.fonte && !filters.fonte.endsWith('_dry_run')
+      ? `${filters.fonte}_dry_run`
+      : filters.fonte
   return {
     ...filters,
+    fonte,
     flight_date_from: filters.flight_date_from || today,
-    exclude_dry_run: !query.dry,
+    exclude_dry_run: query.dryMode === 'live',
     limit: LATEST_PAGE_LIMIT,
   }
 }

@@ -241,6 +241,10 @@ Dry-run after the S0 hotfix persists the **same live name + `_dry_run`**:
 `latam_pass_dry_run`, `latam_web_dry_run`. The FE should either pass
 `exclude_dry_run=1` or accept those rows and label them.
 
+Dashboard modes: default `exclude_dry_run=1` (Produção); `?dry=1` includes fixtures;
+`?dry_run=1` (Só dry-run) keeps only `*_dry_run` for clean smoke against pre-#11
+`smiles_web` rows.
+
 `exclude_dry_run` is **not** a cash-vs-miles switch. Program sources never
 count toward `min_amount_brl`.
 
