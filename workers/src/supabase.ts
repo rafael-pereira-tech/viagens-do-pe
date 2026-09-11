@@ -88,12 +88,19 @@ export function isConfiguredSupabase(env: Env): boolean {
   }
 }
 
-export function createSupabase(env: Env): SnapshotStore | null {
+export type SupabaseRest = (
+  path: string,
+  init?: RequestInit,
+  allowStatuses?: number[],
+) => Promise<Response>;
+
+/** Service-role PostgREST client. Never expose the key to the browser. */
+export function createSupabaseRest(env: Env): SupabaseRest | null {
   if (!isConfiguredSupabase(env)) return null;
   const baseUrl = env.SUPABASE_URL!.replace(/\/$/, '');
   const serviceRoleKey = env.SUPABASE_SERVICE_ROLE_KEY!;
 
-  async function rest(path: string, init: RequestInit, allowStatuses: number[] = []): Promise<Response> {
+  return async function rest(path: string, init: RequestInit = {}, allowStatuses: number[] = []): Promise<Response> {
     const headers = new Headers(init.headers);
     headers.set('apikey', serviceRoleKey);
     headers.set('Authorization', `Bearer ${serviceRoleKey}`);
@@ -109,7 +116,12 @@ export function createSupabase(env: Env): SnapshotStore | null {
       throw new Error(`Supabase ${path} ${response.status}: ${body}`);
     }
     return response;
-  }
+  };
+}
+
+export function createSupabase(env: Env): SnapshotStore | null {
+  const rest = createSupabaseRest(env);
+  if (!rest) return null;
 
   return {
     async expireStaleRuns(nowIso: string): Promise<number> {

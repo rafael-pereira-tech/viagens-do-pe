@@ -1,3 +1,5 @@
+import { applyCors, corsPreflight } from './api/cors';
+import { handleReadApi } from './api/handlers';
 import type { Env } from './env';
 import { runIngest } from './scheduler';
 
@@ -11,6 +13,10 @@ function authorizeManualRun(request: Request, env: Env): Response | null {
     return Response.json({ error: 'unauthorized' }, { status: 401 });
   }
   return null;
+}
+
+function isApiPath(pathname: string): boolean {
+  return pathname === '/api' || pathname.startsWith('/api/');
 }
 
 export default {
@@ -27,6 +33,10 @@ export default {
   async fetch(request, env) {
     const url = new URL(request.url);
 
+    if (isApiPath(url.pathname) && request.method === 'OPTIONS') {
+      return corsPreflight(request, env);
+    }
+
     if (request.method === 'GET' && url.pathname === '/health') {
       return Response.json({ ok: true, service: 'viagens-do-pe-ingest' });
     }
@@ -40,6 +50,11 @@ export default {
         scheduledTime: new Date(),
       });
       return Response.json(summary, { status: summary.skipped ? 409 : 200 });
+    }
+
+    if (isApiPath(url.pathname)) {
+      const response = await handleReadApi(request, env);
+      return applyCors(request, env, response);
     }
 
     return new Response('Not found', { status: 404 });

@@ -13,6 +13,7 @@ crons = ["0 0 * * *", "0 6 * * *", "0 12 * * *", "0 18 * * *"]
 #   SUPABASE_URL
 #   SUPABASE_SERVICE_ROLE_KEY
 #   INGEST_TRIGGER_SECRET   (optional; required to authorize POST /run)
+#   API_READ_SECRET         (optional; required to authorize GET /api/v1/snapshots*)
 #   SMILES_API_KEY          (BE-3 guest search; SPA x-api-key from DevTools)
 #   SMILES_COOKIE / SMILES_ACCESS_TOKEN / SMILES_USER / SMILES_PASS  (optional member)
 #   TUDOAZUL_LOGIN / TUDOAZUL_PASSWORD  (BE-4 frozen secrets; placeholders only)
@@ -28,3 +29,4 @@ crons = ["0 0 * * *", "0 6 * * *", "0 12 * * *", "0 18 * * *"]
 #   TUDOAZUL_API_HOST / TUDOAZUL_REQUEST_DELAY_MS
 #   LATAM_DRY_RUN=1    (fixture parser, no live LATAM)
 #   LATAM_API_HOST / LATAM_OFFERS_PATH / LATAM_LOGIN_PATH / LATAM_REQUEST_DELAY_MS
+#   CORS_ALLOWED_ORIGINS   (extra dashboard origins, comma-separated)

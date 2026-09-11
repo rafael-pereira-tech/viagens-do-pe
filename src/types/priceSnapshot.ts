@@ -1,4 +1,7 @@
-/** Snapshot of an award/cash fare quote. Backend shape — FE-1 uses local stubs only. */
+/**
+ * UI stub snapshot. The Worker read contract (nullability, `id`, `*_dry_run`
+ * sources) lives in `src/types/api.ts` — see `docs/api-price-snapshots.md`.
+ */
 export type PriceSnapshot = {
   origin: string
   destination: string

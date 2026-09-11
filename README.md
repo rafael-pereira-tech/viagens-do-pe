@@ -41,11 +41,12 @@ npm run preview
 
 ## Variáveis de ambiente
 
-| Variável       | Obrigatória         | Uso                                                                                   |
-| -------------- | ------------------- | ------------------------------------------------------------------------------------- |
-| `VITE_API_URL` | Não (FE-1 / FE-1.1) | Base URL do Workers API. Vazia = stubs locais. Ex.: `https://api.exemplo.workers.dev` |
+| Variável         | Obrigatória         | Uso                                                                                         |
+| ---------------- | ------------------- | ------------------------------------------------------------------------------------------- |
+| `VITE_API_URL`   | Não (FE-1 / FE-1.1) | Base URL do Workers read API. Vazia = stubs locais. Ver [`docs/api-price-snapshots.md`](docs/api-price-snapshots.md). |
+| `VITE_API_TOKEN` | Não                 | Só se o Worker tiver `API_READ_SECRET`. **Nunca** coloque `SUPABASE_SERVICE_ROLE_KEY` aqui. |
 
-Copie `.env.example` para `.env` ou `.env.local`. O Vite só expõe variáveis com prefixo `VITE_`. **Não há fetch neste milestone.**
+Copie `.env.example` para `.env` ou `.env.local`. O Vite só expõe variáveis com prefixo `VITE_`. O client tipado está em `src/lib/api.ts` (BE-6); o Dashboard ainda usa stubs até um ticket FE ligar o fetch. **Nunca** coloque `SUPABASE_SERVICE_ROLE_KEY` no frontend.
 
 ## D-2 + shadcn (FE-1.1)
 
@@ -87,6 +88,7 @@ Scheduled collection lives in [`workers/`](workers/). **Smiles / GOL PET→CGH**
 
 - Cron: 00:00, 06:00, 12:00, 18:00 **UTC** (21:00, 03:00, 09:00, 15:00 America/Sao_Paulo)
 - Local: `cd workers && npm install && npm run dev` — see [`workers/README.md`](workers/README.md) for `SMILES_*` / `TUDOAZUL_LOGIN`+`TUDOAZUL_PASSWORD` / `LATAM_PASS_LOGIN`+`LATAM_PASS_PASSWORD` placeholders, dry-run fixtures, and a manual `/run` tick
+- **BE-6 read API** (same Worker): `GET /api/v1/snapshots`, `/latest`, `/stats`. Contract + curl: [`docs/api-price-snapshots.md`](docs/api-price-snapshots.md)
 
 ## Schema
 
@@ -94,6 +96,7 @@ Scheduled collection lives in [`workers/`](workers/). **Smiles / GOL PET→CGH**
 - [`supabase/migrations/20260911180100_ingest_runs.sql`](supabase/migrations/20260911180100_ingest_runs.sql)
 - [`supabase/migrations/20260911180101_price_snapshots_nonneg_check.sql`](supabase/migrations/20260911180101_price_snapshots_nonneg_check.sql)
 - [`supabase/migrations/20260911180500_price_snapshots_ingest_run_id.sql`](supabase/migrations/20260911180500_price_snapshots_ingest_run_id.sql)
+- [`supabase/migrations/20260911192000_price_snapshots_latest.sql`](supabase/migrations/20260911192000_price_snapshots_latest.sql) (BE-6 latest-per-route/day view)
 
 ## Estrutura
 
@@ -102,9 +105,10 @@ src/
   components/     shell, abas, filtros, KPIs, gráfico, tabela
   components/ui/  primitivos shadcn
   data/           stubs PET → GRU/CGH/VCP
-  lib/            query URL, filtros, formatação, VITE_API_URL, tokens de UI
+  lib/            query URL, filtros, formatação, VITE_API_URL, client BE-6
   pages/Dashboard.tsx
-  types/priceSnapshot.ts
-workers/          ingest Worker (BE-2/BE-3 Smiles + BE-4 TudoAzul + BE-5 LATAM Pass collectors + wrangler.toml)
+  types/          priceSnapshot (stubs) + api.ts (Worker contract)
+workers/          ingest + BE-6 read API (`/api/v1/snapshots*`)
+docs/             FE contract for the read API
 supabase/         Postgres migrations
 ```
