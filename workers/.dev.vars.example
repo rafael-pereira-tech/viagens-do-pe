@@ -27,10 +27,11 @@ TUDOAZUL_PASSWORD=
 # TUDOAZUL_REQUEST_DELAY_MS=400
 
 # BE-5 LATAM Pass / LATAM. Frozen secrets (placeholders only).
-# Do not use LATAM_LOGIN / LATAM_PASSWORD.
+# Do not use LATAM_LOGIN / LATAM_PASSWORD. Researchy LATAM_PASS_NUMBER → LATAM_PASS_LOGIN.
 # Dry-run uses bundled PET→GRU JSON (no live login).
 LATAM_DRY_RUN=1
 LATAM_PASS_LOGIN=
 LATAM_PASS_PASSWORD=
 # LATAM_API_HOST=https://www.latamairlines.com
+# LATAM_OFFERS_PATH=/bff/air-offers/offers/search
 # LATAM_REQUEST_DELAY_MS=400

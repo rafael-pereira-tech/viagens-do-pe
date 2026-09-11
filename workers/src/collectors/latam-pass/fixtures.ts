@@ -1,7 +1,7 @@
 import type { LatamOffersResponse } from './types';
 
 /**
- * Recorded shape of GET /bff/air-offers/v2/offers/search?redemption=true (PET→GRU).
+ * Recorded shape of GET /bff/air-offers/offers/search?redemption=true (PET→GRU).
  * Mix of native BFF `content[].summary.brands` (milheiro / SPA contract) plus a
  * partner flight the parser must drop. Dates are rewritten by the dry-run collector.
  */

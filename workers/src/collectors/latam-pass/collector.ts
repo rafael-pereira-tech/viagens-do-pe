@@ -80,7 +80,8 @@ export function createLatamPassCollector(env: Env, deps: LatamPassCollectorDeps 
   return {
     async collect(params: CollectParams): Promise<CollectResult> {
       // DOW preference is applied by the scheduler job order, not here.
-      // Mon/Wed/Fri through 2026-10-31; Wed/Fri/Sat after — preference only.
+      // Published: Mon/Thu/Fri through 2026-10-31; Wed/Fri/Sat from 2026-11-01.
+      // Empty inventory on a non-operating DOW is `empty`, not scrape_failed.
       if (isDryRun(env)) {
         const milesParsed = parseLatamOffers(
           shiftDates(SEARCH_PET_GRU_MILES, '2026-09-16', params.flightDate),
