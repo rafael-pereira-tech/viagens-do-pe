@@ -137,6 +137,13 @@ describe('handleReadApi', () => {
     assert.equal(ok.status, 200);
   });
 
+  it('validates filters before requiring Supabase', async () => {
+    const response = await handleReadApi(new Request('http://localhost:8787/api/v1/snapshots?origin=PE'), {}, { rest: null });
+    assert.equal(response.status, 400);
+    const body = (await response.json()) as { error: string };
+    assert.equal(body.error, 'invalid_origin');
+  });
+
   it('returns 503 when Supabase is not configured', async () => {
     const response = await handleReadApi(new Request('http://localhost:8787/api/v1/snapshots'), {}, { rest: null });
     assert.equal(response.status, 503);

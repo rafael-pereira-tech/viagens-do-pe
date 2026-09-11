@@ -72,13 +72,10 @@ export async function handleReadApi(request: Request, env: Env, deps: ReadApiDep
   const denied = authorizeRead(request, env);
   if (denied) return denied;
 
-  const rest = deps.rest === undefined ? createSupabaseRest(env) : deps.rest;
-  if (!rest) return jsonError('supabase_not_configured', 503);
-
   try {
-    if (path === '/api/v1/snapshots') return await listSnapshots(url, rest);
-    if (path === '/api/v1/snapshots/latest') return await latestSnapshots(url, rest);
-    if (path === '/api/v1/snapshots/stats') return await snapshotStats(url, rest);
+    if (path === '/api/v1/snapshots') return await listSnapshots(url, env, deps);
+    if (path === '/api/v1/snapshots/latest') return await latestSnapshots(url, env, deps);
+    if (path === '/api/v1/snapshots/stats') return await snapshotStats(url, env, deps);
   } catch (err) {
     return jsonError('upstream_error', 502, publicErrorMessage(err));
   }
@@ -86,12 +83,21 @@ export async function handleReadApi(request: Request, env: Env, deps: ReadApiDep
   return jsonError('not_found', 404);
 }
 
-async function listSnapshots(url: URL, rest: SupabaseRest): Promise<Response> {
+function requireRest(env: Env, deps: ReadApiDeps): SupabaseRest | Response {
+  const rest = deps.rest === undefined ? createSupabaseRest(env) : deps.rest;
+  if (!rest) return jsonError('supabase_not_configured', 503);
+  return rest;
+}
+
+async function listSnapshots(url: URL, env: Env, deps: ReadApiDeps): Promise<Response> {
   const parsed = parseSnapshotQuery(url.searchParams, {
     defaultLimit: LIST_DEFAULT_LIMIT,
     maxLimit: LIST_MAX_LIMIT,
   });
   if (!parsed.ok) return jsonError(parsed.error, parsed.status, parsed.details);
+
+  const rest = requireRest(env, deps);
+  if (rest instanceof Response) return rest;
 
   const { rows, total } = await fetchSnapshots(rest, 'price_snapshots', parsed.value);
   return json({
@@ -105,12 +111,15 @@ async function listSnapshots(url: URL, rest: SupabaseRest): Promise<Response> {
   });
 }
 
-async function latestSnapshots(url: URL, rest: SupabaseRest): Promise<Response> {
+async function latestSnapshots(url: URL, env: Env, deps: ReadApiDeps): Promise<Response> {
   const parsed = parseSnapshotQuery(url.searchParams, {
     defaultLimit: LATEST_DEFAULT_LIMIT,
     maxLimit: LATEST_MAX_LIMIT,
   });
   if (!parsed.ok) return jsonError(parsed.error, parsed.status, parsed.details);
+
+  const rest = requireRest(env, deps);
+  if (rest instanceof Response) return rest;
 
   const query = parsed.value;
   const viewQs = toPostgrestQuery(query, { order: 'flight_date.asc,origin.asc,destination.asc,collected_at.desc' });
@@ -159,12 +168,15 @@ async function latestFromTable(rest: SupabaseRest, query: SnapshotQuery): Promis
   });
 }
 
-async function snapshotStats(url: URL, rest: SupabaseRest): Promise<Response> {
+async function snapshotStats(url: URL, env: Env, deps: ReadApiDeps): Promise<Response> {
   const parsed = parseSnapshotQuery(url.searchParams, {
     defaultLimit: STATS_FETCH_CAP,
     maxLimit: STATS_FETCH_CAP,
   });
   if (!parsed.ok) return jsonError(parsed.error, parsed.status, parsed.details);
+
+  const rest = requireRest(env, deps);
+  if (rest instanceof Response) return rest;
 
   const query = { ...parsed.value, includeRaw: false };
   const { rows } = await fetchSnapshots(rest, 'price_snapshots', query, {
