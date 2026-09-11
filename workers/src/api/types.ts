@@ -55,8 +55,12 @@ export interface SnapshotQuery {
   airline?: string;
   program?: string;
   source?: string;
+  /** Exact civil date (`eq`). Dashboard `dia`. */
+  flightDate?: string;
   flightDateFrom?: string;
   flightDateTo?: string;
+  /** Exact collected_at (`eq` for a timestamp; civil date → that UTC day). */
+  collectedAt?: string;
   collectedAtFrom?: string;
   collectedAtTo?: string;
   includeRaw: boolean;

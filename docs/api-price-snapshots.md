@@ -29,12 +29,14 @@ All list/latest/stats endpoints accept:
 | `destination` | `eq` | 3-letter IATA (`GRU`, `CGH`, `VCP`, `POA`) |
 | `airline` | `eq` | `GOL` \| `AZUL` \| `LATAM` (uppercased) |
 | `program` | `eq` | `smiles` \| `tudoazul` \| `latam_pass` (lowercased) |
-| `source` | `eq` | Collector id (see below) |
-| `flight_date_from` / `flight_date_to` | `gte` / `lte` | Civil `YYYY-MM-DD` |
+| `source` / `fonte` | `eq` | Collector id. `fonte=todas` is ignored (dashboard) |
+| `flight_date` / `dia` | `eq` | Exact civil `YYYY-MM-DD` |
+| `flight_date_from` / `flight_date_to` | `gte` / `lte` | Civil date range |
+| `collected_at` | `eq` or day window | ISO timestamp → `eq`; `YYYY-MM-DD` → that UTC day |
 | `collected_at_from` / `collected_at_to` | `gte` / `lte` | ISO-8601 or `YYYY-MM-DD` |
 | `include_raw` | select | `1` to include redacted `raw_payload` (omitted by default) |
 | `exclude_dry_run` | `source=not.like.*dry_run` | Drop `*_dry_run` fixture sources |
-| `limit` / `offset` | page | List default 100 (max 500). Latest default 500 (max 2000) |
+| `limit` / `offset` | page | List default **100** (max 500). Latest default 500 (max 2000) |
 | `group_by` | — | Stats only: `window` (default) or `route_day` |
 
 Aliases: `flight_date_gte` / `flight_date_lte`, `collected_at_gte` / `collected_at_lte`.
@@ -71,15 +73,52 @@ TypeScript copies:
 
 `miles` **or** `amount_brl` is present (DB check). Never treat a missing fare as `0`.
 
-### List / latest
+### List / latest — example
+
+`GET /api/v1/snapshots/latest?origin=PET&destination=CGH&fonte=smiles_web&flight_date_from=2026-09-01&limit=20`
 
 ```json
 {
-  "data": [ /* PriceSnapshot */ ],
+  "data": [
+    {
+      "id": "7c3b0d2a-1f44-4d8e-9a11-0c2f6b8e4a10",
+      "origin": "PET",
+      "destination": "CGH",
+      "airline": "GOL",
+      "program": "smiles",
+      "flight_date": "2026-09-15",
+      "departure_time": "07:05:00",
+      "miles": 13800,
+      "amount_brl": null,
+      "taxes_brl": 64.0,
+      "currency": "BRL",
+      "source": "smiles_web",
+      "collected_at": "2026-09-11T18:00:00.000Z",
+      "created_at": "2026-09-11T18:00:12.000Z",
+      "ingest_run_id": "2a11c0de-55ab-4b01-9c44-8f0d1e2a3b4c"
+    },
+    {
+      "id": "9e8f1c22-0aa1-4b77-8d03-5c1a9f2e0011",
+      "origin": "PET",
+      "destination": "CGH",
+      "airline": "GOL",
+      "program": "smiles",
+      "flight_date": "2026-09-15",
+      "departure_time": "07:05:00",
+      "miles": null,
+      "amount_brl": 548.9,
+      "taxes_brl": 64.0,
+      "currency": "BRL",
+      "source": "voegol",
+      "collected_at": "2026-09-11T18:00:00.000Z",
+      "created_at": "2026-09-11T18:00:12.000Z",
+      "ingest_run_id": "2a11c0de-55ab-4b01-9c44-8f0d1e2a3b4c"
+    }
+  ],
   "meta": {
-    "limit": 100,
+    "limit": 20,
     "offset": 0,
-    "total": 1234,
+    "total": 2,
     "include_raw": false,
     "grain": "origin,destination,airline,program,source,flight_date"
   }
@@ -88,7 +127,7 @@ TypeScript copies:
 
 `grain` is only set on `/latest`. If the `price_snapshots_latest` view is not
 applied yet, latest falls back to in-memory distinct and sets
-`meta.fallback: "in_memory_distinct"`.
+`meta.fallback: "in_memory_distinct"`. Empty page: `"data": []` with `total: 0`.
 
 ### Stats
 
@@ -129,13 +168,14 @@ Null mins mean no numeric quotes in the window (not a zero fare).
 
 ## Sources
 
-| `source` | Program | Meaning |
+| `source` / `fonte` | Program | Meaning |
 | --- | --- | --- |
-| `smiles_web` | `smiles` | GOL award / miles+money |
+| `smiles_web` | `smiles` | GOL award miles (`amount_brl` is null) |
+| `voegol` | `smiles` | GOL full cash BRL |
 | `tudoazul` | `tudoazul` | Azul points (cash copay is **not** `amount_brl`) |
 | `voeazul` | `tudoazul` | Azul full cash BRL |
 | `latam_pass` | `latam_pass` | LATAM miles |
-| `latamairlines` | `latam_pass` | LATAM cash |
+| `latam_web` | `latam_pass` | LATAM cash |
 
 Dry-run ingest may persist the same ids **or** a `*_dry_run` suffix (e.g.
 `smiles_web_dry_run`). The FE should either:
@@ -145,16 +185,19 @@ Dry-run ingest may persist the same ids **or** a `*_dry_run` suffix (e.g.
 
 ## Auth and secrets
 
+**Worker read proxy with a server-side secret.** RLS stays enabled with **no**
+anon/authenticated policies. Do not add permissive anon RLS.
+
 | Who | Credential |
 | --- | --- |
-| Worker → Supabase | `SUPABASE_SERVICE_ROLE_KEY` (secret, **Worker only**) |
-| Browser → Worker | CORS allowlist. Optional `API_READ_SECRET` → `Authorization: Bearer …` |
-| Pages build | `VITE_API_URL` (and `VITE_API_TOKEN` only if the Worker secret is set) |
+| Worker → Supabase | `SUPABASE_SERVICE_ROLE_KEY` (the server-side secret; **never** in the browser) |
+| Browser → Worker | CORS allowlist. Optional extra gate: `API_READ_SECRET` → `Authorization: Bearer …` |
+| Pages build | `VITE_API_URL` (and `VITE_API_TOKEN` only if `API_READ_SECRET` is set) |
 
 **Never** put `SUPABASE_SERVICE_ROLE_KEY` in `VITE_*` or any browser bundle.
 
 If `API_READ_SECRET` is unset, allowlisted origins can read without a token
-(service-safe: the role key never leaves the Worker). If it is set, every
+(the service role still never leaves the Worker). If it is set, every
 `/api/v1/snapshots*` call needs the Bearer header.
 
 `raw_payload` is stripped unless `include_raw=1`. When included, keys that look
@@ -279,8 +322,11 @@ paths:
         - $ref: "#/components/parameters/airline"
         - $ref: "#/components/parameters/program"
         - $ref: "#/components/parameters/source"
+        - $ref: "#/components/parameters/fonte"
+        - $ref: "#/components/parameters/flight_date"
         - $ref: "#/components/parameters/flight_date_from"
         - $ref: "#/components/parameters/flight_date_to"
+        - $ref: "#/components/parameters/collected_at"
         - $ref: "#/components/parameters/collected_at_from"
         - $ref: "#/components/parameters/collected_at_to"
         - $ref: "#/components/parameters/include_raw"
@@ -289,7 +335,27 @@ paths:
         - $ref: "#/components/parameters/offset"
       responses:
         "200":
-          description: Paginated snapshots
+          description: Paginated snapshots (`data[]` + `meta.limit/offset/total`)
+          content:
+            application/json:
+              example:
+                data:
+                  - id: "7c3b0d2a-1f44-4d8e-9a11-0c2f6b8e4a10"
+                    origin: PET
+                    destination: CGH
+                    airline: GOL
+                    program: smiles
+                    flight_date: "2026-09-15"
+                    departure_time: "07:05:00"
+                    miles: 13800
+                    amount_brl: null
+                    taxes_brl: 64.0
+                    currency: BRL
+                    source: smiles_web
+                    collected_at: "2026-09-11T18:00:00.000Z"
+                    created_at: "2026-09-11T18:00:12.000Z"
+                    ingest_run_id: "2a11c0de-55ab-4b01-9c44-8f0d1e2a3b4c"
+                meta: { limit: 100, offset: 0, total: 1, include_raw: false }
         "400":
           description: Invalid filter
         "401":
@@ -328,8 +394,11 @@ components:
     airline: { name: airline, in: query, schema: { type: string } }
     program: { name: program, in: query, schema: { type: string } }
     source: { name: source, in: query, schema: { type: string } }
+    fonte: { name: fonte, in: query, schema: { type: string }, description: "Alias of source" }
+    flight_date: { name: flight_date, in: query, schema: { type: string, format: date } }
     flight_date_from: { name: flight_date_from, in: query, schema: { type: string, format: date } }
     flight_date_to: { name: flight_date_to, in: query, schema: { type: string, format: date } }
+    collected_at: { name: collected_at, in: query, schema: { type: string } }
     collected_at_from: { name: collected_at_from, in: query, schema: { type: string } }
     collected_at_to: { name: collected_at_to, in: query, schema: { type: string } }
     include_raw: { name: include_raw, in: query, schema: { type: string, enum: ["1", "true"] } }

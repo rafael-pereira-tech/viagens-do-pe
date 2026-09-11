@@ -73,6 +73,19 @@ describe('handleReadApi', () => {
     assert.equal((qs.get('select') ?? '').includes('raw_payload'), false);
   });
 
+  it('accepts fonte and exact flight_date as dashboard aliases', async () => {
+    const { rest, paths } = restMock(() => ({ rows: [row()], total: 1 }));
+    const response = await get(
+      '/api/v1/snapshots?origin=PET&destination=CGH&fonte=smiles_web&flight_date=2026-09-15&collected_at=2026-09-11',
+      rest,
+    );
+    assert.equal(response.status, 200);
+    const qs = new URLSearchParams(paths[0]!.split('?')[1]);
+    assert.equal(qs.get('source'), 'eq.smiles_web');
+    assert.deepEqual(qs.getAll('flight_date'), ['eq.2026-09-15']);
+    assert.deepEqual(qs.getAll('collected_at'), ['gte.2026-09-11', 'lt.2026-09-12']);
+  });
+
   it('uses the latest view and falls back to in-memory distinct', async () => {
     const view = restMock((path) => {
       if (path.startsWith('price_snapshots_latest')) {

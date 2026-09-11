@@ -72,6 +72,13 @@ function parseCollectedAt(raw: string, field: string): { ok: true; value?: strin
   return { ok: true, value: raw };
 }
 
+/** Next UTC civil date after `YYYY-MM-DD`, used to bound a collected_at day filter. */
+export function nextCivilDate(iso: string): string {
+  const ms = Date.parse(`${iso}T00:00:00Z`);
+  const next = new Date(ms + 24 * 60 * 60 * 1000);
+  return next.toISOString().slice(0, 10);
+}
+
 function parseToken(raw: string, field: string, normalize?: (value: string) => string): { ok: true; value?: string } | { ok: false; details: string } {
   if (!raw) return { ok: true, value: undefined };
   if (!TOKEN.test(raw)) return { ok: false, details: `${field} contains unsupported characters` };
@@ -94,14 +101,17 @@ export function parseSnapshotQuery(params: URLSearchParams, options: ParseQueryO
   const program = parseToken(first(params, ['program']), 'program', (v) => v.toLowerCase());
   if (!program.ok) return { ok: false, error: 'invalid_program', details: program.details, status: 400 };
 
-  const sourceRaw = first(params, ['source']);
+  const sourceRaw = first(params, ['source', 'fonte']);
   let source: string | undefined;
-  if (sourceRaw) {
+  if (sourceRaw && sourceRaw.toLowerCase() !== 'todas') {
     if (!SOURCE.test(sourceRaw)) {
       return { ok: false, error: 'invalid_source', details: 'source contains unsupported characters', status: 400 };
     }
     source = sourceRaw;
   }
+
+  const flightDate = parseCivilDate(first(params, ['flight_date', 'dia']), 'flight_date');
+  if (!flightDate.ok) return { ok: false, error: 'invalid_flight_date', details: flightDate.details, status: 400 };
 
   const flightDateFrom = parseCivilDate(first(params, ['flight_date_from', 'flight_date_gte']), 'flight_date_from');
   if (!flightDateFrom.ok) return { ok: false, error: 'invalid_flight_date_from', details: flightDateFrom.details, status: 400 };
@@ -112,6 +122,9 @@ export function parseSnapshotQuery(params: URLSearchParams, options: ParseQueryO
   if (flightDateFrom.value && flightDateTo.value && flightDateFrom.value > flightDateTo.value) {
     return { ok: false, error: 'invalid_flight_date_range', details: 'flight_date_from must be <= flight_date_to', status: 400 };
   }
+
+  const collectedAt = parseCollectedAt(first(params, ['collected_at']), 'collected_at');
+  if (!collectedAt.ok) return { ok: false, error: 'invalid_collected_at', details: collectedAt.details, status: 400 };
 
   const collectedAtFrom = parseCollectedAt(first(params, ['collected_at_from', 'collected_at_gte']), 'collected_at_from');
   if (!collectedAtFrom.ok) {
@@ -152,8 +165,10 @@ export function parseSnapshotQuery(params: URLSearchParams, options: ParseQueryO
       airline: airline.value,
       program: program.value,
       source,
+      flightDate: flightDate.value,
       flightDateFrom: flightDateFrom.value,
       flightDateTo: flightDateTo.value,
+      collectedAt: collectedAt.value,
       collectedAtFrom: collectedAtFrom.value,
       collectedAtTo: collectedAtTo.value,
       includeRaw: isTruthyFlag(params.get('include_raw')),
@@ -191,8 +206,18 @@ export function toPostgrestQuery(query: SnapshotQuery, options: PostgrestQueryOp
   if (query.source) params.set('source', `eq.${query.source}`);
   if (query.excludeDryRun && !query.source) params.append('source', 'not.like.*dry_run');
 
+  if (query.flightDate) params.append('flight_date', `eq.${query.flightDate}`);
   if (query.flightDateFrom) params.append('flight_date', `gte.${query.flightDateFrom}`);
   if (query.flightDateTo) params.append('flight_date', `lte.${query.flightDateTo}`);
+
+  if (query.collectedAt) {
+    if (/^\d{4}-\d{2}-\d{2}$/.test(query.collectedAt)) {
+      params.append('collected_at', `gte.${query.collectedAt}`);
+      params.append('collected_at', `lt.${nextCivilDate(query.collectedAt)}`);
+    } else {
+      params.append('collected_at', `eq.${query.collectedAt}`);
+    }
+  }
   if (query.collectedAtFrom) params.append('collected_at', `gte.${query.collectedAtFrom}`);
   if (query.collectedAtTo) params.append('collected_at', `lte.${query.collectedAtTo}`);
 

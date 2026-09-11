@@ -12,9 +12,10 @@ export function dashboardToSnapshotQuery(query: DashboardQuery): SnapshotListQue
   return {
     origin: 'PET',
     destination: query.to,
+    flight_date: query.dia || undefined,
     flight_date_from: query.from || undefined,
     flight_date_to: query.until || undefined,
-    source: query.fonte && query.fonte.toLowerCase() !== 'todas' ? query.fonte : undefined,
+    fonte: query.fonte && query.fonte.toLowerCase() !== 'todas' ? query.fonte : undefined,
   }
 }
 
@@ -26,8 +27,11 @@ export function snapshotSearchParams(query: SnapshotListQuery): URLSearchParams 
     ['airline', query.airline],
     ['program', query.program],
     ['source', query.source],
+    ['fonte', query.fonte],
+    ['flight_date', query.flight_date],
     ['flight_date_from', query.flight_date_from],
     ['flight_date_to', query.flight_date_to],
+    ['collected_at', query.collected_at],
     ['collected_at_from', query.collected_at_from],
     ['collected_at_to', query.collected_at_to],
     ['include_raw', query.include_raw ? '1' : undefined],

@@ -34,8 +34,13 @@ export type SnapshotListQuery = {
   airline?: string
   program?: string
   source?: string
+  /** Dashboard alias for `source`. */
+  fonte?: string
+  /** Exact civil date. Dashboard `dia`. */
+  flight_date?: string
   flight_date_from?: string
   flight_date_to?: string
+  collected_at?: string
   collected_at_from?: string
   collected_at_to?: string
   include_raw?: boolean

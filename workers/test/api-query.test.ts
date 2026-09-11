@@ -70,6 +70,22 @@ describe('parseSnapshotQuery', () => {
     assert.equal(inverted.error, 'invalid_flight_date_range');
   });
 
+  it('accepts fonte as source and flight_date / collected_at exact filters', () => {
+    const parsed = parse('fonte=smiles_web&flight_date=2026-09-15&collected_at=2026-09-11&dia=2026-09-16');
+    assert.equal(parsed.ok, true);
+    if (!parsed.ok) return;
+    assert.equal(parsed.value.source, 'smiles_web');
+    assert.equal(parsed.value.flightDate, '2026-09-15');
+    assert.equal(parsed.value.collectedAt, '2026-09-11');
+  });
+
+  it('treats fonte=todas as no source filter', () => {
+    const parsed = parse('fonte=todas');
+    assert.equal(parsed.ok, true);
+    if (!parsed.ok) return;
+    assert.equal(parsed.value.source, undefined);
+  });
+
   it('clamps limit to the configured max', () => {
     const parsed = parseSnapshotQuery(new URLSearchParams('limit=9999'));
     assert.equal(parsed.ok, true);
@@ -131,6 +147,16 @@ describe('toPostgrestQuery', () => {
     const params = new URLSearchParams(toPostgrestQuery(parsed.value));
     assert.deepEqual(params.getAll('source'), ['not.like.*dry_run']);
     assert.equal(params.get('origin'), 'eq.PET');
+  });
+
+  it('maps exact flight_date and a collected_at civil day onto eq / day bounds', () => {
+    const parsed = parse('flight_date=2026-09-15&collected_at=2026-09-11&fonte=voegol');
+    assert.equal(parsed.ok, true);
+    if (!parsed.ok) return;
+    const params = new URLSearchParams(toPostgrestQuery(parsed.value));
+    assert.equal(params.get('source'), 'eq.voegol');
+    assert.deepEqual(params.getAll('flight_date'), ['eq.2026-09-15']);
+    assert.deepEqual(params.getAll('collected_at'), ['gte.2026-09-11', 'lt.2026-09-12']);
   });
 
   it('does not add the dry-run filter when source is explicit', () => {
