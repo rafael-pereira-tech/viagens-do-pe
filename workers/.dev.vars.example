@@ -6,6 +6,9 @@
 SUPABASE_URL=
 SUPABASE_SERVICE_ROLE_KEY=
 INGEST_TRIGGER_SECRET=dev-only-trigger-secret
+# Optional Bearer gate for GET /api/v1/snapshots*. Leave empty for CORS-only reads.
+# API_READ_SECRET=dev-only-read-secret
+# CORS_ALLOWED_ORIGINS=http://localhost:4173
 
 # BE-3 Smiles. Dry-run uses bundled PET→CGH JSON (no live login).
 # For live guest search, copy x-api-key from DevTools on

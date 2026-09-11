@@ -3,6 +3,14 @@ export interface Env {
   SUPABASE_SERVICE_ROLE_KEY?: string;
   /** When set, POST /run requires `Authorization: Bearer <secret>`. */
   INGEST_TRIGGER_SECRET?: string;
+  /**
+   * BE-6 dashboard read API. When set, GET /api/v1/snapshots* requires
+   * `Authorization: Bearer <secret>`. Leave unset for CORS-restricted public
+   * reads (service role still never leaves the Worker).
+   */
+  API_READ_SECRET?: string;
+  /** Extra CORS origins, comma-separated. Pages + localhost are always allowed. */
+  CORS_ALLOWED_ORIGINS?: string;
   /** Optional ISO date override (YYYY-MM-DD) for the collection window. */
   FLIGHT_WINDOW_START?: string;
   FLIGHT_WINDOW_END?: string;

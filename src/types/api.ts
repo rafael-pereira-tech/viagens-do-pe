@@ -1,0 +1,87 @@
+/**
+ * BE-6 Worker read-API contract. Keep in sync with `workers/src/api/types.ts`
+ * and `docs/api-price-snapshots.md`.
+ *
+ * Nullability: `miles`, `amount_brl`, and `taxes_brl` may be null (miles-only
+ * or cash-only rows are valid). `currency` is almost always `BRL`.
+ * `source` is the collector id and may be a `*_dry_run` suffix — filter or accept.
+ */
+
+export type ApiPriceSnapshot = {
+  id: string
+  origin: string
+  destination: string
+  airline: string
+  program: string
+  flight_date: string
+  departure_time: string | null
+  miles: number | null
+  amount_brl: number | null
+  taxes_brl: number | null
+  currency: string
+  source: string
+  collected_at: string
+  created_at: string
+  ingest_run_id: string | null
+  raw_payload?: unknown
+}
+
+export type SnapshotGroupBy = 'window' | 'route_day'
+
+export type SnapshotListQuery = {
+  origin?: string
+  destination?: string
+  airline?: string
+  program?: string
+  source?: string
+  flight_date_from?: string
+  flight_date_to?: string
+  collected_at_from?: string
+  collected_at_to?: string
+  include_raw?: boolean
+  exclude_dry_run?: boolean
+  limit?: number
+  offset?: number
+  group_by?: SnapshotGroupBy
+}
+
+export type SnapshotListMeta = {
+  limit: number
+  offset: number
+  total: number | null
+  include_raw: boolean
+  grain?: string
+  fallback?: 'in_memory_distinct'
+}
+
+export type SnapshotListResponse = {
+  data: ApiPriceSnapshot[]
+  meta: SnapshotListMeta
+}
+
+export type SnapshotWindowStats = {
+  min_miles: number | null
+  min_amount_brl: number | null
+  snapshot_count: number
+  latest_collected_at: string | null
+}
+
+export type SnapshotRouteDayStats = SnapshotWindowStats & {
+  origin: string
+  destination: string
+  flight_date: string
+}
+
+export type SnapshotStatsResponse = {
+  data: SnapshotWindowStats | SnapshotRouteDayStats[]
+  meta: {
+    group_by: SnapshotGroupBy
+    snapshot_count: number
+    truncated: boolean
+  }
+}
+
+export type ApiErrorBody = {
+  error: string
+  details?: string
+}

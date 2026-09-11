@@ -2,6 +2,36 @@
 
 Scheduled Cloudflare Worker that walks the PET route matrix for **1 Sep 2026 – 31 Dec 2026** and persists quotes. Smiles / GOL (PET→CGH), TudoAzul / AZUL (PET→VCP, PET→POA), and LATAM Pass / LATAM (PET→GRU) are live HTTP collectors.
 
+## Dashboard read API (BE-6)
+
+Same Worker, service-role proxy. The browser never sees `SUPABASE_SERVICE_ROLE_KEY`.
+
+| Method | Path | Use |
+| --- | --- | --- |
+| `GET` | `/api/v1/health` | Read API liveness |
+| `GET` | `/api/v1/snapshots` | History + filters |
+| `GET` | `/api/v1/snapshots/latest` | Latest per route/day/source |
+| `GET` | `/api/v1/snapshots/stats` | Min miles / min `amount_brl` |
+
+Contract, FE call pattern, and OpenAPI: [`docs/api-price-snapshots.md`](../docs/api-price-snapshots.md). Types: `src/api/types.ts` (Worker) and `../src/types/api.ts` (FE).
+
+```bash
+curl -sS http://localhost:8787/api/v1/health
+
+curl -sS -G 'http://localhost:8787/api/v1/snapshots/latest' \
+  --data-urlencode origin=PET \
+  --data-urlencode destination=CGH \
+  --data-urlencode flight_date_from=2026-09-01 \
+  --data-urlencode flight_date_to=2026-12-31
+
+curl -sS -G 'http://localhost:8787/api/v1/snapshots/stats' \
+  --data-urlencode origin=PET \
+  --data-urlencode destination=CGH \
+  --data-urlencode group_by=window
+```
+
+CORS allowlist: `https://viagens-do-pe.pages.dev`, Pages previews, `localhost` / `127.0.0.1`. Optional `API_READ_SECRET` adds a Bearer gate. `raw_payload` is omitted unless `?include_raw=1` (secret keys still redacted).
+
 ## Timezone
 
 Cloudflare Cron Triggers are **UTC only**. This worker runs four times per day:
@@ -281,6 +311,8 @@ npx wrangler secret put SUPABASE_URL
 npx wrangler secret put SUPABASE_SERVICE_ROLE_KEY
 # optional, required for POST /run:
 npx wrangler secret put INGEST_TRIGGER_SECRET
+# optional dashboard read gate (BE-6):
+npx wrangler secret put API_READ_SECRET
 # BE-3 live Smiles (omit if SMILES_DRY_RUN=1):
 npx wrangler secret put SMILES_API_KEY
 # optional member session:
@@ -293,7 +325,7 @@ npx wrangler secret put LATAM_PASS_LOGIN
 npx wrangler secret put LATAM_PASS_PASSWORD
 ```
 
-Optional env overrides: `FLIGHT_WINDOW_START`, `FLIGHT_WINDOW_END` (YYYY-MM-DD), `SMILES_DRY_RUN`, `SMILES_ENV`, `SMILES_REQUEST_DELAY_MS`, `TUDOAZUL_DRY_RUN`, `TUDOAZUL_REQUEST_DELAY_MS`, `TUDOAZUL_API_HOST`, `LATAM_DRY_RUN`, `LATAM_REQUEST_DELAY_MS`, `LATAM_API_HOST`.
+Optional env overrides: `FLIGHT_WINDOW_START`, `FLIGHT_WINDOW_END` (YYYY-MM-DD), `SMILES_DRY_RUN`, `SMILES_ENV`, `SMILES_REQUEST_DELAY_MS`, `TUDOAZUL_DRY_RUN`, `TUDOAZUL_REQUEST_DELAY_MS`, `TUDOAZUL_API_HOST`, `LATAM_DRY_RUN`, `LATAM_REQUEST_DELAY_MS`, `LATAM_API_HOST`, `CORS_ALLOWED_ORIGINS`.
 
 Without real Supabase secrets the worker still runs collectors and returns a summary; it skips persistence (`persisted: false`). Do not point `SUPABASE_URL` at a dummy hostname — workerd fails hard on DNS errors. Leave the vars empty instead.
 
@@ -314,6 +346,7 @@ Then:
 
 ```bash
 curl http://localhost:8787/health
+curl http://localhost:8787/api/v1/health
 
 # Wrangler 4 local scheduled handler
 curl -X POST "http://localhost:8787/cdn-cgi/local/scheduled?format=json"
