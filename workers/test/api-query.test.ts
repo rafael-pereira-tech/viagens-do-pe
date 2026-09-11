@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
+import { DRY_RUN_SOURCES, LIVE_SOURCES } from '../src/api/types.ts';
 import {
   LIST_DEFAULT_LIMIT,
   LIST_MAX_LIMIT,
@@ -8,6 +9,15 @@ import {
   snapshotSelect,
   toPostgrestQuery,
 } from '../src/api/query.ts';
+
+describe('locked source names', () => {
+  it('pairs smiles_web/voegol, tudoazul/voeazul, latam_pass/latam_web', () => {
+    assert.deepEqual([...LIVE_SOURCES], ['smiles_web', 'voegol', 'tudoazul', 'voeazul', 'latam_pass', 'latam_web']);
+    assert.equal((LIVE_SOURCES as readonly string[]).includes('latamairlines'), false);
+    assert.ok(DRY_RUN_SOURCES.includes('latam_web_dry_run'));
+    assert.ok(DRY_RUN_SOURCES.every((id) => id.endsWith('_dry_run')));
+  });
+});
 
 function parse(raw: string) {
   return parseSnapshotQuery(new URLSearchParams(raw));

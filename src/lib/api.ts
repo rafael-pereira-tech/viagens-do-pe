@@ -1,4 +1,4 @@
-import { API_TOKEN, API_URL } from './config.ts'
+import { API_URL, READ_API_KEY } from './config.ts'
 import { todayIso, type DashboardQuery } from './query.ts'
 import type { ApiPriceSnapshot, SnapshotListQuery, SnapshotListResponse, SnapshotStatsResponse } from '../types/api.ts'
 import type { OfferRow } from '../types/priceSnapshot.ts'
@@ -69,14 +69,20 @@ export function snapshotsUrl(path: string, query: SnapshotListQuery = {}): strin
   return params ? `${base}${path}?${params}` : `${base}${path}`
 }
 
-function headers(init?: HeadersInit): Headers {
+/** Header the FE must send. Stub Entrar/Sair does not authorize reads. */
+export const READ_AUTH_HEADER = 'Authorization'
+
+export function readAuthHeaders(init?: HeadersInit): Headers {
   const next = new Headers(init)
-  if (API_TOKEN) next.set('Authorization', `Bearer ${API_TOKEN}`)
+  if (!READ_API_KEY) {
+    throw new Error('VITE_READ_API_KEY is not set; refusing to call the Worker without a Bearer')
+  }
+  next.set(READ_AUTH_HEADER, `Bearer ${READ_API_KEY}`)
   return next
 }
 
 async function getJson<T>(url: string, init?: RequestInit): Promise<T> {
-  const response = await fetch(url, { ...init, headers: headers(init?.headers) })
+  const response = await fetch(url, { ...init, headers: readAuthHeaders(init?.headers) })
   if (!response.ok) {
     throw new Error(`API ${response.status}`)
   }

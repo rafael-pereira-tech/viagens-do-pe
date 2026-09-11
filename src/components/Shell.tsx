@@ -51,7 +51,13 @@ export function Shell({ children }: { children: ReactNode }) {
             Origem fixa · PET · ida
           </Badge>
           <div className="ml-auto flex items-center gap-2">
-            <Button type="button" variant="outline" size="sm" onClick={() => setSignedIn((v) => !v)}>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => setSignedIn((v) => !v)}
+              title="UI stub only — does not authorize snapshot API access"
+            >
               {signedIn ? 'Sair' : 'Entrar'}
             </Button>
             <Avatar aria-label={signedIn ? 'Conta conectada' : 'Sem sessão'} size="default">

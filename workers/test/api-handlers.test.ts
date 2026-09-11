@@ -40,8 +40,22 @@ function restMock(impl: (path: string) => { status?: number; rows: unknown[]; to
   return { rest, paths };
 }
 
-async function get(path: string, rest: SupabaseRest | null, env: Record<string, string> = {}) {
-  return handleReadApi(new Request(`http://localhost:8787${path}`), env, { rest });
+const READ_KEY = 'dev-only-read-api-key';
+const INGEST_KEY = 'dev-only-trigger-secret';
+
+async function get(
+  path: string,
+  rest: SupabaseRest | null,
+  env: Record<string, string> = {},
+  opts: { auth?: boolean } = {},
+) {
+  const headers: HeadersInit = {};
+  if (opts.auth !== false) headers.Authorization = `Bearer ${env.READ_API_KEY ?? READ_KEY}`;
+  return handleReadApi(new Request(`http://localhost:8787${path}`, { headers }), {
+    READ_API_KEY: READ_KEY,
+    INGEST_TRIGGER_SECRET: INGEST_KEY,
+    ...env,
+  }, { rest });
 }
 
 describe('handleReadApi', () => {
@@ -133,32 +147,40 @@ describe('handleReadApi', () => {
     assert.equal(body.data.min_amount_brl, 529.9);
   });
 
-  it('requires a Bearer token when API_READ_SECRET is set', async () => {
+  it('requires Authorization: Bearer <READ_API_KEY> and rejects the ingest secret', async () => {
     const { rest } = restMock(() => ({ rows: [] }));
-    const denied = await handleReadApi(new Request('http://localhost:8787/api/v1/snapshots'), {
-      API_READ_SECRET: 'read-secret',
-    }, { rest });
-    assert.equal(denied.status, 401);
+    const missing = await get('/api/v1/snapshots', rest, {}, { auth: false });
+    assert.equal(missing.status, 401);
 
-    const ok = await handleReadApi(
+    const ingest = await handleReadApi(
       new Request('http://localhost:8787/api/v1/snapshots', {
-        headers: { Authorization: 'Bearer read-secret' },
+        headers: { Authorization: `Bearer ${INGEST_KEY}` },
       }),
-      { API_READ_SECRET: 'read-secret' },
+      { READ_API_KEY: READ_KEY, INGEST_TRIGGER_SECRET: INGEST_KEY },
       { rest },
     );
+    assert.equal(ingest.status, 401);
+
+    const ok = await get('/api/v1/snapshots', rest);
     assert.equal(ok.status, 200);
   });
 
+  it('does not serve snapshots when READ_API_KEY is unset (FE login is not enough)', async () => {
+    const { rest } = restMock(() => ({ rows: [{ origin: 'PET' }] }));
+    const response = await handleReadApi(new Request('http://localhost:8787/api/v1/snapshots'), {}, { rest });
+    assert.equal(response.status, 503);
+    assert.equal(((await response.json()) as { error: string }).error, 'read_api_key_not_configured');
+  });
+
   it('validates filters before requiring Supabase', async () => {
-    const response = await handleReadApi(new Request('http://localhost:8787/api/v1/snapshots?origin=PE'), {}, { rest: null });
+    const response = await get('/api/v1/snapshots?origin=PE', null);
     assert.equal(response.status, 400);
     const body = (await response.json()) as { error: string };
     assert.equal(body.error, 'invalid_origin');
   });
 
   it('returns 503 when Supabase is not configured', async () => {
-    const response = await handleReadApi(new Request('http://localhost:8787/api/v1/snapshots'), {}, { rest: null });
+    const response = await get('/api/v1/snapshots', null);
     assert.equal(response.status, 503);
     assert.deepEqual(await response.json(), { error: 'supabase_not_configured' });
   });

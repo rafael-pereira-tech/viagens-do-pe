@@ -41,10 +41,10 @@ npm run preview
 
 ## Variáveis de ambiente
 
-| Variável         | Obrigatória | Uso                                                                                                                                                                                                                 |
-| ---------------- | ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `VITE_API_URL`   | Não         | Base URL do Workers read API. Vazia = stubs locais. Padrão no `.env.example`: `https://viagens-do-pe-ingest.rafaellimapereira.workers.dev`. Contrato: [`docs/api-price-snapshots.md`](docs/api-price-snapshots.md). |
-| `VITE_API_TOKEN` | Não         | Só se o Worker tiver `API_READ_SECRET`. **Nunca** coloque `SUPABASE_SERVICE_ROLE_KEY` aqui.                                                                                                                         |
+| Variável            | Obrigatória                       | Uso                                                                                                                                                                                                                 |
+| ------------------- | --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `VITE_API_URL`      | Não                               | Base URL do Workers read API. Vazia = stubs locais. Padrão no `.env.example`: `https://viagens-do-pe-ingest.rafaellimapereira.workers.dev`. Contrato: [`docs/api-price-snapshots.md`](docs/api-price-snapshots.md). |
+| `VITE_READ_API_KEY` | Sim, se `VITE_API_URL` estiver setado | Bearer `Authorization` para o Worker (`READ_API_KEY`). **Nunca** `SUPABASE_*`. Entrar/Sair não autoriza.                                                                                                         |
 
 ### Local
 
@@ -52,10 +52,11 @@ npm run preview
 cp .env.example .env
 # VITE_API_URL já aponta para o Worker de ingest. Edite se for usar wrangler dev:
 # VITE_API_URL=http://localhost:8787
+# VITE_READ_API_KEY=<mesmo valor do secret READ_API_KEY do Worker>
 npm run dev
 ```
 
-O Vite só expõe variáveis com prefixo `VITE_`. Reinicie `npm run dev` depois de mudar o `.env`. Sem `VITE_API_URL`, o Dashboard usa `src/data/placeholders.ts`. O client está em `src/lib/api.ts`. Query extra: `?dry=1` inclui fontes `*_dry_run` (o padrão é `exclude_dry_run=1`).
+O Vite só expõe variáveis com prefixo `VITE_`. Reinicie `npm run dev` depois de mudar o `.env`. Sem `VITE_API_URL`, o Dashboard usa `src/data/placeholders.ts`. Com URL setada, `VITE_READ_API_KEY` é obrigatório (Bearer). O client está em `src/lib/api.ts`. Query extra: `?dry=1` inclui fontes `*_dry_run` (o padrão é `exclude_dry_run=1`).
 
 **Nunca** coloque `SUPABASE_SERVICE_ROLE_KEY` nem qualquer `VITE_SUPABASE*` no frontend — Security grepa o bundle.
 
@@ -65,7 +66,7 @@ O Vite só expõe variáveis com prefixo `VITE_`. Reinicie `npm run dev` depois 
 
 1. Pages → projeto → **Settings** → **Environment variables**.
 2. Adicione `VITE_API_URL=https://viagens-do-pe-ingest.rafaellimapereira.workers.dev` (Production e Preview).
-3. `VITE_API_TOKEN` só se o Worker tiver `API_READ_SECRET`.
+3. Adicione `VITE_READ_API_KEY` com o mesmo valor do secret `READ_API_KEY` do Worker.
 4. **Redeploy** o deploy mais recente (ou um push novo) — mudar o env sem rebuild não atualiza o JS.
 
 ## D-2 + shadcn (FE-1.1)
