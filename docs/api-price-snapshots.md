@@ -35,8 +35,8 @@ All list/latest/stats endpoints accept:
 | `collected_at` | `eq` or day window | ISO timestamp → `eq`; `YYYY-MM-DD` → that UTC day |
 | `collected_at_from` / `collected_at_to` | `gte` / `lte` | ISO-8601 or `YYYY-MM-DD` |
 | `include_raw` | select | `1` to include redacted `raw_payload` (omitted by default) |
-| `exclude_dry_run` | `source=not.like.*dry_run` | Drop `*_dry_run` fixture sources |
-| `limit` / `offset` | page | List default **100** (max 500). Latest default 500 (max 2000) |
+| `exclude_dry_run` | see below | Drop collector **fixture** rows. Does **not** change cash-vs-miles KPI rules |
+| `limit` / `offset` | page | List default **100** (max 500). Latest default 500 (max 2000). **Ignored on `/stats`** |
 | `group_by` | — | Stats only: `window` (default) or `route_day` |
 
 Aliases: `flight_date_gte` / `flight_date_lte`, `collected_at_gte` / `collected_at_lte`.
@@ -129,7 +129,46 @@ TypeScript copies:
 applied yet, latest falls back to in-memory distinct and sets
 `meta.fallback: "in_memory_distinct"`. Empty page: `"data": []` with `total: 0`.
 
+### `exclude_dry_run`
+
+Boolean flag (`1` / `true` / `yes`). When set, the API omits rows whose
+`source` looks like a collector fixture (`*_dry_run` or contains `dry_run`).
+
+Those rows are written when ingest runs with `SMILES_DRY_RUN=1`,
+`TUDOAZUL_DRY_RUN=1`, or `LATAM_DRY_RUN=1`. Live ticks persist unsuffixed
+sources (`smiles_web`, `voegol`, `tudoazul`, `voeazul`, `latam_pass`,
+`latam_web`).
+
+Applies to **list, latest, and stats** (the SQL `COUNT` / `MIN` set).
+
+It does **not** mean “ignore bad cash on miles rows”. Award sources are
+excluded from `min_amount_brl` even when dry-run rows are kept.
+
+If `source` / `fonte` is also set, the explicit equality wins and the dry-run
+exclusion is **not** added — so `source=voegol_dry_run&exclude_dry_run=1`
+still returns that fixture source.
+
 ### Stats
+
+`GET /api/v1/snapshots/stats` aggregates **in SQL** over every row that
+matches the filters (`public.price_snapshot_stats`). It does **not** sample
+a 1000-row page. `meta.truncated` is `false` on that path.
+
+`limit` / `offset` are ignored. `snapshot_count` is `COUNT(*)` of the
+filtered set (award + cash + any other matching source).
+
+| Field | How it is computed |
+| --- | --- |
+| `min_miles` | `MIN(miles)` on **award / program** sources only: `smiles_web`, `tudoazul`, `latam_pass` (and `_dry_run` variants unless excluded) |
+| `min_amount_brl` | `MIN(amount_brl)` on **cash companions** only: `voegol`, `voeazul`, `latam_web`, `latam` (and `_dry_run` variants unless excluded) |
+| `snapshot_count` | `COUNT(*)` of all matching rows |
+| `latest_collected_at` | `MAX(collected_at)` of all matching rows |
+
+Award rows must not drive cash KPIs. Pre-hotfix `smiles_web` (and other
+program) rows may still have a copay stored in `amount_brl`; those values
+are ignored for `min_amount_brl`. Cash rows do not drive `min_miles`.
+
+Null mins mean no numeric quote of that kind in the window (not a zero fare).
 
 `GET /api/v1/snapshots/stats` (`group_by=window`, default):
 
@@ -164,7 +203,11 @@ applied yet, latest falls back to in-memory distinct and sets
 }
 ```
 
-Null mins mean no numeric quotes in the window (not a zero fare).
+If the RPC is not applied yet, the Worker falls back to an in-memory sample
+(`meta.fallback: "in_memory_sample"`) with the same cash-vs-miles rules.
+`truncated` is then `true` when `Content-Range` total exceeds the page (or
+the page hits the fetch cap). Do not treat `snapshot_count=1000` +
+`truncated:false` as a complete set.
 
 ## Sources
 
@@ -180,8 +223,11 @@ Null mins mean no numeric quotes in the window (not a zero fare).
 Dry-run ingest may persist the same ids **or** a `*_dry_run` suffix (e.g.
 `smiles_web_dry_run`). The FE should either:
 
-- pass `exclude_dry_run=1`, or
+- pass `exclude_dry_run=1` (drops fixture sources from list/latest/stats), or
 - accept fixture rows and label them.
+
+`exclude_dry_run` is **not** a cash-vs-miles switch. Program sources never
+count toward `min_amount_brl`.
 
 ## Auth and secrets
 
@@ -265,8 +311,13 @@ npx wrangler secret put SUPABASE_SERVICE_ROLE_KEY
 npx wrangler secret put API_READ_SECRET
 ```
 
-Apply `supabase/migrations/20260911192000_price_snapshots_latest.sql` so
-`/latest` can use the view (otherwise the Worker distincts in memory).
+Apply:
+
+- `supabase/migrations/20260911192000_price_snapshots_latest.sql` so `/latest`
+  can use the view (otherwise the Worker distincts in memory)
+- `supabase/migrations/20260911193000_price_snapshot_stats.sql` so `/stats`
+  aggregates in SQL (otherwise the Worker samples rows and may set
+  `truncated: true`)
 
 ## Example curl
 
@@ -282,10 +333,11 @@ curl -sS -G 'https://viagens-do-pe-ingest.<account>.workers.dev/api/v1/snapshots
   --data-urlencode flight_date_to=2026-12-31 \
   --data-urlencode exclude_dry_run=1
 
-# KPI mins over the same window
+# KPI mins over the same window (SQL COUNT/MIN; cash KPIs ignore smiles_web)
 curl -sS -G 'https://viagens-do-pe-ingest.<account>.workers.dev/api/v1/snapshots/stats' \
   --data-urlencode origin=PET \
   --data-urlencode destination=CGH \
+  --data-urlencode exclude_dry_run=1 \
   --data-urlencode group_by=window
 
 # Local (wrangler dev). Add -H 'Authorization: Bearer …' if API_READ_SECRET is set.
@@ -375,10 +427,11 @@ paths:
           description: Latest grain rows
   /api/v1/snapshots/stats:
     get:
-      summary: Min miles and min amount_brl
+      summary: SQL min miles (award sources) and min amount_brl (cash companions)
       parameters:
         - $ref: "#/components/parameters/origin"
         - $ref: "#/components/parameters/destination"
+        - $ref: "#/components/parameters/exclude_dry_run"
         - name: group_by
           in: query
           schema:
@@ -386,7 +439,7 @@ paths:
             enum: [window, route_day]
       responses:
         "200":
-          description: Aggregation
+          description: Aggregation over the full filtered set (`truncated: false`)
 components:
   parameters:
     origin: { name: origin, in: query, schema: { type: string, minLength: 3, maxLength: 3 } }
@@ -402,7 +455,13 @@ components:
     collected_at_from: { name: collected_at_from, in: query, schema: { type: string } }
     collected_at_to: { name: collected_at_to, in: query, schema: { type: string } }
     include_raw: { name: include_raw, in: query, schema: { type: string, enum: ["1", "true"] } }
-    exclude_dry_run: { name: exclude_dry_run, in: query, schema: { type: string, enum: ["1", "true"] } }
+    exclude_dry_run:
+      {
+        name: exclude_dry_run,
+        in: query,
+        description: "Drop *_dry_run fixture sources from list/latest/stats. Not a cash-vs-miles switch. Ignored as an extra filter when source/fonte is set.",
+        schema: { type: string, enum: ["1", "true"] },
+      }
     limit: { name: limit, in: query, schema: { type: integer, minimum: 1 } }
     offset: { name: offset, in: query, schema: { type: integer, minimum: 0 } }
 ```

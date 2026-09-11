@@ -11,9 +11,9 @@ Same Worker, service-role proxy. The browser never sees `SUPABASE_SERVICE_ROLE_K
 | `GET` | `/api/v1/health` | Read API liveness |
 | `GET` | `/api/v1/snapshots` | History + filters |
 | `GET` | `/api/v1/snapshots/latest` | Latest per route/day/source |
-| `GET` | `/api/v1/snapshots/stats` | Min miles / min `amount_brl` |
+| `GET` | `/api/v1/snapshots/stats` | SQL min miles (award) / min `amount_brl` (cash only) |
 
-Contract, FE call pattern, and OpenAPI: [`docs/api-price-snapshots.md`](../docs/api-price-snapshots.md). Types: `src/api/types.ts` (Worker) and `../src/types/api.ts` (FE).
+Contract, FE call pattern, and OpenAPI: [`docs/api-price-snapshots.md`](../docs/api-price-snapshots.md). Types: `src/api/types.ts` (Worker) and `../src/types/api.ts` (FE). Apply `supabase/migrations/20260911193000_price_snapshot_stats.sql` so `/stats` runs `COUNT`/`MIN`/`MAX` in SQL (`min_amount_brl` is cash companions only). `exclude_dry_run=1` drops `*_dry_run` fixture sources; it is not a cash-vs-miles switch.
 
 ```bash
 curl -sS http://localhost:8787/api/v1/health
@@ -27,6 +27,7 @@ curl -sS -G 'http://localhost:8787/api/v1/snapshots/latest' \
 curl -sS -G 'http://localhost:8787/api/v1/snapshots/stats' \
   --data-urlencode origin=PET \
   --data-urlencode destination=CGH \
+  --data-urlencode exclude_dry_run=1 \
   --data-urlencode group_by=window
 ```
 

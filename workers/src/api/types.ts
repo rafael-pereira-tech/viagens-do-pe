@@ -4,8 +4,13 @@
  *
  * Nullability: `miles`, `amount_brl`, and `taxes_brl` may be null (miles-only
  * or cash-only rows are valid). `currency` is almost always `BRL`.
- * `source` is the collector id and may be a `*_dry_run` suffix — the FE should
- * filter those out or accept them as fixture data.
+ * `source` is the collector id and may be a `*_dry_run` suffix — pass
+ * `exclude_dry_run=1` to drop fixture rows, or accept them as labeled data.
+ *
+ * Stats KPIs (`GET /snapshots/stats`): `min_miles` only from award sources
+ * (`smiles_web`, `tudoazul`, `latam_pass` + `_dry_run`); `min_amount_brl`
+ * only from cash companions (`voegol`, `voeazul`, `latam_web`, `latam` +
+ * `_dry_run`). Aggregated in SQL over the full filtered set.
  */
 
 export const SNAPSHOT_COLUMNS = [
@@ -64,6 +69,12 @@ export interface SnapshotQuery {
   collectedAtFrom?: string;
   collectedAtTo?: string;
   includeRaw: boolean;
+  /**
+   * When true, omit collector fixture rows (`source` contains `dry_run`).
+   * Those are written by `SMILES_DRY_RUN` / `TUDOAZUL_DRY_RUN` / `LATAM_DRY_RUN`.
+   * Live ingest uses unsuffixed sources. An explicit `source` / `fonte` wins
+   * and this flag is not applied as an extra filter.
+   */
   excludeDryRun: boolean;
   limit: number;
   offset: number;
@@ -102,7 +113,9 @@ export interface SnapshotStatsResponse {
   meta: {
     group_by: SnapshotGroupBy;
     snapshot_count: number;
+    /** Always false on the SQL path. True only if the in-memory sample is short. */
     truncated: boolean;
+    fallback?: 'in_memory_sample';
   };
 }
 

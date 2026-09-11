@@ -4,6 +4,7 @@ export const LIST_DEFAULT_LIMIT = 100;
 export const LIST_MAX_LIMIT = 500;
 export const LATEST_DEFAULT_LIMIT = 500;
 export const LATEST_MAX_LIMIT = 2000;
+/** Fallback sample size only. `/stats` prefers SQL `price_snapshot_stats` (no cap). */
 export const STATS_FETCH_CAP = 10_000;
 export const MAX_OFFSET = 100_000;
 
@@ -186,9 +187,12 @@ export function snapshotSelect(includeRaw: boolean): string {
 
 export interface PostgrestQueryOptions {
   select?: string;
-  order?: string;
+  /** Pass `null` to omit `order` (needed for unpaged aggregate selects). */
+  order?: string | null;
   limit?: number;
   offset?: number;
+  /** Skip `limit` / `offset` — used for SQL aggregates, not list pages. */
+  unpaged?: boolean;
 }
 
 /**
@@ -221,10 +225,64 @@ export function toPostgrestQuery(query: SnapshotQuery, options: PostgrestQueryOp
   if (query.collectedAtFrom) params.append('collected_at', `gte.${query.collectedAtFrom}`);
   if (query.collectedAtTo) params.append('collected_at', `lte.${query.collectedAtTo}`);
 
-  params.set('order', options.order ?? 'collected_at.desc,id.desc');
-  params.set('limit', String(options.limit ?? query.limit));
-  params.set('offset', String(options.offset ?? query.offset));
+  if (options.order !== null) {
+    params.set('order', options.order ?? 'collected_at.desc,id.desc');
+  }
+  if (!options.unpaged) {
+    params.set('limit', String(options.limit ?? query.limit));
+    params.set('offset', String(options.offset ?? query.offset));
+  }
   return params.toString();
+}
+
+export interface StatsRpcArgs {
+  p_origin?: string;
+  p_destination?: string;
+  p_airline?: string;
+  p_program?: string;
+  p_source?: string;
+  p_flight_date?: string;
+  p_flight_date_from?: string;
+  p_flight_date_to?: string;
+  p_collected_at_eq?: string;
+  p_collected_at_from?: string;
+  p_collected_at_to?: string;
+  p_collected_at_before?: string;
+  p_exclude_dry_run: boolean;
+  p_group_by: SnapshotQuery['groupBy'];
+}
+
+/**
+ * Map a validated SnapshotQuery onto `public.price_snapshot_stats` arguments.
+ * Civil `collected_at=YYYY-MM-DD` becomes `[from, before)` in UTC, matching
+ * `toPostgrestQuery`. `exclude_dry_run` is still sent when `source` is set —
+ * the RPC ignores it in that case (explicit source wins).
+ */
+export function toStatsRpcArgs(query: SnapshotQuery): StatsRpcArgs {
+  const args: StatsRpcArgs = {
+    p_exclude_dry_run: query.excludeDryRun,
+    p_group_by: query.groupBy,
+  };
+  if (query.origin) args.p_origin = query.origin;
+  if (query.destination) args.p_destination = query.destination;
+  if (query.airline) args.p_airline = query.airline;
+  if (query.program) args.p_program = query.program;
+  if (query.source) args.p_source = query.source;
+  if (query.flightDate) args.p_flight_date = query.flightDate;
+  if (query.flightDateFrom) args.p_flight_date_from = query.flightDateFrom;
+  if (query.flightDateTo) args.p_flight_date_to = query.flightDateTo;
+
+  if (query.collectedAt) {
+    if (/^\d{4}-\d{2}-\d{2}$/.test(query.collectedAt)) {
+      args.p_collected_at_from = query.collectedAt;
+      args.p_collected_at_before = nextCivilDate(query.collectedAt);
+    } else {
+      args.p_collected_at_eq = query.collectedAt;
+    }
+  }
+  if (query.collectedAtFrom) args.p_collected_at_from = query.collectedAtFrom;
+  if (query.collectedAtTo) args.p_collected_at_to = query.collectedAtTo;
+  return args;
 }
 
 export function parseContentRangeTotal(header: string | null): number | null {
