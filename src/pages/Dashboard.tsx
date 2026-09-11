@@ -67,7 +67,7 @@ export function Dashboard() {
   const isLoading = applied.ui === 'loading' || (live && remote.isLoading)
   const forcedError = applied.ui === 'error' ? 'Erro simulado via ?ui=error — verifique o retry.' : null
   const forcedEmpty = applied.ui === 'empty'
-  const effectiveError = forcedError ?? CONFIG_ERROR ?? remote.error
+  const effectiveError = forcedError ?? (forcedEmpty ? null : (CONFIG_ERROR ?? remote.error))
   const effectiveIsLoading = forcedEmpty ? false : isLoading
   const effectiveRows = forcedEmpty ? [] : rows
   const effectivePoints = forcedEmpty ? [] : chart

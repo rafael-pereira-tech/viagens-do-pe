@@ -49,9 +49,11 @@ test.describe('/playground - estados', () => {
     await page.getByRole('navigation').getByRole('link', { name: 'Playground' }).click()
     await expect(page).toHaveURL(/\/playground/)
     await page.getByRole('navigation').getByRole('link', { name: 'Dashboard' }).click()
-    await expect(page).toHaveURL(/\/playground/, { timeout: 2000 }).catch(async () => {
-      // Dashboard may add ?to=GRU&live=1, so just check pathname
-      await expect(page).toHaveURL(/\//)
-    })
+    await expect(page)
+      .toHaveURL(/\/playground/, { timeout: 2000 })
+      .catch(async () => {
+        // Dashboard may add ?to=GRU&live=1, so just check pathname
+        await expect(page).toHaveURL(/\//)
+      })
   })
 })
