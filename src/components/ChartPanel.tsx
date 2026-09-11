@@ -1,4 +1,4 @@
-import { Card, CardAction, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
@@ -27,17 +27,17 @@ export function ChartPanel({ points, mode, isLoading, selectedDate, destination,
   return (
     <Card size="sm" aria-label="Gráfico de ofertas futuras">
       <CardHeader>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <CardTitle className="cursor-help text-sm font-semibold">
-              Ofertas futuras por data (PET → {destination})
-            </CardTitle>
-          </TooltipTrigger>
-          <TooltipContent>
-            Barras agrupadas pelas menores milhas e menor cash do dia. Clique numa data para filtrar a tabela.
-          </TooltipContent>
-        </Tooltip>
-        <CardAction className="max-sm:col-span-2 max-sm:justify-self-start">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <CardTitle className="cursor-help text-sm font-semibold">
+                Ofertas futuras por data (PET → {destination})
+              </CardTitle>
+            </TooltipTrigger>
+            <TooltipContent>
+              Barras agrupadas pelas menores milhas e menor cash do dia. Clique numa data para filtrar a tabela.
+            </TooltipContent>
+          </Tooltip>
           <ToggleGroup
             type="single"
             variant="outline"
@@ -55,7 +55,7 @@ export function ChartPanel({ points, mode, isLoading, selectedDate, destination,
               </ToggleGroupItem>
             ))}
           </ToggleGroup>
-        </CardAction>
+        </div>
       </CardHeader>
       <CardContent>
         {isLoading ? (
