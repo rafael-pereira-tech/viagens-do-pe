@@ -2,7 +2,6 @@ import type { CollectParams } from '../types';
 import type { Env } from '../../env';
 import { isLiveEnabled, smilesEnvName } from './auth';
 import {
-  BROWSER_UA,
   DEFAULT_DELAY_MS,
   MAX_RETRIES,
   SMILES_ORIGIN,
@@ -10,6 +9,7 @@ import {
   SMILES_SEARCH_HOSTS,
   SMILES_SEARCH_PATH,
 } from './constants';
+import { applyBrowserClientHeaders, classifySearchHttpError } from './headers';
 import { isRetryableStatus, parseRetryAfterMs, SequentialLimiter, waitMs } from './http';
 import type { SmilesSearchResponse, SmilesSession } from './types';
 
@@ -40,11 +40,9 @@ export function requestDelayMs(env: Env): number {
 
 function searchHeaders(env: Env, session: SmilesSession): Headers {
   const headers = new Headers();
-  headers.set('Accept', 'application/json, text/plain, */*');
-  headers.set('Accept-Language', 'pt-BR,pt;q=0.9,en;q=0.8');
+  applyBrowserClientHeaders(headers);
   headers.set('Origin', SMILES_ORIGIN);
   headers.set('Referer', SMILES_REFERER);
-  headers.set('User-Agent', BROWSER_UA);
   headers.set('Channel', 'WEB');
   headers.set('Region', 'BRASIL');
   headers.set('Language', 'pt-BR');
@@ -61,6 +59,7 @@ function searchUrl(env: Env, params: CollectParams, session: SmilesSession): str
   url.searchParams.set('originAirportCode', params.origin);
   url.searchParams.set('destinationAirportCode', params.destination);
   url.searchParams.set('departureDate', params.flightDate);
+  // Empty memberNumber = guest. Club pricing needs a real 9-digit Smiles number.
   url.searchParams.set('memberNumber', session.memberNumber ?? '');
   url.searchParams.set('adults', '1');
   url.searchParams.set('children', '0');
@@ -69,24 +68,17 @@ function searchUrl(env: Env, params: CollectParams, session: SmilesSession): str
   return url.toString();
 }
 
-function classifyHttpError(status: number, body: string): Extract<SearchHttpResult, { ok: false }> {
-  const snippet = body.slice(0, 240);
-  if (status === 401 || status === 403) {
-    return { ok: false, status, error: `Smiles search ${status}: ${snippet}`, kind: 'auth_failed' };
-  }
-  return { ok: false, status, error: `Smiles search ${status}: ${snippet}`, kind: 'scrape_failed' };
-}
-
 export function createSmilesClient(
   env: Env,
   deps: {
     fetch: typeof fetch;
     sleep?: (ms: number) => Promise<void>;
     now?: () => number;
+    limiter?: SequentialLimiter;
   },
 ): SmilesClient {
   const sleep = deps.sleep ?? waitMs;
-  const limiter = new SequentialLimiter(requestDelayMs(env), sleep, deps.now ?? Date.now);
+  const limiter = deps.limiter ?? new SequentialLimiter(requestDelayMs(env), sleep, deps.now ?? Date.now);
 
   return {
     async search(request) {
@@ -95,7 +87,7 @@ export function createSmilesClient(
           ok: false,
           status: 0,
           error:
-            'Smiles collector is not configured (set SMILES_API_KEY or SMILES_COOKIE, or SMILES_DRY_RUN=1)',
+            'Smiles collector is not configured (set SMILES_API_KEY or SMILES_MEMBER_NUMBER + SMILES_PASSWORD, or SMILES_DRY_RUN=1)',
           kind: 'auth_failed',
         };
       }
@@ -137,7 +129,7 @@ export function createSmilesClient(
           }
         }
 
-        lastError = classifyHttpError(response.status, text);
+        lastError = classifySearchHttpError('Smiles search', response.status, text);
         if (lastError.kind === 'auth_failed') return lastError;
         if (!isRetryableStatus(response.status) || attempt >= MAX_RETRIES) return lastError;
         const backoff = parseRetryAfterMs(response.headers.get('retry-after'), 500 * 2 ** (attempt - 1));

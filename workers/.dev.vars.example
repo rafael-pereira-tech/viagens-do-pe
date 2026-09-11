@@ -7,14 +7,15 @@ SUPABASE_URL=
 SUPABASE_SERVICE_ROLE_KEY=
 INGEST_TRIGGER_SECRET=dev-only-trigger-secret
 
-# BE-3 Smiles. Dry-run uses bundled PET→CGH JSON (no live login).
-# For live guest search, copy x-api-key from DevTools on
-# api-air-flightsearch-blue.smiles.com.br/v1/airlines/search.
+# BE-3 Smiles / GOL. Dry-run uses bundled PET→CGH JSON (no live login).
+# Live guest miles: copy x-api-key from DevTools on
+# api-air-flightsearch-green.smiles.com.br/v1/airlines/search
 SMILES_DRY_RUN=1
 SMILES_API_KEY=
+# Unified GOL+Smiles login (placeholders only — never commit real values):
+# SMILES_MEMBER_NUMBER=         # 9-digit Smiles number; empty = guest (no real SMILES_CLUB)
+# SMILES_PASSWORD=              # 4-digit password
 # SMILES_COOKIE=
-# SMILES_MEMBER_NUMBER=
-# SMILES_USER=
-# SMILES_PASS=
+# SMILES_ENV=green
 # SMILES_REQUEST_DELAY_MS=400
-
+# VOEGOL_DISABLED=1             # skip VoeGol full-cash companion

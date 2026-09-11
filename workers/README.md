@@ -44,7 +44,16 @@ collect({ origin, destination, airline, program, flightDate }): Promise<CollectR
 
 ## Smiles / GOL (BE-3)
 
-Collector id (`source`): **`smiles_web`**. Program stays `smiles`. We talk to the same JSON search the Smiles website uses, not HTML scraping of `www.smiles.com.br` (that host's robots.txt disallows `/*?*`).
+One `collect()` job, **two sources**. `program` stays `smiles`. Airline is GOL. Partner SOAP RedeemMiles is B2B redeem, not consumer search — ignored.
+
+| Quote | `source` | `amount_brl` | `miles` | `taxes_brl` |
+| --- | --- | --- | --- | --- |
+| Award / Smiles+Money | `smiles_web` | **always `null`** | from Smiles `miles` | from `costTax` |
+| Full cash BRL | `voegol` | VoeGol `offers[].total.amount` | `null` | `null` unless present |
+
+**Critical: Smiles `money` is Smiles+Money copay, not full cash.** It is stored as `raw_payload.copay_brl` / `raw_payload.smiles_money`. It is **never** written to `amount_brl`.
+
+UI (miles): `https://www.smiles.com.br/passagens-aereas?from=PET&to=CGH&departureDate=YYYY-MM-DD&numAdults=1&numChildren=0&numInfants=0&cabin=ALL`
 
 ```
 GET {SMILES_SEARCH_HOST}/v1/airlines/search
@@ -53,11 +62,19 @@ GET {SMILES_SEARCH_HOST}/v1/airlines/search
   &forceCongener=false
 ```
 
-Default host is `https://api-air-flightsearch-blue.smiles.com.br` (`SMILES_ENV=green` switches to the green replica). One sequential request per flight date, default **400ms** gap (`SMILES_REQUEST_DELAY_MS`), exponential backoff on 429/502/503/504 (max 3 tries). Tue/Thu/Sat are scheduler preferences only — the collector does **not** hard-fail other dates.
+Default host is **green** (`https://api-air-flightsearch-green.smiles.com.br`). `SMILES_ENV=blue` switches replica. Parser accepts native `fareList[]` (`SMILES` / `SMILES_CLUB`) and extractor `fareOptions[]` (`STANDARD` / `SMILES_CLUB`). Filter `airline_code=G3`. Club fares only when `memberNumber` is set — **guest will not get real SMILES_CLUB**.
 
-Each GOL (G3) flight emits public **SMILES** (miles) and **SMILES_MONEY** (miles+BRL copay) rows. Club fares are skipped unless a member session is present (`SMILES_COOKIE` / `SMILES_ACCESS_TOKEN` / `SMILES_MEMBER_NUMBER` or `SMILES_INCLUDE_CLUB=1`). Partner airlines in the same payload are dropped. Taxes come from `fare.g3.costTax` or `airlineTax` when present (`null` means unknown). **Missing miles or cash is `null`, never `0`.** A payload `money: 0` on a miles-only fare is treated as no cash quote.
+UI (cash): `https://www.voegol.com.br/itineraries?from=PET&to=CGH&departureDate=YYYY-MM-DD&numAdults=1`
 
-Live credentials are env secrets only. Until Pereira sends them privately to PM, `SMILES_DRY_RUN=1` (bundled PET→CGH fixtures) is the accepted path.
+```
+POST https://b2c-api.voegol.com.br/api/sabre-default/flights?Flow=Issue&context=B2C
+```
+
+Cash rows use `offers[].total.amount` when `currency=BRL`. Missing fare → no row (`null` / empty), **never price 0**.
+
+Rate / WAF: no official RPM. Naive clients have received **HTTP 406** since ~07/2025 (bot/Accept filters). Headers use a real-browser Accept set. Sequential 400ms gap (`SMILES_REQUEST_DELAY_MS`), no burst, exponential backoff on 429/502/503/504 (max 3). 3–4 ticks/day × many dates is high volume — the shared limiter batches Smiles then VoeGol. Tue/Thu/Sat are scheduler preferences only.
+
+Live credentials are env secrets only. Until Pereira sends them privately to PM, `SMILES_DRY_RUN=1` (bundled PET→CGH fixtures) is the accepted path. CI does not live-login.
 
 ### Env / secrets
 
@@ -65,19 +82,21 @@ Do not commit credentials. Local: `workers/.dev.vars`. Production: `npx wrangler
 
 | Variable | Required for live | Purpose |
 | --- | --- | --- |
-| `SMILES_API_KEY` | Yes (guest search) | Public SPA `x-api-key` sent to `v1/airlines/search`. Copy from DevTools on smiles.com.br (it is not a user password). |
-| `SMILES_COOKIE` | No | Browser `Cookie` header for a logged-in session (practical member path). |
+| `SMILES_API_KEY` | Yes (guest miles) | Public SPA `x-api-key` on `v1/airlines/search`. Not a user password. |
+| `SMILES_MEMBER_NUMBER` | Club pricing | 9-digit Smiles number (`memberNumber` query). Empty = guest. |
+| `SMILES_PASSWORD` | Club login | 4-digit unified GOL+Smiles password. Best-effort `POST /oauth/token`; often blocked by captcha/WAF — prefer `SMILES_COOKIE`. |
+| `SMILES_COOKIE` | No | Browser `Cookie` for a logged-in session. |
 | `SMILES_ACCESS_TOKEN` | No | Bearer token if you already have one. |
-| `SMILES_MEMBER_NUMBER` | No | `memberNumber` query param (club pricing). |
-| `SMILES_USER` / `SMILES_PASS` | No | Best-effort `POST /oauth/token` (Auth0 password-realm). Usually blocked by captcha/WAF — prefer cookies. |
+| `SMILES_USER` / `SMILES_PASS` | No | Deprecated aliases of member number / password. |
 | `SMILES_AUTH_CLIENT_ID` / `SMILES_AUTH_AUDIENCE` / `SMILES_AUTH_REALM` | No | Overrides for that login POST. |
-| `SMILES_DRY_RUN` | CI / local without Smiles | `1` parses bundled PET→CGH JSON fixtures (no network). Accepted until live credentials are provided privately. |
-| `SMILES_LIVE` | No | Set `1` to force live mode if you only have cookies/token. |
-| `SMILES_ENV` | No | `blue` (default) or `green`. |
+| `SMILES_DRY_RUN` | CI / local without Smiles | `1` parses bundled PET→CGH JSON (miles + VoeGol cash fixtures, no network). |
+| `SMILES_LIVE` | No | `1` to force live mode if you only have cookies/token. |
+| `SMILES_ENV` | No | `green` (default) or `blue`. |
 | `SMILES_SEARCH_HOST` / `SMILES_LOGIN_HOST` | No | Full origin overrides. |
-| `SMILES_FARE_TYPES` | No | Comma list, default `SMILES,SMILES_MONEY`. |
-| `SMILES_INCLUDE_CLUB` | No | `1` to keep club fares without a member session. |
-| `SMILES_REQUEST_DELAY_MS` | No | Default `400`. |
+| `SMILES_FARE_TYPES` | No | Comma list, default `SMILES,STANDARD,SMILES_MONEY`. |
+| `SMILES_INCLUDE_CLUB` | No | `1` to keep club fares without a member session (still not real Club inventory). |
+| `SMILES_REQUEST_DELAY_MS` | No | Default `400`. Shared by Smiles and VoeGol. |
+| `VOEGOL_DISABLED` | No | `1` skips the VoeGol cash companion (miles-only). |
 
 Unconfigured live ticks record **`auth_failed`** for every Smiles date (TudoAzul/LATAM stay `empty` stubs), so the ingest run is **`partial`**.
 
@@ -90,6 +109,8 @@ cp .dev.vars.example .dev.vars
 #   SMILES_DRY_RUN=1
 # or:
 #   SMILES_API_KEY=<from DevTools>
+#   SMILES_MEMBER_NUMBER=<9 digits>
+#   SMILES_PASSWORD=<4 digits>
 npm run dev
 ```
 
@@ -115,13 +136,13 @@ FLIGHT_WINDOW_END=2026-09-15
 
 | Status | When |
 | --- | --- |
-| `success` | At least one persistable GOL quote (`miles` and/or `amount_brl`). |
+| `success` | At least one persistable GOL quote (`miles` from Smiles and/or `amount_brl` from VoeGol). |
 | `empty` | HTTP 200 but no GOL inventory / no allowed fares. |
 | `auth_failed` | Missing config, 401/403, or password login failed. |
-| `scrape_failed` | Network/5xx/429 exhausted, non-JSON/HTML, or Akamai-style `{ "message": "Something went wrong" }` (HTTP 406 from datacenter IPs is common). |
-| `partial` | Run-level mix (Smiles failed, other programs empty; or persist errors). |
+| `scrape_failed` | Network/5xx/429 exhausted, non-JSON/HTML, Akamai `{ "message": "Something went wrong" }`, or **HTTP 406 WAF/Accept filter**. |
+| `partial` | Miles succeeded and cash failed (or the reverse), or run-level mix with stub programs. |
 
-**Live API discovery notes:** the SPA (`@smiles/flight-availability`) calls `ApiFlightSearch` → `v1/airlines/search` with `NOT_CREDENTIALS` plus `x-api-key` from remote constants (`x-api-key=flight-search` in LaunchDarkly). This environment's AWS egress received **HTTP 406** from Akamai on both blue and green search hosts even with the historical public key — Workers on Cloudflare IPs may succeed; if not, set `SMILES_COOKIE` from a real browser session or keep `SMILES_DRY_RUN=1` until the WAF allows the guest key.
+**Live API discovery notes:** the SPA (`@smiles/flight-availability`) calls `ApiFlightSearch` → `v1/airlines/search` with `NOT_CREDENTIALS` plus `x-api-key`. Datacenter egress commonly gets **HTTP 406** from Akamai (since ~07/2025) even with the public SPA key — map that to `scrape_failed`, not a R$0 fare. Cloudflare Worker IPs or a browser `SMILES_COOKIE` may be needed for live; keep `SMILES_DRY_RUN=1` until the WAF allows the guest key.
 
 ## Run status and overlap
 
@@ -150,11 +171,13 @@ npx wrangler secret put SUPABASE_SERVICE_ROLE_KEY
 npx wrangler secret put INGEST_TRIGGER_SECRET
 # BE-3 live Smiles (omit if SMILES_DRY_RUN=1):
 npx wrangler secret put SMILES_API_KEY
+npx wrangler secret put SMILES_MEMBER_NUMBER
+npx wrangler secret put SMILES_PASSWORD
 # optional member session:
 # npx wrangler secret put SMILES_COOKIE
 ```
 
-Optional env overrides: `FLIGHT_WINDOW_START`, `FLIGHT_WINDOW_END` (YYYY-MM-DD), `SMILES_DRY_RUN`, `SMILES_ENV`, `SMILES_REQUEST_DELAY_MS`.
+Optional env overrides: `FLIGHT_WINDOW_START`, `FLIGHT_WINDOW_END` (YYYY-MM-DD), `SMILES_DRY_RUN`, `SMILES_ENV`, `SMILES_REQUEST_DELAY_MS`, `VOEGOL_DISABLED`.
 
 Without real Supabase secrets the worker still runs collectors and returns a summary; it skips persistence (`persisted: false`). Do not point `SUPABASE_URL` at a dummy hostname — workerd fails hard on DNS errors. Leave the vars empty instead.
 

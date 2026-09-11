@@ -171,3 +171,110 @@ export const SEARCH_AKAMAI_BLOCK = {
 };
 
 export const SEARCH_HTML_BLOCK = `<!DOCTYPE html><html><head><title>Access Denied</title></head><body>Access Denied</body></html>`;
+
+/**
+ * Extractor-shaped search (fareOptions[] STANDARD|SMILES_CLUB, airline_code=G3).
+ * Used to prove we parse the documented contract, not only native fareList.
+ */
+export const SEARCH_PET_CGH_FARE_OPTIONS = {
+  requestedFlightSegments: [
+    {
+      flights: [
+        {
+          uid: 'g3-extractor-morning',
+          airline_code: 'G3',
+          cabin: 'ECONOMY',
+          stops: 0,
+          departureDateTime: '2026-09-15T08:10:00',
+          arrivalDateTime: '2026-09-15T09:20:00',
+          fareOptions: [
+            { fareType: 'STANDARD', miles: 15000, money: 199.9, costTax: 32.44 },
+            { fareType: 'SMILES_CLUB', miles: 13200, money: 0, costTax: 32.44 },
+            { fareType: 'STANDARD', miles: 0, money: 0, costTax: 32.44 },
+          ],
+        },
+        {
+          uid: 'latam-extractor-drop',
+          airline_code: 'JJ',
+          departureDateTime: '2026-09-15T10:00:00',
+          fareOptions: [{ fareType: 'STANDARD', miles: 21000, money: 0, costTax: 80 }],
+        },
+      ],
+    },
+  ],
+};
+
+/**
+ * VoeGol B2C cash offers (full BRL, not Smiles copay).
+ * Shape matches the documented `offers[].total.amount` + `currency=BRL`.
+ */
+export const VOEGOL_PET_CGH_SUCCESS = {
+  offers: [
+    {
+      id: 'offer-morning',
+      segments: [
+        {
+          origin: 'PET',
+          destination: 'CGH',
+          departureDateTime: '2026-09-15T06:40:00',
+          arrivalDateTime: '2026-09-15T08:05:00',
+          flightNumber: '1234',
+          airlineCode: 'G3',
+        },
+      ],
+      total: { amount: 389.9, currency: 'BRL' },
+    },
+    {
+      id: 'offer-evening',
+      segments: [
+        {
+          origin: 'PET',
+          destination: 'CGH',
+          departureDateTime: '2026-09-15T18:20:00',
+          arrivalDateTime: '2026-09-15T19:45:00',
+          flightNumber: '1678',
+          airlineCode: 'G3',
+        },
+      ],
+      total: { amount: 421, currency: 'BRL' },
+    },
+    {
+      id: 'offer-zero-skip',
+      segments: [
+        {
+          origin: 'PET',
+          destination: 'CGH',
+          departureDateTime: '2026-09-15T12:00:00',
+          airlineCode: 'G3',
+        },
+      ],
+      total: { amount: 0, currency: 'BRL' },
+    },
+    {
+      id: 'offer-missing-amount',
+      segments: [
+        {
+          origin: 'PET',
+          destination: 'CGH',
+          departureDateTime: '2026-09-15T13:00:00',
+          airlineCode: 'G3',
+        },
+      ],
+      total: { currency: 'BRL' },
+    },
+    {
+      id: 'offer-partner-drop',
+      segments: [
+        {
+          origin: 'PET',
+          destination: 'CGH',
+          departureDateTime: '2026-09-15T09:15:00',
+          airlineCode: 'JJ',
+        },
+      ],
+      total: { amount: 999, currency: 'BRL' },
+    },
+  ],
+};
+
+export const VOEGOL_PET_CGH_EMPTY = { offers: [] };

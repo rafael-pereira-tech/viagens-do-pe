@@ -8,21 +8,28 @@ export interface Env {
   FLIGHT_WINDOW_END?: string;
 
   /**
-   * Smiles (BE-3). Never commit real values.
+   * Smiles / GOL (BE-3). Never commit real values.
    *
-   * Live guest search needs `SMILES_API_KEY` (public SPA `x-api-key` from DevTools
-   * on `v1/airlines/search`). Optional member session: `SMILES_COOKIE` and/or
-   * `SMILES_ACCESS_TOKEN` + `SMILES_MEMBER_NUMBER`. Password login is best-effort
-   * (`SMILES_USER` / `SMILES_PASS`) and usually blocked by Auth0/captcha.
+   * Miles search: GET api-air-flightsearch-green.smiles.com.br/v1/airlines/search
+   * (override with SMILES_ENV=blue or SMILES_SEARCH_HOST). Guest needs
+   * SMILES_API_KEY (public SPA x-api-key). Unified GOL+Smiles login placeholders:
+   * SMILES_MEMBER_NUMBER (9 digits) + SMILES_PASSWORD (4-digit). Empty memberNumber
+   * is guest and will not get real SMILES_CLUB.
    *
-   * `SMILES_DRY_RUN=1` parses bundled PET→CGH fixtures (no network).
+   * Smiles `money` is Smiles+Money COPAY — stored in raw_payload.copay_brl, never
+   * as amount_brl. Full cash BRL is the VoeGol companion (source=voegol).
+   *
+   * SMILES_DRY_RUN=1 parses bundled PET→CGH fixtures (no network, no live login).
    */
   SMILES_API_KEY?: string;
+  SMILES_MEMBER_NUMBER?: string;
+  SMILES_PASSWORD?: string;
+  /** @deprecated alias of SMILES_MEMBER_NUMBER */
   SMILES_USER?: string;
+  /** @deprecated alias of SMILES_PASSWORD */
   SMILES_PASS?: string;
   SMILES_COOKIE?: string;
   SMILES_ACCESS_TOKEN?: string;
-  SMILES_MEMBER_NUMBER?: string;
   SMILES_DRY_RUN?: string;
   SMILES_LIVE?: string;
   SMILES_ENV?: string;
@@ -34,4 +41,6 @@ export interface Env {
   SMILES_FARE_TYPES?: string;
   SMILES_INCLUDE_CLUB?: string;
   SMILES_REQUEST_DELAY_MS?: string;
+  /** Set `1` to skip the VoeGol full-cash companion (miles-only). */
+  VOEGOL_DISABLED?: string;
 }

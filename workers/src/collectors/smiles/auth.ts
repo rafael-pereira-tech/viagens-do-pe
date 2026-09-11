@@ -1,9 +1,11 @@
 import type { Env } from '../../env';
 import { SMILES_LOGIN_HOSTS, SMILES_LOGIN_PATH, SMILES_ORIGIN } from './constants';
+import { applyBrowserClientHeaders } from './headers';
 import type { SmilesEnvName, SmilesSession } from './types';
 
+/** Extractors document the green search host. `SMILES_ENV=blue` still works. */
 export function smilesEnvName(env: Env): SmilesEnvName {
-  return env.SMILES_ENV?.trim().toLowerCase() === 'green' ? 'green' : 'blue';
+  return env.SMILES_ENV?.trim().toLowerCase() === 'blue' ? 'blue' : 'green';
 }
 
 export function hasMemberSession(env: Env, session: SmilesSession): boolean {
@@ -19,12 +21,19 @@ export function isDryRun(env: Env): boolean {
   return truthy(env.SMILES_DRY_RUN);
 }
 
+export function isVoegolDisabled(env: Env): boolean {
+  return truthy(env.VOEGOL_DISABLED);
+}
+
 export function isLiveEnabled(env: Env): boolean {
+  const member = env.SMILES_MEMBER_NUMBER?.trim();
+  const password = env.SMILES_PASSWORD ?? env.SMILES_PASS;
   return Boolean(
     env.SMILES_API_KEY?.trim() ||
       env.SMILES_COOKIE?.trim() ||
       env.SMILES_ACCESS_TOKEN?.trim() ||
       env.SMILES_USER?.trim() ||
+      (member && password) ||
       truthy(env.SMILES_LIVE),
   );
 }
@@ -38,7 +47,10 @@ interface LoginDeps {
   fetch: typeof fetch;
 }
 
-export async function resolveSession(env: Env, deps: LoginDeps): Promise<SmilesSession | { error: string }> {
+export async function resolveSession(
+  env: Env,
+  deps: LoginDeps,
+): Promise<SmilesSession | { error: string; kind: 'auth_failed' | 'scrape_failed' }> {
   const session: SmilesSession = {
     cookie: env.SMILES_COOKIE?.trim() || undefined,
     accessToken: env.SMILES_ACCESS_TOKEN?.trim() || undefined,
@@ -47,8 +59,8 @@ export async function resolveSession(env: Env, deps: LoginDeps): Promise<SmilesS
   };
   session.includeClub = hasMemberSession(env, session);
 
-  const user = env.SMILES_USER?.trim();
-  const pass = env.SMILES_PASS;
+  const user = env.SMILES_USER?.trim() || session.memberNumber;
+  const pass = env.SMILES_PASSWORD ?? env.SMILES_PASS;
   if (!user || !pass) return session;
 
   const url = `${loginHost(env)}${SMILES_LOGIN_PATH}`;
@@ -62,41 +74,48 @@ export async function resolveSession(env: Env, deps: LoginDeps): Promise<SmilesS
   };
   if (env.SMILES_AUTH_CLIENT_ID?.trim()) body.client_id = env.SMILES_AUTH_CLIENT_ID.trim();
 
+  const headers = new Headers();
+  applyBrowserClientHeaders(headers);
+  headers.set('Content-Type', 'application/json');
+  headers.set('Origin', SMILES_ORIGIN);
+
   let response: Response;
   try {
     response = await deps.fetch(url, {
       method: 'POST',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-        Origin: SMILES_ORIGIN,
-      },
+      headers,
       body: JSON.stringify(body),
     });
   } catch (err) {
-    return { error: `Smiles login network error: ${err instanceof Error ? err.message : String(err)}` };
+    return {
+      error: `Smiles login network error: ${err instanceof Error ? err.message : String(err)}`,
+      kind: 'scrape_failed',
+    };
   }
 
   if (response.status === 401 || response.status === 403) {
-    return { error: `Smiles login ${response.status} (auth_failed)` };
+    return { error: `Smiles login ${response.status} (auth_failed)`, kind: 'auth_failed' };
+  }
+  if (response.status === 406) {
+    return { error: `Smiles login 406 (WAF/Accept filter)`, kind: 'scrape_failed' };
   }
   if (!response.ok) {
     const text = await response.text();
-    return { error: `Smiles login ${response.status}: ${text.slice(0, 240)}` };
+    return { error: `Smiles login ${response.status}: ${text.slice(0, 240)}`, kind: 'scrape_failed' };
   }
 
   let payload: unknown;
   try {
     payload = await response.json();
   } catch {
-    return { error: 'Smiles login returned non-JSON' };
+    return { error: 'Smiles login returned non-JSON', kind: 'scrape_failed' };
   }
   const token =
     payload && typeof payload === 'object'
       ? (payload as { access_token?: unknown }).access_token
       : undefined;
   if (typeof token !== 'string' || !token) {
-    return { error: 'Smiles login JSON missing access_token' };
+    return { error: 'Smiles login JSON missing access_token', kind: 'scrape_failed' };
   }
   session.accessToken = token;
   session.includeClub = true;

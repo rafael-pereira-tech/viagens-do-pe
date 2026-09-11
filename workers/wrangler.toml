@@ -13,11 +13,14 @@ crons = ["0 0 * * *", "0 6 * * *", "0 12 * * *", "0 18 * * *"]
 #   SUPABASE_URL
 #   SUPABASE_SERVICE_ROLE_KEY
 #   INGEST_TRIGGER_SECRET   (optional; required to authorize POST /run)
-#   SMILES_API_KEY          (BE-3 guest search; SPA x-api-key from DevTools)
-#   SMILES_COOKIE / SMILES_ACCESS_TOKEN / SMILES_USER / SMILES_PASS  (optional member)
+#   SMILES_API_KEY          (BE-3 guest miles search; SPA x-api-key from DevTools)
+#   SMILES_MEMBER_NUMBER    (9-digit Smiles number; empty = guest)
+#   SMILES_PASSWORD         (4-digit unified GOL+Smiles password)
+#   SMILES_COOKIE / SMILES_ACCESS_TOKEN  (optional member session)
 #
 # Optional non-secret overrides can be added under [vars] later:
 #   FLIGHT_WINDOW_START, FLIGHT_WINDOW_END
-#   SMILES_DRY_RUN=1   (fixture parser, no live Smiles)
-#   SMILES_ENV=blue|green
+#   SMILES_DRY_RUN=1   (fixture parser, no live Smiles/VoeGol)
+#   SMILES_ENV=green|blue   (default green)
 #   SMILES_REQUEST_DELAY_MS
+#   VOEGOL_DISABLED=1

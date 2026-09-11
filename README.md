@@ -63,7 +63,7 @@ npx wrangler pages deploy dist
 
 ## Ingest worker (BE-2 / BE-3)
 
-Scheduled collection lives in [`workers/`](workers/). **Smiles / GOL PET→CGH** is implemented (`source: smiles_web`). TudoAzul and LATAM Pass stay stubs until BE-4/5.
+Scheduled collection lives in [`workers/`](workers/). **Smiles / GOL PET→CGH** is implemented: miles via Smiles (`source: smiles_web`; Smiles `money` is copay, not cash) and full cash BRL via VoeGol (`source: voegol`). TudoAzul and LATAM Pass stay stubs until BE-4/5.
 
 - Cron: 00:00, 06:00, 12:00, 18:00 **UTC** (21:00, 03:00, 09:00, 15:00 America/Sao_Paulo)
 - Local: `cd workers && npm install && npm run dev` — see [`workers/README.md`](workers/README.md) for `SMILES_*` secrets, dry-run fixtures, and a manual `/run` tick

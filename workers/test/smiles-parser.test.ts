@@ -4,6 +4,7 @@ import type { CollectParams } from '../src/collectors/types.ts';
 import { SMILES_SOURCE } from '../src/collectors/smiles/constants.ts';
 import {
   SEARCH_PET_CGH_EMPTY,
+  SEARCH_PET_CGH_FARE_OPTIONS,
   SEARCH_PET_CGH_GOL_NO_FARES,
   SEARCH_PET_CGH_SUCCESS,
 } from '../src/collectors/smiles/fixtures.ts';
@@ -57,7 +58,8 @@ describe('parseSmilesSearch PET→CGH fixture', () => {
       assert.equal(row.flight_date, '2026-09-15');
       assert.equal(row.currency, 'BRL');
       assert.equal(row.source, SMILES_SOURCE);
-      assert.ok(row.miles != null || row.amount_brl != null);
+      assert.ok(row.miles != null);
+      assert.equal(row.amount_brl, null);
       assert.equal(row.collected_at, undefined);
       assert.equal(row.ingest_run_id, undefined);
     }
@@ -77,8 +79,11 @@ describe('parseSmilesSearch PET→CGH fixture', () => {
       (row) => row.departure_time === '06:40:00' && row.miles === 7200,
     );
     assert.ok(morningMix);
-    assert.equal(morningMix.amount_brl, 248.5);
+    assert.equal(morningMix.amount_brl, null, 'Smiles money must not be written to amount_brl');
     assert.equal(morningMix.taxes_brl, 39.9);
+    const mixPayload = morningMix.raw_payload as { copay_brl?: number | null; smiles_money?: unknown };
+    assert.equal(mixPayload.copay_brl, 248.5);
+    assert.equal(mixPayload.smiles_money, 248.5);
 
     assert.equal(
       parsed.snapshots.some((row) => row.miles === 17100),
@@ -116,12 +121,38 @@ describe('parseSmilesSearch PET→CGH fixture', () => {
     assert.equal(parsed.golFlights, 0);
   });
 
-  it('returns no snapshots when GOL flights have no fares', () => {
+  it('returns no snapshots when GOL flights have no fares', async () => {
     const parsed = parseSmilesSearch(SEARCH_PET_CGH_GOL_NO_FARES, { ...params, flightDate: '2026-09-17' }, {
       fareTypes: resolveFareTypes({ includeClub: false }),
     });
     assert.equal(parsed.golFlights, 1);
     assert.equal(parsed.snapshots.length, 0);
+  });
+
+  it('parses extractor fareOptions STANDARD|SMILES_CLUB and never treats money as cash', () => {
+    const parsed = parseSmilesSearch(SEARCH_PET_CGH_FARE_OPTIONS, params, {
+      fareTypes: resolveFareTypes({ includeClub: true }),
+    });
+    assert.equal(parsed.golFlights, 1);
+    assert.equal(parsed.otherAirlineFlights, 1);
+    const standard = parsed.snapshots.find((row) => row.miles === 15000);
+    assert.ok(standard);
+    assert.equal(standard.amount_brl, null);
+    assert.equal(standard.taxes_brl, 32.44);
+    assert.equal(standard.source, SMILES_SOURCE);
+    const payload = standard.raw_payload as { copay_brl?: number | null; fareType?: string };
+    assert.equal(payload.copay_brl, 199.9);
+    assert.equal(payload.fareType, 'STANDARD');
+    assert.ok(parsed.snapshots.some((row) => row.miles === 13200));
+    assert.equal(
+      parsed.snapshots.some((row) => row.miles === 21000),
+      false,
+      'non-G3 extractor row must be dropped',
+    );
+    assert.equal(
+      parsed.snapshots.some((row) => row.amount_brl != null),
+      false,
+    );
   });
 });
 
