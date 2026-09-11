@@ -1,11 +1,14 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
+import { Button } from '@/components/ui/button'
 import { ChartPanel } from '../components/ChartPanel.tsx'
 import { DestinationTabs } from '../components/DestinationTabs.tsx'
 import { FiltersBar } from '../components/FiltersBar.tsx'
 import { KpiStrip } from '../components/KpiStrip.tsx'
 import { OffersTable } from '../components/OffersTable.tsx'
-import { chartFromOffers, kpisFromOffers, PLACEHOLDER_OFFERS } from '../data/placeholders.ts'
+import { chartFromOffers, chartFromRouteDayStats, kpisFromOffers, PLACEHOLDER_OFFERS } from '../data/placeholders.ts'
+import { useDashboardSnapshots } from '../hooks/useDashboardSnapshots.ts'
+import { CAN_FETCH_SNAPSHOTS } from '../lib/config.ts'
 import { applyQuery } from '../lib/filters.ts'
 import { formatShortDate } from '../lib/format.ts'
 import {
@@ -46,11 +49,14 @@ export function Dashboard() {
     }
   }, [applied, searchParams, setSearchParams])
 
-  const isLoading = applied.ui === 'loading'
-  const tabRows = useMemo(() => applyQuery(PLACEHOLDER_OFFERS, applied, { ignoreDay: true }), [applied])
-  const rows = useMemo(() => applyQuery(PLACEHOLDER_OFFERS, applied), [applied])
-  const kpis = kpisFromOffers(tabRows)
-  const chart = chartFromOffers(tabRows)
+  const live = CAN_FETCH_SNAPSHOTS
+  const remote = useDashboardSnapshots(applied)
+  const sourceRows = live ? remote.offers : PLACEHOLDER_OFFERS
+  const tabRows = useMemo(() => applyQuery(sourceRows, applied, { ignoreDay: true }), [applied, sourceRows])
+  const rows = useMemo(() => applyQuery(sourceRows, applied), [applied, sourceRows])
+  const kpis = kpisFromOffers(tabRows, live ? remote.windowStats : undefined)
+  const chart = live && remote.routeDay.length > 0 ? chartFromRouteDayStats(remote.routeDay) : chartFromOffers(tabRows)
+  const isLoading = applied.ui === 'loading' || (live && remote.isLoading)
 
   function commit(next: DashboardQuery) {
     setSearchParams(queryToSearchParams(next), { replace: true })
@@ -69,6 +75,7 @@ export function Dashboard() {
       to: applied.to,
       bars: applied.bars,
       ui: applied.ui,
+      dry: applied.dry,
     })
   }
 
@@ -93,6 +100,17 @@ export function Dashboard() {
         onApply={applyFilters}
         onClear={clearFilters}
       />
+      {remote.error ? (
+        <div
+          role="alert"
+          className="flex flex-col gap-2 rounded-xl border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive sm:flex-row sm:items-center sm:justify-between"
+        >
+          <p>{remote.error}</p>
+          <Button type="button" variant="outline" size="sm" className="shrink-0" onClick={remote.refresh}>
+            Tentar de novo
+          </Button>
+        </div>
+      ) : null}
       <KpiStrip kpis={kpis} isLoading={isLoading} />
       <ChartPanel
         points={chart}
