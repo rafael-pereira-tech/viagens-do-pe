@@ -34,6 +34,8 @@ export interface Env {
   SMILES_FARE_TYPES?: string;
   SMILES_INCLUDE_CLUB?: string;
   SMILES_REQUEST_DELAY_MS?: string;
+  /** VoeGol cash companion host override. Default `https://b2c-api.voegol.com.br`. */
+  VOEGOL_API_HOST?: string;
 
   /**
    * TudoAzul / Azul (BE-4). Never commit real values.

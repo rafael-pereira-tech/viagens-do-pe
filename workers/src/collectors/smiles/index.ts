@@ -1,6 +1,6 @@
 /**
- * BE-3: Smiles / GOL collector (PET→CGH miles+BRL).
+ * BE-3: Smiles / GOL collector (PET→CGH miles + BRL).
  *
- * Source id: `smiles_web` (HTTP JSON search). `program` stays `smiles`.
+ * Sources: `smiles_web` (award / Smiles+Money) and `voegol` (full cash). `program` stays `smiles`.
  */
 export { createSmilesCollector, smilesCollector } from './collector';

@@ -77,6 +77,71 @@ export interface SmilesSearchResponse {
   code?: string;
 }
 
+export interface VoegolMoney {
+  amount?: number | string | null;
+  currency?: string | null;
+  currencyCode?: string | null;
+}
+
+export interface VoegolOffer {
+  id?: string;
+  brandId?: string;
+  brandLabel?: string;
+  cabinClass?: string;
+  seatsRemaining?: number | string | null;
+  total?: VoegolMoney | null;
+  totalPrice?: VoegolMoney | null;
+  taxes?: VoegolMoney | null;
+  tax?: VoegolMoney | null;
+}
+
+export interface VoegolFlightIdent {
+  airlineCode?: string;
+  marketingAirlineCode?: string;
+  operatingAirlineCode?: string;
+  flightNumber?: string | number;
+}
+
+export interface VoegolSegment {
+  origin?: string;
+  destination?: string;
+  departure?: string;
+  arrival?: string;
+  airlineCode?: string;
+  flight?: VoegolFlightIdent;
+}
+
+export interface VoegolItinerary {
+  id?: string;
+  origin?: string;
+  destination?: string;
+  departure?: string;
+  arrival?: string;
+  departureAirportCode?: string;
+  arrivalAirportCode?: string;
+  departureDate?: string;
+  departureTime?: string;
+  arrivalDate?: string;
+  arrivalTime?: string;
+  marketingAirlineCode?: string;
+  operatingAirlineCode?: string;
+  stopsCount?: number;
+  duration?: string;
+  segments?: VoegolSegment[];
+  offers?: VoegolOffer[];
+  cheapestOffer?: VoegolOffer;
+}
+
+export interface VoegolSearchResponse {
+  itineraries?: VoegolItinerary[];
+  flights?: VoegolItinerary[];
+  journeys?: VoegolItinerary[];
+  data?: VoegolSearchResponse;
+  message?: string;
+  error?: string;
+  errorCode?: string;
+}
+
 export interface SmilesSession {
   cookie?: string;
   accessToken?: string;

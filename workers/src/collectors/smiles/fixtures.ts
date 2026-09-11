@@ -1,4 +1,4 @@
-import type { SmilesSearchResponse } from './types';
+import type { SmilesSearchResponse, VoegolSearchResponse } from './types';
 
 /**
  * Recorded shape of GET /v1/airlines/search (guest, PET→CGH).
@@ -143,6 +143,95 @@ export const SEARCH_PET_CGH_EMPTY: SmilesSearchResponse = {
       flightList: [],
     },
   ],
+};
+
+/**
+ * Recorded shape of POST /api/sabre-default/flights (VoeGol B2C cash, PET→CGH).
+ * Adapted from the GOL itineraries `itineraries[].offers[].total` contract
+ * (G3 + one partner itinerary that the parser must drop).
+ */
+export const SEARCH_PET_CGH_CASH: VoegolSearchResponse = {
+  itineraries: [
+    {
+      id: 'g3-pet-cgh-morning-cash',
+      origin: 'PET',
+      destination: 'CGH',
+      departure: '2026-09-15T06:40:00',
+      arrival: '2026-09-15T08:05:00',
+      stopsCount: 0,
+      segments: [
+        {
+          origin: 'PET',
+          destination: 'CGH',
+          departure: '2026-09-15T06:40:00',
+          arrival: '2026-09-15T08:05:00',
+          flight: { airlineCode: 'G3', flightNumber: '1234' },
+        },
+      ],
+      offers: [
+        {
+          brandId: 'LI',
+          brandLabel: 'Light',
+          cabinClass: 'Economy',
+          seatsRemaining: 9,
+          total: { currency: 'BRL', amount: 548.9 },
+        },
+        {
+          brandId: 'ZERO',
+          brandLabel: 'Placeholder',
+          total: { currency: 'BRL', amount: 0 },
+        },
+      ],
+    },
+    {
+      id: 'g3-pet-cgh-evening-cash',
+      origin: 'PET',
+      destination: 'CGH',
+      departure: '2026-09-15T18:20:00',
+      arrival: '2026-09-15T19:45:00',
+      stopsCount: 0,
+      segments: [
+        {
+          origin: 'PET',
+          destination: 'CGH',
+          flight: { airlineCode: 'G3', flightNumber: '1238' },
+        },
+      ],
+      offers: [
+        {
+          brandId: 'LI',
+          brandLabel: 'Light',
+          cabinClass: 'Economy',
+          total: { currency: 'BRL', amount: 631.2 },
+        },
+      ],
+    },
+    {
+      id: 'latam-should-drop',
+      origin: 'PET',
+      destination: 'CGH',
+      departure: '2026-09-15T09:15:00',
+      arrival: '2026-09-15T12:40:00',
+      stopsCount: 1,
+      segments: [
+        {
+          origin: 'PET',
+          destination: 'CGH',
+          flight: { airlineCode: 'JJ', flightNumber: '3456' },
+        },
+      ],
+      offers: [
+        {
+          brandId: 'LT',
+          total: { currency: 'BRL', amount: 199.9 },
+        },
+      ],
+    },
+  ],
+};
+
+export const SEARCH_PET_CGH_CASH_EMPTY: VoegolSearchResponse = {
+  itineraries: [],
 };
 
 export const SEARCH_PET_CGH_GOL_NO_FARES: SmilesSearchResponse = {

@@ -1,10 +1,16 @@
 import type { Env } from '../../env';
-import type { CollectParams, CollectResult, Collector } from '../types';
+import type { CollectParams, CollectResult, Collector, Snapshot } from '../types';
 import { isDryRun, isLiveEnabled, resolveSession } from './auth';
 import { createSmilesClient, type SmilesClient } from './client';
-import { SEARCH_PET_CGH_SUCCESS } from './fixtures';
+import { SEARCH_PET_CGH_CASH, SEARCH_PET_CGH_SUCCESS } from './fixtures';
 import { waitMs } from './http';
-import { parseSmilesSearch, resolveFareTypes, smilesBodyLooksLikeError } from './parser';
+import {
+  parseSmilesSearch,
+  parseVoegolFlights,
+  resolveFareTypes,
+  smilesBodyLooksLikeError,
+  voegolBodyLooksLikeError,
+} from './parser';
 import type { SmilesSession } from './types';
 
 export interface SmilesCollectorDeps {
@@ -20,7 +26,36 @@ function shiftSearchDates(payload: unknown, flightDate: string): unknown {
   return JSON.parse(json.replaceAll('2026-09-15', flightDate));
 }
 
-function resultFromParse(parsed: ReturnType<typeof parseSmilesSearch>): CollectResult {
+function mergeErrors(...parts: Array<string | undefined>): string | undefined {
+  const text = parts.filter(Boolean).join('; ');
+  return text || undefined;
+}
+
+function combine(miles: CollectResult, cash: CollectResult): CollectResult {
+  const snapshots: Snapshot[] = [...miles.snapshots, ...cash.snapshots];
+  const milesFailed = miles.status === 'auth_failed' || miles.status === 'scrape_failed';
+  const cashFailed = cash.status === 'auth_failed' || cash.status === 'scrape_failed';
+  const error = mergeErrors(miles.error, cash.error);
+
+  if (milesFailed && cashFailed) {
+    if (miles.status === cash.status) {
+      return { status: miles.status, snapshots: [], error };
+    }
+    return { status: 'partial', snapshots, error };
+  }
+
+  if (milesFailed || cashFailed) {
+    if (snapshots.length > 0) {
+      return { status: 'partial', snapshots, error };
+    }
+    return { status: milesFailed ? miles.status : cash.status, snapshots: [], error };
+  }
+
+  if (snapshots.length === 0) return { status: 'empty', snapshots: [] };
+  return { status: 'success', snapshots };
+}
+
+function resultFromParse(parsed: { snapshots: Snapshot[] }): CollectResult {
   if (parsed.snapshots.length === 0) {
     return { status: 'empty', snapshots: [] };
   }
@@ -40,14 +75,51 @@ export function createSmilesCollector(env: Env, deps: SmilesCollectorDeps = {}):
     });
   }
 
+  async function searchMiles(params: CollectParams, session: SmilesSession): Promise<CollectResult> {
+    const http = await client.search({ params, session });
+    if (!http.ok) {
+      return { status: http.kind, snapshots: [], error: http.error };
+    }
+    const bodyError = smilesBodyLooksLikeError(http.payload);
+    if (bodyError) {
+      const blocked = /something went wrong|access denied/i.test(bodyError);
+      return {
+        status: blocked ? 'scrape_failed' : 'auth_failed',
+        snapshots: [],
+        error: bodyError,
+      };
+    }
+    return resultFromParse(parseSmilesSearch(http.payload, params, { fareTypes: fareTypes(session) }));
+  }
+
+  async function searchCash(params: CollectParams, session: SmilesSession): Promise<CollectResult> {
+    const http = await client.searchCash({ params, session });
+    if (!http.ok) {
+      return { status: http.kind, snapshots: [], error: http.error };
+    }
+    const bodyError = voegolBodyLooksLikeError(http.payload);
+    if (bodyError) {
+      const blocked = /something went wrong|access denied/i.test(bodyError);
+      return {
+        status: blocked ? 'scrape_failed' : 'auth_failed',
+        snapshots: [],
+        error: bodyError,
+      };
+    }
+    return resultFromParse(parseVoegolFlights(http.payload, params));
+  }
+
   return {
     async collect(params: CollectParams): Promise<CollectResult> {
       // DOW preference is applied by the scheduler job order, not here.
       if (isDryRun(env)) {
-        const parsed = parseSmilesSearch(shiftSearchDates(SEARCH_PET_CGH_SUCCESS, params.flightDate), params, {
-          fareTypes: fareTypes({ includeClub: env.SMILES_INCLUDE_CLUB === '1' }),
-        });
-        return resultFromParse(parsed);
+        const milesParsed = parseSmilesSearch(
+          shiftSearchDates(SEARCH_PET_CGH_SUCCESS, params.flightDate),
+          params,
+          { fareTypes: fareTypes({ includeClub: env.SMILES_INCLUDE_CLUB === '1' }) },
+        );
+        const cashParsed = parseVoegolFlights(shiftSearchDates(SEARCH_PET_CGH_CASH, params.flightDate), params);
+        return combine(resultFromParse(milesParsed), resultFromParse(cashParsed));
       }
 
       if (!isLiveEnabled(env)) {
@@ -65,23 +137,9 @@ export function createSmilesCollector(env: Env, deps: SmilesCollectorDeps = {}):
         return { status: 'auth_failed', snapshots: [], error: session.error };
       }
 
-      const http = await client.search({ params, session });
-      if (!http.ok) {
-        return { status: http.kind, snapshots: [], error: http.error };
-      }
-
-      const bodyError = smilesBodyLooksLikeError(http.payload);
-      if (bodyError) {
-        const blocked = /something went wrong|access denied/i.test(bodyError);
-        return {
-          status: blocked ? 'scrape_failed' : 'auth_failed',
-          snapshots: [],
-          error: bodyError,
-        };
-      }
-
-      const parsed = parseSmilesSearch(http.payload, params, { fareTypes: fareTypes(session) });
-      return resultFromParse(parsed);
+      const miles = await searchMiles(params, session);
+      const cash = await searchCash(params, session);
+      return combine(miles, cash);
     },
   };
 }

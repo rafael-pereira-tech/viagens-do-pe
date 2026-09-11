@@ -7,11 +7,12 @@ SUPABASE_URL=
 SUPABASE_SERVICE_ROLE_KEY=
 INGEST_TRIGGER_SECRET=dev-only-trigger-secret
 
-# BE-3 Smiles. Dry-run uses bundled PET→CGH JSON (no live login).
+# BE-3 Smiles + VoeGol. Dry-run uses bundled PET→CGH miles + cash JSON (no live login).
 # For live guest search, copy x-api-key from DevTools on
 # api-air-flightsearch-blue.smiles.com.br/v1/airlines/search.
 SMILES_DRY_RUN=1
 SMILES_API_KEY=
+# VOEGOL_API_HOST=https://b2c-api.voegol.com.br
 # SMILES_COOKIE=
 # SMILES_MEMBER_NUMBER=
 # SMILES_USER=
