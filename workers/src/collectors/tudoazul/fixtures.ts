@@ -193,6 +193,27 @@ export const SEARCH_PET_VCP_CASH: AzulAvailabilityResponse = {
             },
           ],
         },
+        {
+          id: 'conecta-should-drop',
+          journeyKey: 'PET|VCP|2026-09-14|2Z2001',
+          origin: 'PET',
+          destination: 'VCP',
+          departure: '2026-09-14T10:00:00',
+          available: true,
+          segments: [
+            {
+              origin: 'PET',
+              destination: 'VCP',
+              flight: { carrierCode: '2Z', flightNumber: '2001' },
+            },
+          ],
+          fares: [
+            {
+              key: 'conecta-cash',
+              total: { currency: 'BRL', amount: 199.9 },
+            },
+          ],
+        },
       ],
     },
   ],
@@ -329,6 +350,61 @@ export const SEARCH_NO_FARES: AzulAvailabilityResponse = {
           available: true,
           segments: [{ flight: { carrierCode: 'AD', flightNumber: '1' } }],
           fares: [],
+        },
+      ],
+    },
+  ],
+};
+
+/** Calendar lowest fares only — must not become flight snapshots. */
+export const SEARCH_FLEXIBLE_DAYS_ONLY: AzulAvailabilityResponse = {
+  pricingMode: 'cash',
+  flexibleDays: [
+    { date: '2026-09-14', lowestFare: { amount: 199.0, currency: 'BRL' }, lowestPoints: 8200 },
+    { date: '2026-09-15', lowestFare: { amount: 249.0, currency: 'BRL' }, lowestPoints: 9100 },
+  ],
+};
+
+/**
+ * PET→VCP with a connection before the 2026-10-26 nonstop launch.
+ * Valid inventory — not scrape_failed.
+ */
+export const SEARCH_PET_VCP_CONNECTING: AzulAvailabilityResponse = {
+  pricingMode: 'cash',
+  trips: [
+    {
+      origin: 'PET',
+      destination: 'VCP',
+      date: '2026-09-14',
+      journeys: [
+        {
+          id: 'PET-CNF-VCP-20260914-AD4102',
+          journeyKey: 'PET|VCP|2026-09-14|AD4102|AD4108',
+          origin: 'PET',
+          destination: 'VCP',
+          departure: '2026-09-14T07:00:00',
+          arrival: '2026-09-14T12:30:00',
+          stopsCount: 1,
+          available: true,
+          segments: [
+            {
+              origin: 'PET',
+              destination: 'CNF',
+              flight: { carrierCode: 'AD', flightNumber: '4102' },
+            },
+            {
+              origin: 'CNF',
+              destination: 'VCP',
+              flight: { carrierCode: 'AD', flightNumber: '4108' },
+            },
+          ],
+          fares: [
+            {
+              key: 'PET-VCP-CONNECTING-CASH',
+              productClass: { code: 'AZUL', name: 'Azul' },
+              total: { currency: 'BRL', amount: 678.2 },
+            },
+          ],
         },
       ],
     },

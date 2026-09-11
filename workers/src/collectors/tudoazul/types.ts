@@ -103,9 +103,19 @@ export interface AzulTrip {
   };
 }
 
+export interface AzulFlexibleDay {
+  date?: string;
+  lowestFare?: MoneyAmount | number | null;
+  lowestPoints?: number | null;
+}
+
 export interface AzulAvailabilityResponse {
   pricingMode?: AzulPricingMode | string;
   trips?: AzulTrip[];
+  /**
+   * Calendar lowest fares only. Never persist as flight snapshots.
+   */
+  flexibleDays?: AzulFlexibleDay[];
   data?: AzulAvailabilityResponse | { trips?: AzulTrip[] };
   message?: string;
   error?: string;
@@ -116,7 +126,6 @@ export interface AzulAvailabilityResponse {
 export interface AzulSession {
   cookie?: string;
   accessToken?: string;
-  subscriptionKey?: string;
 }
 
 export interface AzulTokenResponse {

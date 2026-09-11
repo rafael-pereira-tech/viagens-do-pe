@@ -325,7 +325,7 @@ describe('runIngest', () => {
     assert.ok(azul.length > 0);
     assert.equal(summary.snapshotCount, smiles.length + azul.length);
     assert.ok(azul.every((row) => row.origin === 'PET' && (row.destination === 'VCP' || row.destination === 'POA')));
-    assert.ok(azul.some((row) => row.source === 'tudoazul_web' && row.miles != null && row.amount_brl == null));
+    assert.ok(azul.some((row) => row.source === 'tudoazul' && row.miles != null && row.amount_brl == null));
     assert.ok(azul.some((row) => row.source === 'voeazul' && row.amount_brl != null && row.miles == null));
     assert.ok(azul.every((row) => row.ingest_run_id === summary.runId));
     assert.ok(azul.every((row) => row.miles !== 0 && row.amount_brl !== 0));

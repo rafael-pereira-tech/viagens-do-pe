@@ -39,15 +39,13 @@ export interface Env {
    * TudoAzul / Azul (BE-4). Never commit real values.
    *
    * Frozen live secrets (placeholders only): `TUDOAZUL_LOGIN` + `TUDOAZUL_PASSWORD`.
-   * `TUDOAZUL_DRY_RUN=1` parses bundled PET→VCP / PET→POA fixtures (no network).
-   *
-   * Optional public SPA `Ocp-Apim-Subscription-Key` is not a user password.
+   * Do not use `AZUL_*` secret names. `TUDOAZUL_DRY_RUN=1` parses bundled
+   * PET→VCP / PET→POA fixtures (no network). Optional host/delay overrides
+   * are non-secrets.
    */
   TUDOAZUL_LOGIN?: string;
   TUDOAZUL_PASSWORD?: string;
   TUDOAZUL_DRY_RUN?: string;
-  AZUL_SUBSCRIPTION_KEY?: string;
-  AZUL_API_HOST?: string;
-  AZUL_REQUEST_DELAY_MS?: string;
+  TUDOAZUL_API_HOST?: string;
   TUDOAZUL_REQUEST_DELAY_MS?: string;
 }

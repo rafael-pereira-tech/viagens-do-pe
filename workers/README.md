@@ -78,12 +78,11 @@ Do not commit credentials. Local: `workers/.dev.vars`. Production: `npx wrangler
 | `SMILES_FARE_TYPES` | No | Comma list, default `SMILES,SMILES_MONEY`. |
 | `SMILES_INCLUDE_CLUB` | No | `1` to keep club fares without a member session. |
 | `SMILES_REQUEST_DELAY_MS` | No | Default `400`. |
-| `TUDOAZUL_LOGIN` | Yes (live) | **Frozen** TudoAzul / Azul Fidelidade login (placeholder only). |
+| `TUDOAZUL_LOGIN` | Yes (live) | **Frozen** TudoAzul / Azul Fidelidade login (placeholder only). Not `AZUL_*`. |
 | `TUDOAZUL_PASSWORD` | Yes (live) | **Frozen** password (placeholder only). Never commit a real value. |
 | `TUDOAZUL_DRY_RUN` | CI / local without Azul | `1` parses bundled PET→VCP and PET→POA JSON fixtures (no network). Accepted until live credentials are provided privately. |
-| `AZUL_SUBSCRIPTION_KEY` | No | Optional public SPA `Ocp-Apim-Subscription-Key` (not a user password). |
-| `AZUL_API_HOST` | No | Default `https://b2c-api.voeazul.com.br`. |
-| `AZUL_REQUEST_DELAY_MS` | No | Default `400`. |
+| `TUDOAZUL_API_HOST` | No | Default `https://b2c-api.voeazul.com.br`. |
+| `TUDOAZUL_REQUEST_DELAY_MS` | No | Default `400`. |
 
 Unconfigured live ticks record **`auth_failed`** for every Smiles and TudoAzul date (LATAM stays an `empty` stub), so the ingest run is **`partial`**.
 
@@ -93,35 +92,42 @@ One `collect({ origin, destination, airline, program, flightDate })` job, two so
 
 | Quote | `source` | `miles` | `amount_brl` | `taxes_brl` |
 | --- | --- | --- | --- | --- |
-| Award / pontos+reais | `tudoazul_web` | `pointsOptions[].points` (or `discountedPoints`) | **always `null`** | `taxesAndFees` |
+| Award / pontos+reais | `tudoazul` | `pointsOptions[].points` (or `discountedPoints`) | **always `null`** | `taxesAndFees.amount` |
 | Full cash BRL | `voeazul` | `null` | `fares[].total.amount` (BRL) | passenger tax charges when present |
 
-**Critical: Azul `fareMoney` / `totalMoney` is pontos+reais copay, not full cash BRL.** It is stored only as `raw_payload.copay_brl` (plus the original money fields). Missing fare → `null` / `empty`, **never price 0**.
+**Critical: Azul `fareMoney` / `totalMoney` / `convenienceFee` is pontos+reais COPAY, not full cash BRL.** Persist only on `raw_payload` as `fare_money_brl`, `total_money_brl`, `convenience_fee_brl`. `amountLevel` is the mix tier, not a price. Missing fare → `null` / `empty`, **never invent price 0**. If only points or only cash fails → `partial`.
+
+B2B Navitaire Shopping exists but needs an agency — skipped for v1.
 
 ### TudoAzul points (primary)
 
-- UI: `https://www.voeazul.com.br/br/pt/home/selecao-voo?c[0].ds=PET&c[0].as=VCP&c[0].std=MM/DD/YYYY&p[0].t=ADT&p[0].c=1&p[0].cp=true&cc=BRL` (same for POA)
+- UI: `https://passagens.voeazul.com.br/pt/buscador-de-pontos`
 - Upstream: `POST https://b2c-api.voeazul.com.br/reservationavailability/api/reservation/availability/v5/availability`
-- Login JWT first: `POST https://b2c-api.voeazul.com.br/authentication/api/authentication/v1/token` with `TUDOAZUL_LOGIN` / `TUDOAZUL_PASSWORD` (`grantType=password`)
-- Body: `criteria[].stations.originStationCodes` / `destinationStationCodes`, `dates.beginDate=YYYY-MM-DDT00:00:00`, `passengers.types=[{type:ADT,count:1}]`, `codes.currencyCode=BRL`, `points=true`, `filters.loyalty=PointsAndMonetary`
-- Headers: `Device: novosite`, `Culture: pt-BR`, browser `Accept` / `Origin` / `Referer` / `User-Agent`, `Authorization: Bearer` after login, optional `Ocp-Apim-Subscription-Key`
+- Login JWT first: `POST https://b2c-api.voeazul.com.br/authentication/api/authentication/v1/token` with `TUDOAZUL_LOGIN` / `TUDOAZUL_PASSWORD` (`grantType=password`). 2FA possible — dry-run/fixtures until secrets.
+- Body: `criteria[].stations.originStationCodes` / `destinationStationCodes`, `dates.beginDate=YYYY-MM-DDT00:00:00`, `passengers.types=[{type:ADT,count:1}]`, `codes.currencyCode=BRL`, `points=true`, `pricingMode=points`, `filters.loyalty=PointsAndMonetary`
+- Headers: `Device: novosite`, `Culture: pt-BR`, browser `Accept` / `Origin` (`passagens.voeazul.com.br`) / `Referer` / `User-Agent`, `Authorization: Bearer` after login
 - Parses gecko-normalized `trips[].journeys[].fares[].pointsOptions[]` and native Navitaire `journeysAvailableByMarket` + `passengerFares.points`
-- Filter carrier `AD` / `2Z` (partner airlines dropped)
+- Filter `carrierCode=AD` only (2Z Conecta and partners dropped)
+- `flexibleDays` lowest fares are calendar-only and are **not** persisted as flight snapshots
 
 ### Full cash BRL (separate source, same host)
 
-- UI: same `selecao-voo` URL with `p[0].cp=false`
-- Upstream: same availability v5 POST with `points=false` and `filters.loyalty=MonetaryOnly`
-- `fares[].total.amount` + `currency=BRL` (or Navitaire `passengerFares[].fareAmount`)
+- UI: `https://www.voeazul.com.br/br/pt/home/selecao-voo?c[0].ds=PET&c[0].std=MM/DD/YYYY&c[0].as=VCP|POA&p[0].t=ADT&p[0].c=1&p[0].cp=false&cc=BRL`
+- Upstream: same availability v5 POST with `points=false`, `pricingMode=cash`, `filters.loyalty=MonetaryOnly`
+- Persist `fares[].total.amount` → `amount_brl`, currency BRL (Navitaire `passengerFares[].fareAmount` fallback)
 - Same ingest job (companion), distinct `source=voeazul`. Points WAF vs cash WAF can independently yield `partial`.
+
+### Routes
+
+- **PET→POA**: operates; empty on some DOWs is `empty`, not `scrape_failed`
+- **PET→VCP**: nonstop announced from **2026-10-26** Mon/Fri. Before that, empty inventory or connections (`stopsCount>0`) are **not** `scrape_failed`
 
 ### Auth
 
 Frozen secrets (placeholders only — no real credentials in git or CI):
 
-- `TUDOAZUL_LOGIN` / `TUDOAZUL_PASSWORD` — Azul Fidelidade / TudoAzul member pair
+- `TUDOAZUL_LOGIN` / `TUDOAZUL_PASSWORD` — Azul Fidelidade / TudoAzul member pair (not `AZUL_*`)
 - `TUDOAZUL_DRY_RUN=1` parses bundled PET→VCP and PET→POA fixtures (no network) until those secrets are provided privately
-- Optional `AZUL_SUBSCRIPTION_KEY` — public SPA APIM key, not a user password
 
 ### Rate / WAF
 
@@ -217,7 +223,7 @@ npx wrangler secret put TUDOAZUL_LOGIN
 npx wrangler secret put TUDOAZUL_PASSWORD
 ```
 
-Optional env overrides: `FLIGHT_WINDOW_START`, `FLIGHT_WINDOW_END` (YYYY-MM-DD), `SMILES_DRY_RUN`, `SMILES_ENV`, `SMILES_REQUEST_DELAY_MS`, `TUDOAZUL_DRY_RUN`, `AZUL_REQUEST_DELAY_MS`.
+Optional env overrides: `FLIGHT_WINDOW_START`, `FLIGHT_WINDOW_END` (YYYY-MM-DD), `SMILES_DRY_RUN`, `SMILES_ENV`, `SMILES_REQUEST_DELAY_MS`, `TUDOAZUL_DRY_RUN`, `TUDOAZUL_REQUEST_DELAY_MS`, `TUDOAZUL_API_HOST`.
 
 Without real Supabase secrets the worker still runs collectors and returns a summary; it skips persistence (`persisted: false`). Do not point `SUPABASE_URL` at a dummy hostname — workerd fails hard on DNS errors. Leave the vars empty instead.
 

@@ -4,11 +4,13 @@ import type { CollectParams } from '../src/collectors/types.ts';
 import { TUDOAZUL_SOURCE, VOEAZUL_SOURCE } from '../src/collectors/tudoazul/constants.ts';
 import {
   SEARCH_EMPTY,
+  SEARCH_FLEXIBLE_DAYS_ONLY,
   SEARCH_NAVITAIRE_CASH,
   SEARCH_NO_FARES,
   SEARCH_PET_POA_CASH,
   SEARCH_PET_POA_POINTS,
   SEARCH_PET_VCP_CASH,
+  SEARCH_PET_VCP_CONNECTING,
   SEARCH_PET_VCP_POINTS,
 } from '../src/collectors/tudoazul/fixtures.ts';
 import {
@@ -43,9 +45,9 @@ describe('tudoazul parser helpers', () => {
     assert.equal(departureTimeOf('2026-09-14T18:20:00-03:00'), '18:20:00');
   });
 
-  it('detects Azul by AD / 2Z and drops partners', () => {
+  it('keeps carrierCode=AD and drops 2Z / partners', () => {
     assert.equal(isAzulJourney({ segments: [{ flight: { carrierCode: 'AD' } }] }), true);
-    assert.equal(isAzulJourney({ segments: [{ identifier: { carrierCode: '2Z' } }] }), true);
+    assert.equal(isAzulJourney({ segments: [{ identifier: { carrierCode: '2Z' } }] }), false);
     assert.equal(isAzulJourney({ segments: [{ flight: { carrierCode: 'LA' } }] }), false);
     assert.equal(isAzulJourney({}), true);
   });
@@ -77,15 +79,29 @@ describe('parseAzulAvailability points PET→VCP', () => {
     assert.ok(morningMiles);
     assert.equal(morningMiles.amount_brl, null);
     assert.equal(morningMiles.taxes_brl, 39.9);
-    const morningRaw = morningMiles.raw_payload as { copay_brl?: number | null };
-    assert.equal(morningRaw.copay_brl, null);
+    const morningRaw = morningMiles.raw_payload as {
+      fare_money_brl?: number | null;
+      total_money_brl?: number | null;
+      convenience_fee_brl?: number | null;
+      amountLevel?: number | null;
+    };
+    assert.equal(morningRaw.fare_money_brl, null);
+    assert.equal(morningRaw.total_money_brl, 39.9);
+    assert.equal(morningRaw.amountLevel, 1);
 
     const mix = parsed.snapshots.find((row) => row.miles === 7200);
     assert.ok(mix);
     assert.equal(mix.amount_brl, null);
-    const mixRaw = mix.raw_payload as { copay_brl?: number | null; fareMoney?: { amount?: number } };
-    assert.equal(mixRaw.copay_brl, 248.5);
-    assert.equal(mixRaw.fareMoney?.amount, 248.5);
+    const mixRaw = mix.raw_payload as {
+      fare_money_brl?: number | null;
+      total_money_brl?: number | null;
+      convenience_fee_brl?: number | null;
+      amountLevel?: number | null;
+    };
+    assert.equal(mixRaw.fare_money_brl, 248.5);
+    assert.equal(mixRaw.total_money_brl, 288.4);
+    assert.equal(mixRaw.convenience_fee_brl, null);
+    assert.equal(mixRaw.amountLevel, 2);
 
     const omitted = parsed.snapshots.find((row) => row.miles === 14100);
     assert.ok(omitted);
@@ -117,6 +133,25 @@ describe('parseAzulAvailability cash PET→VCP', () => {
     assert.equal(morning?.amount_brl, 529.9);
     const evening = parsed.snapshots.find((row) => row.departure_time === '18:20:00');
     assert.equal(evening?.amount_brl, 612.4);
+    assert.equal(
+      parsed.snapshots.some((row) => row.amount_brl === 199.9),
+      false,
+      '2Z Conecta cash must be dropped',
+    );
+  });
+
+  it('persists a connecting PET→VCP journey (pre-nonstop launch)', () => {
+    const parsed = parseAzulAvailability(SEARCH_PET_VCP_CONNECTING, vcp, 'cash');
+    assert.equal(parsed.snapshots.length, 1);
+    assert.equal(parsed.snapshots[0]!.source, VOEAZUL_SOURCE);
+    assert.equal(parsed.snapshots[0]!.amount_brl, 678.2);
+    assert.equal((parsed.snapshots[0]!.raw_payload as { stops?: number }).stops, 1);
+  });
+
+  it('ignores flexibleDays calendar lowest fares', () => {
+    const parsed = parseAzulAvailability(SEARCH_FLEXIBLE_DAYS_ONLY, vcp, 'cash');
+    assert.equal(parsed.snapshots.length, 0);
+    assert.equal(parsed.azulJourneys, 0);
   });
 
   it('parses native Navitaire journeysAvailableByMarket', () => {

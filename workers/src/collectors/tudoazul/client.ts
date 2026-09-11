@@ -3,13 +3,15 @@ import type { Env } from '../../env';
 import { apiHost, isLiveEnabled } from './auth';
 import {
   AZUL_AVAILABILITY_PATH,
+  AZUL_CASH_REFERER,
   AZUL_CULTURE,
   AZUL_DEVICE,
   AZUL_ORIGIN,
-  AZUL_REFERER,
   BROWSER_UA,
   DEFAULT_DELAY_MS,
   MAX_RETRIES,
+  TUDOAZUL_POINTS_ORIGIN,
+  TUDOAZUL_POINTS_REFERER,
 } from './constants';
 import { isRetryableStatus, looksLikeHtml, parseRetryAfterMs, SequentialLimiter, waitMs } from './http';
 import type { AzulPricingMode, AzulSession } from './types';
@@ -29,7 +31,7 @@ export interface AzulClient {
 }
 
 export function requestDelayMs(env: Env): number {
-  const raw = env.AZUL_REQUEST_DELAY_MS?.trim() || env.TUDOAZUL_REQUEST_DELAY_MS?.trim();
+  const raw = env.TUDOAZUL_REQUEST_DELAY_MS?.trim();
   if (!raw) return DEFAULT_DELAY_MS;
   const parsed = Number(raw);
   return Number.isFinite(parsed) && parsed >= 0 ? parsed : DEFAULT_DELAY_MS;
@@ -40,33 +42,41 @@ function mmDdYyyy(isoDate: string): string {
   return `${month}/${day}/${year}`;
 }
 
-export function selecaoVooUrl(params: CollectParams, points: boolean): string {
-  const url = new URL(AZUL_REFERER);
+/** Cash PLP: `selecao-voo?...&p[0].cp=false&cc=BRL`. */
+export function selecaoVooUrl(params: CollectParams): string {
+  const url = new URL(AZUL_CASH_REFERER);
   url.searchParams.set('c[0].ds', params.origin);
   url.searchParams.set('c[0].std', mmDdYyyy(params.flightDate));
   url.searchParams.set('c[0].as', params.destination);
   url.searchParams.set('p[0].t', 'ADT');
   url.searchParams.set('p[0].c', '1');
-  url.searchParams.set('p[0].cp', points ? 'true' : 'false');
-  url.searchParams.set('f.dl', '0');
-  url.searchParams.set('f.dr', '0');
+  url.searchParams.set('p[0].cp', 'false');
   url.searchParams.set('cc', 'BRL');
   return url.toString();
+}
+
+export function browserContext(pricingMode: AzulPricingMode, params: CollectParams): { origin: string; referer: string } {
+  if (pricingMode === 'points') {
+    return { origin: TUDOAZUL_POINTS_ORIGIN, referer: TUDOAZUL_POINTS_REFERER };
+  }
+  return { origin: AZUL_ORIGIN, referer: selecaoVooUrl(params) };
 }
 
 /**
  * Body the voeazul SPA posts to availability v5.
  *
- * UI: `https://www.voeazul.com.br/br/pt/home/selecao-voo?...&p[0].cp={true|false}&cc=BRL`
- * Host: `POST {AZUL_API_HOST}/reservationavailability/api/reservation/availability/v5/availability`
+ * Cash UI: `https://www.voeazul.com.br/br/pt/home/selecao-voo?c[0].ds=PET&c[0].std=MM/DD/YYYY&c[0].as=VCP|POA&p[0].t=ADT&p[0].c=1&p[0].cp=false&cc=BRL`
+ * Points UI: `https://passagens.voeazul.com.br/pt/buscador-de-pontos`
+ * Host: `POST {apiHost}/reservationavailability/api/reservation/availability/v5/availability`
  *
  * - `criteria[].stations.originStationCodes` / `destinationStationCodes` — IATA
  * - `criteria[].dates.beginDate` — `{YYYY-MM-DD}T00:00:00`
  * - `passengers.types` — one ADT
  * - `codes.currencyCode=BRL`
- * - `points` + `filters.loyalty` — TudoAzul vs full cash (`p[0].cp`)
+ * - `points` + `pricingMode` — TudoAzul vs full cash
  */
-export function availabilityBody(params: CollectParams, points: boolean): Record<string, unknown> {
+export function availabilityBody(params: CollectParams, pricingMode: AzulPricingMode): Record<string, unknown> {
+  const points = pricingMode === 'points';
   return {
     criteria: [
       {
@@ -97,21 +107,20 @@ export function availabilityBody(params: CollectParams, points: boolean): Record
     ssrs: [],
     numberOfFaresPerJourney: 10,
     points,
+    pricingMode,
   };
 }
 
-export function requestHeaders(env: Env, session: AzulSession, referer: string): Headers {
+export function requestHeaders(session: AzulSession, origin: string, referer: string): Headers {
   const headers = new Headers();
   headers.set('Accept', 'application/json, text/plain, */*');
   headers.set('Accept-Language', 'pt-BR,pt;q=0.9,en;q=0.8');
   headers.set('Content-Type', 'application/json');
-  headers.set('Origin', AZUL_ORIGIN);
+  headers.set('Origin', origin);
   headers.set('Referer', referer);
   headers.set('User-Agent', BROWSER_UA);
   headers.set('Culture', AZUL_CULTURE);
   headers.set('Device', AZUL_DEVICE);
-  const key = session.subscriptionKey || env.AZUL_SUBSCRIPTION_KEY?.trim();
-  if (key) headers.set('Ocp-Apim-Subscription-Key', key);
   if (session.cookie) headers.set('Cookie', session.cookie);
   if (session.accessToken) headers.set('Authorization', `Bearer ${session.accessToken}`);
   return headers;
@@ -152,10 +161,10 @@ export function createAzulClient(
         };
       }
 
-      const points = request.pricingMode === 'points';
+      const { origin, referer } = browserContext(request.pricingMode, request.params);
       const url = `${apiHost(env)}${AZUL_AVAILABILITY_PATH}`;
-      const headers = requestHeaders(env, request.session, selecaoVooUrl(request.params, points));
-      const body = JSON.stringify(availabilityBody(request.params, points));
+      const headers = requestHeaders(request.session, origin, referer);
+      const body = JSON.stringify(availabilityBody(request.params, request.pricingMode));
       let attempt = 0;
       let lastError: Extract<SearchHttpResult, { ok: false }> | null = null;
 

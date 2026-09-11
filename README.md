@@ -2,7 +2,7 @@
 
 Dashboard FE-1.1 (Vite + React + TypeScript + **shadcn/ui**) alinhado ao wireframe **D-1 v2** e tokens **D-2**. Origem fixa **PET**, só ida, abas de destino **GRU | CGH | VCP**. O backend (Workers + Supabase) fica em outro lugar — este app não inventa APIs.
 
-Ingest BE-2/BE-4: coleta agendada de preços em [`workers/`](workers/). Smiles/GOL PET→CGH (`smiles_web`) e TudoAzul/AZUL PET→VCP e PET→POA (`tudoazul_web` + `voeazul`) são collectors HTTP reais. LATAM Pass continua stub até BE-5.
+Ingest BE-2/BE-4: coleta agendada de preços em [`workers/`](workers/). Smiles/GOL PET→CGH (`smiles_web`) e TudoAzul/AZUL PET→VCP e PET→POA (`tudoazul` + `voeazul`) são collectors HTTP reais. LATAM Pass continua stub até BE-5.
 
 ## Stack
 
@@ -70,7 +70,7 @@ npx wrangler pages deploy dist
 
 ## Ingest worker (BE-2 / BE-3)
 
-Scheduled collection lives in [`workers/`](workers/). **Smiles / GOL PET→CGH** (`source: smiles_web`) and **TudoAzul / AZUL PET→VCP + PET→POA** (`tudoazul_web` miles, `voeazul` cash) are implemented. LATAM Pass stays a stub until BE-5.
+Scheduled collection lives in [`workers/`](workers/). **Smiles / GOL PET→CGH** (`source: smiles_web`) and **TudoAzul / AZUL PET→VCP + PET→POA** (`tudoazul` miles, `voeazul` cash) are implemented. LATAM Pass stays a stub until BE-5.
 
 - Cron: 00:00, 06:00, 12:00, 18:00 **UTC** (21:00, 03:00, 09:00, 15:00 America/Sao_Paulo)
 - Local: `cd workers && npm install && npm run dev` — see [`workers/README.md`](workers/README.md) for `SMILES_*` / `TUDOAZUL_LOGIN`+`TUDOAZUL_PASSWORD` placeholders, dry-run fixtures, and a manual `/run` tick

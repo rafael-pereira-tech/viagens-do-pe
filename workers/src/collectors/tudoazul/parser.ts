@@ -1,5 +1,5 @@
 import type { CollectParams, Snapshot } from '../types';
-import { AZUL_CARRIER_CODES, TUDOAZUL_SOURCE, VOEAZUL_SOURCE } from './constants';
+import { AZUL_CARRIER_CODE, TUDOAZUL_SOURCE, VOEAZUL_SOURCE } from './constants';
 import type {
   AzulAvailabilityResponse,
   AzulFare,
@@ -85,12 +85,12 @@ function journeyCarrierCodes(journey: AzulJourney): string[] {
 export function isAzulJourney(journey: AzulJourney): boolean {
   const codes = journeyCarrierCodes(journey);
   if (codes.length === 0) return true;
-  return codes.some((code) => AZUL_CARRIER_CODES.has(code));
+  return codes.every((code) => code === AZUL_CARRIER_CODE);
 }
 
 export function hasNonAzulCarrier(journey: AzulJourney): boolean {
   const codes = journeyCarrierCodes(journey);
-  return codes.some((code) => !AZUL_CARRIER_CODES.has(code));
+  return codes.some((code) => code !== AZUL_CARRIER_CODE);
 }
 
 function unwrapRoot(payload: unknown): AzulAvailabilityResponse | null {
@@ -161,24 +161,7 @@ function snapshotBase(params: CollectParams, journey: AzulJourney): Omit<Snapsho
 }
 
 function pointsMiles(option: AzulPointsOption): number | null {
-  return quotedOrNull(option.discountedPoints, 'miles') ?? quotedOrNull(option.points, 'miles');
-}
-
-/**
- * Miles+money copay is **not** full cash. Store on raw_payload only.
- * Prefer fareMoney (tariff copay); fall back to totalMoney minus taxes when that
- * leftover is still a copay, never as amount_brl.
- */
-function copayBrl(option: AzulPointsOption): number | null {
-  const fareMoney = moneyAmount(option.fareMoney ?? undefined);
-  if (fareMoney != null) return fareMoney;
-  const totalMoney = moneyAmount(option.totalMoney ?? undefined);
-  const taxes = moneyAmount(option.taxesAndFees ?? undefined);
-  if (totalMoney != null && taxes != null) {
-    const leftover = roundMoney(totalMoney - taxes);
-    return leftover > 0 ? leftover : null;
-  }
-  return null;
+  return quotedOrNull(option.points, 'miles') ?? quotedOrNull(option.discountedPoints, 'miles');
 }
 
 function snapshotFromPointsOption(
@@ -189,7 +172,6 @@ function snapshotFromPointsOption(
 ): Snapshot | null {
   const miles = pointsMiles(option);
   if (miles == null) return null;
-  const copay = copayBrl(option);
   return {
     ...snapshotBase(params, journey),
     miles,
@@ -208,12 +190,11 @@ function snapshotFromPointsOption(
       arrival: journey.arrival ?? journey.designator?.arrival ?? null,
       points: option.points ?? null,
       discountedPoints: option.discountedPoints ?? null,
+      // Mix tier (1 = more points / less cash). Not a BRL price.
       amountLevel: option.amountLevel ?? null,
-      copay_brl: copay,
-      fareMoney: option.fareMoney ?? null,
-      taxesAndFees: option.taxesAndFees ?? null,
-      convenienceFee: option.convenienceFee ?? null,
-      totalMoney: option.totalMoney ?? null,
+      fare_money_brl: moneyAmount(option.fareMoney ?? undefined),
+      total_money_brl: moneyAmount(option.totalMoney ?? undefined),
+      convenience_fee_brl: moneyAmount(option.convenienceFee ?? undefined),
     },
   };
 }
@@ -253,9 +234,8 @@ function snapshotsFromNavitairePoints(
 ): Snapshot[] {
   const rows: Snapshot[] = [];
   for (const passenger of fare.passengerFares ?? []) {
-    const miles = quotedOrNull(passenger.discountedPoints, 'miles') ?? quotedOrNull(passenger.points, 'miles');
+    const miles = quotedOrNull(passenger.points, 'miles') ?? quotedOrNull(passenger.discountedPoints, 'miles');
     if (miles == null) continue;
-    const copay = quotedOrNull(passenger.fareAmount, 'money');
     rows.push({
       ...snapshotBase(params, journey),
       miles,
@@ -267,10 +247,13 @@ function snapshotsFromNavitairePoints(
         journeyKey: journey.journeyKey ?? journey.id ?? null,
         fareKey: fare.key ?? fare.fareAvailabilityKey ?? null,
         productClass: productClassCode(fare),
-        copay_brl: copay,
         passengerType: passenger.passengerType ?? null,
         points: passenger.points ?? null,
-        fareAmount: passenger.fareAmount ?? null,
+        discountedPoints: passenger.discountedPoints ?? null,
+        amountLevel: null,
+        fare_money_brl: quotedOrNull(passenger.fareAmount, 'money'),
+        total_money_brl: null,
+        convenience_fee_brl: null,
       },
     });
   }
@@ -297,6 +280,7 @@ export function parseAzulAvailability(
   const root = unwrapRoot(payload);
   if (!root) return { snapshots, azulJourneys, skippedFares, otherAirlineJourneys };
 
+  // `flexibleDays` is calendar-only (lowest fares). Never persist as snapshots.
   const trips = Array.isArray(root.trips) ? root.trips : [];
   for (const trip of trips) {
     for (const journey of journeysOf(trip)) {

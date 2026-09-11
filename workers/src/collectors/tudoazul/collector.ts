@@ -1,7 +1,7 @@
 import type { Env } from '../../env';
 import type { CollectParams, CollectResult, Collector, Snapshot } from '../types';
 import { isDryRun, isLiveEnabled, resolveSession } from './auth';
-import { AZUL_CULTURE, AZUL_DEVICE, AZUL_ORIGIN, BROWSER_UA } from './constants';
+import { AZUL_ORIGIN } from './constants';
 import { createAzulClient, requestHeaders, type AzulClient } from './client';
 import {
   SEARCH_PET_POA_CASH,
@@ -92,6 +92,8 @@ export function createTudoAzulCollector(env: Env, deps: TudoAzulCollectorDeps = 
   return {
     async collect(params: CollectParams): Promise<CollectResult> {
       // DOW preference is applied by the scheduler job order, not here.
+      // PET→VCP nonstop from 2026-10-26 Mon/Fri; earlier empty or connections
+      // (`stopsCount>0`) are inventory, never scrape_failed.
       if (isDryRun(env)) {
         const { pointsDate, points, cash } = dryRunPayloads(params.destination);
         const pointsParsed = parseAzulAvailability(shiftDates(points, pointsDate, params.flightDate), params, 'points');
@@ -109,19 +111,7 @@ export function createTudoAzulCollector(env: Env, deps: TudoAzulCollectorDeps = 
       }
 
       if (!sessionPromise) {
-        const headers = requestHeaders(
-          env,
-          {
-            subscriptionKey: env.AZUL_SUBSCRIPTION_KEY?.trim() || undefined,
-          },
-          AZUL_ORIGIN,
-        );
-        if (!headers.has('Content-Type')) headers.set('Content-Type', 'application/json');
-        headers.set('Accept', 'application/json, text/plain, */*');
-        headers.set('User-Agent', BROWSER_UA);
-        headers.set('Origin', AZUL_ORIGIN);
-        headers.set('Culture', AZUL_CULTURE);
-        headers.set('Device', AZUL_DEVICE);
+        const headers = requestHeaders({}, AZUL_ORIGIN, AZUL_ORIGIN);
         sessionPromise = resolveSession(env, { fetch: fetchImpl, headers });
       }
       const session = await sessionPromise;

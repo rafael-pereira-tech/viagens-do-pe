@@ -21,7 +21,7 @@ export function isLiveEnabled(env: Env): boolean {
 }
 
 export function apiHost(env: Env): string {
-  if (env.AZUL_API_HOST?.trim()) return env.AZUL_API_HOST.replace(/\/$/, '');
+  if (env.TUDOAZUL_API_HOST?.trim()) return env.TUDOAZUL_API_HOST.replace(/\/$/, '');
   return AZUL_API_HOST;
 }
 
@@ -56,9 +56,7 @@ export async function resolveSession(env: Env, deps: TokenDeps): Promise<AzulSes
     return { error: 'TudoAzul collector is not configured. Set TUDOAZUL_LOGIN and TUDOAZUL_PASSWORD, or TUDOAZUL_DRY_RUN=1.' };
   }
 
-  const session: AzulSession = {
-    subscriptionKey: env.AZUL_SUBSCRIPTION_KEY?.trim() || undefined,
-  };
+  const session: AzulSession = {};
 
   const url = `${apiHost(env)}${AZUL_TOKEN_PATH}`;
   let response: Response;
