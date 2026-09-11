@@ -1,21 +1,27 @@
 import type { Program } from '../config';
+import type { Env } from '../env';
 import { latamPassCollector } from './latam-pass';
-import { smilesCollector } from './smiles';
+import { createSmilesCollector } from './smiles';
 import { tudoAzulCollector } from './tudoazul';
 import type { Collector } from './types';
 
 export type { CollectParams, CollectResult, Collector, Snapshot } from './types';
 
-export const collectors: Record<Program, Collector> = {
-  smiles: smilesCollector,
-  tudoazul: tudoAzulCollector,
-  latam_pass: latamPassCollector,
-};
+export function createCollectors(env: Env = {}): Record<Program, Collector> {
+  return {
+    smiles: createSmilesCollector(env),
+    tudoazul: tudoAzulCollector,
+    latam_pass: latamPassCollector,
+  };
+}
 
-export function getCollector(program: Program): Collector {
-  const collector = collectors[program];
+export function getCollector(program: Program, env: Env = {}): Collector {
+  const collector = createCollectors(env)[program];
   if (!collector) {
     throw new Error(`No collector registered for program ${program}`);
   }
   return collector;
 }
+
+/** Default registry without Smiles credentials (auth_failed until env is passed). */
+export const collectors: Record<Program, Collector> = createCollectors();

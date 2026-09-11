@@ -6,4 +6,32 @@ export interface Env {
   /** Optional ISO date override (YYYY-MM-DD) for the collection window. */
   FLIGHT_WINDOW_START?: string;
   FLIGHT_WINDOW_END?: string;
+
+  /**
+   * Smiles (BE-3). Never commit real values.
+   *
+   * Live guest search needs `SMILES_API_KEY` (public SPA `x-api-key` from DevTools
+   * on `v1/airlines/search`). Optional member session: `SMILES_COOKIE` and/or
+   * `SMILES_ACCESS_TOKEN` + `SMILES_MEMBER_NUMBER`. Password login is best-effort
+   * (`SMILES_USER` / `SMILES_PASS`) and usually blocked by Auth0/captcha.
+   *
+   * `SMILES_DRY_RUN=1` parses bundled PET→CGH fixtures (no network).
+   */
+  SMILES_API_KEY?: string;
+  SMILES_USER?: string;
+  SMILES_PASS?: string;
+  SMILES_COOKIE?: string;
+  SMILES_ACCESS_TOKEN?: string;
+  SMILES_MEMBER_NUMBER?: string;
+  SMILES_DRY_RUN?: string;
+  SMILES_LIVE?: string;
+  SMILES_ENV?: string;
+  SMILES_SEARCH_HOST?: string;
+  SMILES_LOGIN_HOST?: string;
+  SMILES_AUTH_CLIENT_ID?: string;
+  SMILES_AUTH_AUDIENCE?: string;
+  SMILES_AUTH_REALM?: string;
+  SMILES_FARE_TYPES?: string;
+  SMILES_INCLUDE_CLUB?: string;
+  SMILES_REQUEST_DELAY_MS?: string;
 }

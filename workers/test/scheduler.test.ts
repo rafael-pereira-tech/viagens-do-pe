@@ -82,21 +82,27 @@ function baseDeps(store: SnapshotStore) {
 }
 
 describe('runIngest', () => {
-  it('runs the full stub matrix and records an empty ingest_run', async () => {
+  it('runs the full matrix; unconfigured Smiles is auth_failed, other programs stay empty stubs', async () => {
     const { store, snapshots, runs } = memoryStore();
     const summary = await runIngest({ ...baseDeps(store), cron: '0 12 * * *' });
 
     assert.equal(summary.skipped, false);
-    assert.equal(summary.status, 'empty');
+    assert.equal(summary.status, 'partial');
     assert.equal(summary.jobCount, 122 * 4);
     assert.equal(summary.snapshotCount, 0);
     assert.equal(summary.persisted, true);
     assert.equal(summary.routes.length, 4);
+    const smilesRoute = summary.routes.find((r) => r.program === 'smiles');
+    assert.equal(smilesRoute?.status, 'auth_failed');
+    assert.equal(smilesRoute?.origin, 'PET');
+    assert.equal(smilesRoute?.destination, 'CGH');
+    assert.ok(summary.failures.length === 122);
+    assert.ok(summary.failures.every((f) => f.status === 'auth_failed' && f.program === 'smiles'));
     assert.ok(summary.runId);
     assert.equal(summary.collectedAt, now.toISOString());
     assert.equal(snapshots.length, 0);
     assert.equal(runs.length, 1);
-    assert.equal(runs[0]!.status, 'empty');
+    assert.equal(runs[0]!.status, 'partial');
     assert.equal(runs[0]!.cron, '0 12 * * *');
     assert.equal(runs[0]!.collected_at, summary.collectedAt);
   });
@@ -113,7 +119,7 @@ describe('runIngest', () => {
       lock: new SkipIfRunningLock(),
     });
     assert.equal(summary.skipped, false);
-    assert.equal(summary.status, 'empty');
+    assert.equal(summary.status, 'partial');
     assert.equal(summary.persisted, false);
     assert.equal(summary.jobCount, 122 * 4);
   });
@@ -256,10 +262,36 @@ describe('runIngest', () => {
     const summary = await runIngest(baseDeps(store));
 
     assert.equal(summary.skipped, false);
-    assert.equal(summary.status, 'empty');
+    assert.equal(summary.status, 'partial');
     const stale = runs.find((r) => r.id === '00000000-0000-0000-0000-000000000001');
     assert.equal(stale?.status, 'scrape_failed');
     assert.notEqual(stale?.status, 'success');
-    assert.equal(runs.at(-1)?.status, 'empty');
+    assert.equal(runs.at(-1)?.status, 'partial');
+  });
+
+  it('persists Smiles dry-run PET→CGH snapshots for a one-day window', async () => {
+    const { store, snapshots, runs } = memoryStore();
+    const summary = await runIngest({
+      ...baseDeps(store),
+      env: {
+        SMILES_DRY_RUN: '1',
+        FLIGHT_WINDOW_START: '2026-09-15',
+        FLIGHT_WINDOW_END: '2026-09-15',
+      },
+      cron: 'manual',
+    });
+
+    assert.equal(summary.skipped, false);
+    assert.equal(summary.status, 'success');
+    assert.equal(summary.jobCount, 4);
+    assert.equal(summary.snapshotCount, 4);
+    const smiles = snapshots.filter((row) => row.program === 'smiles');
+    assert.equal(smiles.length, summary.snapshotCount);
+    assert.ok(smiles.every((row) => row.origin === 'PET' && row.destination === 'CGH'));
+    assert.ok(smiles.every((row) => row.source === 'smiles_web'));
+    assert.ok(smiles.every((row) => row.ingest_run_id === summary.runId));
+    assert.ok(smiles.every((row) => row.collected_at === summary.collectedAt));
+    assert.ok(smiles.some((row) => row.miles === 7200 && row.amount_brl === 248.5));
+    assert.equal(runs[0]!.status, 'success');
   });
 });
