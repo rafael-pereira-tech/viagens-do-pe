@@ -57,7 +57,9 @@ function resultFromParse(parsed: ReturnType<typeof parseLatamOffers>): CollectRe
 }
 
 export function createLatamPassCollector(env: Env, deps: LatamPassCollectorDeps = {}): Collector {
-  const fetchImpl = deps.fetch ?? fetch;
+  // Cloudflare's global fetch requires the global object as its receiver.
+  // Keep injected test clients untouched, but bind the production fallback.
+  const fetchImpl: typeof fetch = deps.fetch ?? ((input, init) => fetch(input, init));
   const sleep = deps.sleep ?? waitMs;
   const client = deps.client ?? createLatamClient(env, { fetch: fetchImpl, sleep, now: deps.now });
   let sessionPromise: Promise<LatamSession | { error: string }> | null = null;
