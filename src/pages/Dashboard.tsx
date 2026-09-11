@@ -107,7 +107,7 @@ export function Dashboard() {
         onSelectDate={onSelectDate}
       />
       {applied.dia ? (
-        <p className="text-xs text-slate-500">
+        <p className="text-xs text-muted-foreground">
           Tabela filtrada por {formatShortDate(applied.dia)}. Clique de novo na barra para limpar o dia.
         </p>
       ) : null}

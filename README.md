@@ -1,13 +1,13 @@
 # Viagens do Pé
 
-Dashboard FE-1 (Vite + React + TypeScript) alinhado ao wireframe **D-1 v2 MVP**. Origem fixa **PET**, só ida, abas de destino **GRU | CGH | VCP**. O backend (Workers + Supabase) fica em outro lugar — este app não inventa APIs.
+Dashboard FE-1.1 (Vite + React + TypeScript + **shadcn/ui**) alinhado ao wireframe **D-1 v2** e tokens **D-2**. Origem fixa **PET**, só ida, abas de destino **GRU | CGH | VCP**. O backend (Workers + Supabase) fica em outro lugar — este app não inventa APIs.
 
 Ingest BE-2: coleta agendada de preços em [`workers/`](workers/) (stubs até BE-3/4/5).
 
 ## Stack
 
 - Vite + React + TypeScript
-- Tailwind CSS v4
+- Tailwind CSS v4 + shadcn/ui (tokens D-2)
 - Cloudflare Pages (`npm run build` → `dist`, SPA fallback)
 - Cloudflare Workers (ingest) + Supabase Postgres
 
@@ -30,20 +30,27 @@ npm run preview
 
 | Variável | Obrigatória | Uso |
 | --- | --- | --- |
-| `VITE_API_URL` | Não (FE-1) | Base URL do Workers API. Vazia = stubs locais. Ex.: `https://api.exemplo.workers.dev` |
+| `VITE_API_URL` | Não (FE-1 / FE-1.1) | Base URL do Workers API. Vazia = stubs locais. Ex.: `https://api.exemplo.workers.dev` |
 
 Copie `.env.example` para `.env` ou `.env.local`. O Vite só expõe variáveis com prefixo `VITE_`. **Não há fetch neste milestone.**
 
+## D-2 + shadcn (FE-1.1)
+
+Tokens semânticos em `src/index.css` (`:root` HSL). Primitivos em `src/components/ui/`. O gráfico de barras continua custom (SVG), com cores `--chart-1` / `--chart-2` e Tooltip no chrome.
+
+- Topbar: logo, **Viagens do Pé**, Badge success/soft `Origem fixa · PET · ida`, Button outline Entrar/Sair, Avatar+Fallback.
+- Abas **GRU | CGH | VCP** (Tabs) trocam KPIs, gráfico e tabela na hora. Persistido em `?to=GRU`.
+- Filtros (batch no **Aplicar**): Input date (janela futura) + Select da fonte. **Limpar** (outline) reseta a janela/fonte. Query: `from`, `until`, `fonte`.
+- KPIs (Card): menor milhas, menor BRL (cash), melhor milheiro — `text-2xl font-semibold tracking-tight tabular-nums`.
+- Gráfico: barras agrupadas **só em datas futuras**; ToggleGroup Milhas+BRL / Só milhas / Só BRL (`bars`); clique na barra filtra a tabela (`dia`).
+- Tabela (Table, thead sticky): Data, Cia/programa, Fonte, Milhas, Taxas (BRL), Cash (BRL), Milheiro. Só voos futuros. Vazio: *Sem ofertas futuras nesta aba*.
+- Loading: Skeleton (`?ui=loading`).
+
 ## D-1 v2 (comportamento)
 
-- Topbar: logo, **Viagens do Pé**, pill `Origem fixa · PET · ida`, avatar (stub Entrar/Sair).
-- Abas **GRU | CGH | VCP** trocam KPIs, gráfico e tabela na hora. Persistido em `?to=GRU`.
-- Filtros (batch no **Aplicar**): janela futura + fonte. **Limpar** reseta a janela/fonte. Query: `from`, `until`, `fonte`.
-- KPIs (3, da aba ativa): menor milhas, menor BRL (cash), melhor milheiro.
-- Gráfico: barras agrupadas **só em datas futuras**; toggle Milhas+BRL / Só milhas / Só BRL (`bars`); clique na barra filtra a tabela (`dia`).
-- Tabela: Data, Cia/programa, Fonte, Milhas, Taxas (BRL), Cash (BRL), Milheiro. Só voos futuros. Vazio: *Sem ofertas futuras nesta aba*.
-
-Dados em `src/data/placeholders.ts` (`PriceSnapshot` + milheiro derivado). Ofertas no passado são ignoradas.
+- Origem fixa PET · ida — sem picker de rota; sem nav Alertas/Fontes.
+- Dados em `src/data/placeholders.ts` (`PriceSnapshot` + milheiro derivado). Ofertas no passado são ignoradas.
+- Query preservada: `to`, `from`, `until`, `fonte`, `dia`, `bars`.
 
 ## Deploy — Cloudflare Pages
 
@@ -80,8 +87,9 @@ Scheduled collection lives in [`workers/`](workers/). Collectors for Smiles, Tud
 ```
 src/
   components/     shell, abas, filtros, KPIs, gráfico, tabela
+  components/ui/  primitivos shadcn
   data/           stubs PET → GRU/CGH/VCP
-  lib/            query URL, filtros, formatação, VITE_API_URL
+  lib/            query URL, filtros, formatação, VITE_API_URL, tokens de UI
   pages/Dashboard.tsx
   types/priceSnapshot.ts
 workers/          ingest Worker (BE-2) + wrangler.toml
