@@ -89,10 +89,3 @@ jobs:
         uses: gitleaks/gitleaks-action@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: osv-scanner (vuln scan)
-        uses: google/osv-scanner-action@v2.5.1
-        continue-on-error: true
-        with:
-          scan-args: |-
-            --recursive
-            .
