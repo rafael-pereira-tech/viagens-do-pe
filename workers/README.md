@@ -19,18 +19,20 @@ Contract, FE call pattern, and OpenAPI: [`docs/api-price-snapshots.md`](../docs/
 curl -sS http://localhost:8787/api/v1/health
 
 curl -sS -G 'http://localhost:8787/api/v1/snapshots/latest' \
+  -H 'Authorization: Bearer dev-only-read-api-key' \
   --data-urlencode origin=PET \
   --data-urlencode destination=CGH \
   --data-urlencode flight_date_from=2026-09-01 \
   --data-urlencode flight_date_to=2026-12-31
 
 curl -sS -G 'http://localhost:8787/api/v1/snapshots/stats' \
+  -H 'Authorization: Bearer dev-only-read-api-key' \
   --data-urlencode origin=PET \
   --data-urlencode destination=CGH \
   --data-urlencode group_by=window
 ```
 
-CORS allowlist: `https://viagens-do-pe.pages.dev`, Pages previews, `localhost` / `127.0.0.1`. Optional `API_READ_SECRET` adds a Bearer gate. `raw_payload` is omitted unless `?include_raw=1` (secret keys still redacted).
+CORS allowlist: `https://viagens-do-pe.pages.dev`, Pages previews, `localhost` / `127.0.0.1`. Snapshot routes require `Authorization: Bearer <READ_API_KEY>` (not `INGEST_TRIGGER_SECRET`; not the FE Entrar/Sair stub). `raw_payload` is omitted unless `?include_raw=1` (secret keys still redacted).
 
 ## Timezone
 
@@ -328,7 +330,7 @@ npx wrangler secret put SUPABASE_SERVICE_ROLE_KEY
 # optional, required for POST /run:
 npx wrangler secret put INGEST_TRIGGER_SECRET
 # optional dashboard read gate (BE-6):
-npx wrangler secret put API_READ_SECRET
+npx wrangler secret put READ_API_KEY
 # BE-3 live Smiles (omit if SMILES_DRY_RUN=1):
 npx wrangler secret put SMILES_API_KEY
 # optional member session:
