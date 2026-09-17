@@ -87,6 +87,77 @@ export function parseLatamCash(
   return rows;
 }
 
+/** LATAM miles / LATAM Pass — same offers/search endpoint with redemption=true (login). */
+export function parseLatamMiles(
+  body: unknown,
+  origin: string,
+  destination: string,
+  flightDate: string,
+): SnapshotRow[] {
+  const root = body as { content?: unknown[] };
+  const rows: SnapshotRow[] = [];
+  for (const item of root.content ?? []) {
+    const c = item as {
+      summary?: {
+        origin?: { departureTime?: string; departure?: string };
+        flightCode?: string;
+        stopOvers?: number;
+        lowestPrice?: { amount?: number; currency?: string };
+        lowestBrandText?: string;
+        brands?: Array<{
+          brandText?: string;
+          price?: { amount?: number; currency?: string };
+          taxes?: { amount?: number; currency?: string };
+        }>;
+      };
+    };
+    const s = c.summary;
+    if (!s) continue;
+    // Prefer the cheapest brand quoted in loyalty miles; fall back to summary.lowestPrice.
+    let miles: number | null = null;
+    let fareLabel: string | undefined = s.lowestBrandText;
+    let taxesBrl: number | null = null;
+    for (const brand of s.brands ?? []) {
+      const cur = (brand.price?.currency ?? '').toUpperCase();
+      const amt = num(brand.price?.amount);
+      if (amt === null) continue;
+      if (cur && cur !== 'BRL' && cur !== 'USD') {
+        // Loyalty currency (e.g. PTS / miles) — treat amount as miles.
+        if (miles === null || amt < miles) {
+          miles = Math.round(amt);
+          fareLabel = brand.brandText ?? fareLabel;
+          const tCur = (brand.taxes?.currency ?? 'BRL').toUpperCase();
+          taxesBrl = !tCur || tCur === 'BRL' ? num(brand.taxes?.amount) : null;
+        }
+      }
+    }
+    if (miles === null) {
+      const lowest = num(s.lowestPrice?.amount);
+      if (lowest !== null && lowest >= 1000) {
+        // Miles quotes are typically thousands; cash BRL for PET→GRU is often lower.
+        miles = Math.round(lowest);
+      }
+    }
+    if (miles === null) continue;
+    rows.push({
+      origin,
+      destination,
+      airline: 'LATAM',
+      program: 'latam_pass',
+      flightDate,
+      departureTime: timeOf(s.origin?.departureTime ?? s.origin?.departure),
+      miles,
+      amountBrl: null,
+      taxesBrl,
+      currency: 'BRL',
+      fareLabel,
+      flightCode: s.flightCode,
+      stops: s.stopOvers,
+    });
+  }
+  return rows;
+}
+
 // ---------------------------------------------------------------------------
 // Smiles — GET /v1/airlines/search  (one-way => SEGMENT_1 only)
 // Emits a miles row (club price) and a cash row (MONEY fare) per flight.
