@@ -112,13 +112,35 @@ def main():
         print(json.dumps(rows[0], indent=2, ensure_ascii=False))
         return
 
-    st, h, body = req(
-        "POST", endpoint, key, body=rows,
-        extra_headers={"Prefer": "resolution=ignore-duplicates,return=minimal"},
-    )
-    print(f"insert status={st}")
-    if st >= 400:
-        print(body); sys.exit(1)
+    # Chunk inserts: a single duplicate in a large batch can still 409 on some
+    # PostgREST setups even with resolution=ignore-duplicates.
+    chunk = 25
+    ok = 0
+    skipped = 0
+    for i in range(0, len(rows), chunk):
+        batch = rows[i : i + chunk]
+        st, h, body = req(
+            "POST", endpoint, key, body=batch,
+            extra_headers={"Prefer": "resolution=ignore-duplicates,return=minimal"},
+        )
+        if st in (200, 201):
+            ok += len(batch)
+            print(f"  chunk {i//chunk+1}: status={st} n={len(batch)}")
+            continue
+        # Fall back to per-row so one duplicate cannot block new rows.
+        print(f"  chunk {i//chunk+1}: status={st} — retrying per-row")
+        for row in batch:
+            st2, _, body2 = req(
+                "POST", endpoint, key, body=[row],
+                extra_headers={"Prefer": "resolution=ignore-duplicates,return=minimal"},
+            )
+            if st2 in (200, 201):
+                ok += 1
+            elif st2 == 409:
+                skipped += 1
+            else:
+                print(body2); sys.exit(1)
+    print(f"insert ok≈{ok} skipped_dup≈{skipped}")
 
     st, h, _ = req(
         "GET",

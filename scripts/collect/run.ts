@@ -77,6 +77,8 @@ interface SourceCfg {
   rewarmEachSearch?: boolean;
   // Default weekdays to search (getUTCDay: 0=Sun..6=Sat). Overridden by --dow / --dow-<source>.
   dow?: number[];
+  /** Prefer this over `dow` when set — supports schedule windows (e.g. Azul only after Oct 26). */
+  dateOk?: (isoDate: string) => boolean;
 }
 
 // --------------------------------------------------------------------------
@@ -114,6 +116,11 @@ function parseArgs() {
     smiles: parseDow(get('dow-smiles')),
     azul: parseDow(get('dow-azul')),
   };
+  // outbound | reverse | both  (--both-ways is an alias for both)
+  const directionsRaw = get('directions', argv.includes('--both-ways') ? 'both' : 'outbound');
+  const directions = (['outbound', 'reverse', 'both'].includes(directionsRaw)
+    ? directionsRaw
+    : 'outbound') as 'outbound' | 'reverse' | 'both';
   // --cdp=URL tries connectOverCDP first; omit (or --no-cdp) to launch Chrome directly.
   const cdpRaw = get('cdp', '');
   return {
@@ -124,8 +131,8 @@ function parseArgs() {
     sources,
     dowGlobal,
     dowBySource,
-    // --both-ways also sweeps the reverse route (e.g. CGH->PET as well as PET->CGH).
-    bothWays: argv.includes('--both-ways'),
+    directions,
+    bothWays: directions === 'both',
     minWaitMs: Number(get('min-wait', '18000')),
     maxWaitMs: Number(get('max-wait', '42000')),
     // When set explicitly, CLI wait overrides per-source think-time (handy for validation).
@@ -164,8 +171,12 @@ const SOURCES: Record<Task['source'], SourceCfg> = {
     home: 'https://www.latamairlines.com/br/pt',
     match: /air-offers\/(v\d+\/)?offers\/search/i,
     needsReloadRetry: false,
-    // Wed / Fri / Sat (PET→GRU schedule preference for Nov+)
-    dow: [3, 5, 6],
+    // Through 2026-10-30: Mon/Wed/Fri. From Nov: Wed/Fri/Sat.
+    dateOk(iso) {
+      const dow = new Date(`${iso}T00:00:00Z`).getUTCDay();
+      if (iso <= '2026-10-30') return dow === 1 || dow === 3 || dow === 5;
+      return dow === 3 || dow === 5 || dow === 6;
+    },
     deepLink(t) {
       const params = new URLSearchParams({
         origin: t.origin,
@@ -225,8 +236,14 @@ const SOURCES: Record<Task['source'], SourceCfg> = {
     match: /availability/i,
     needsReloadRetry: true,
     rewarmEachSearch: true,
-    // Mon / Fri
-    dow: [1, 5],
+    // On/after 2026-10-26: Mon/Fri. From Nov some PET↔VCP legs move Fri→Thu,
+    // so include Thu as well (empty searches are cheap vs missing a week).
+    dateOk(iso) {
+      if (iso < '2026-10-26') return false;
+      const dow = new Date(`${iso}T00:00:00Z`).getUTCDay();
+      if (iso < '2026-11-01') return dow === 1 || dow === 5;
+      return dow === 1 || dow === 4 || dow === 5;
+    },
     minWaitMs: 40000,
     maxWaitMs: 60000,
     deepLink(t) {
@@ -383,23 +400,27 @@ async function main(): Promise<void> {
   // Build task list grouped by source (keeps each source session warm).
   const allDates = datesInRange(args.from, args.to);
   const tasks: Task[] = [];
+  const utcDow = (iso: string) => new Date(`${iso}T00:00:00Z`).getUTCDay();
   for (const source of args.sources) {
     const cfg = SOURCES[source];
-    const dow = args.dowGlobal ?? args.dowBySource[source] ?? cfg.dow ?? null;
-    const dates = dow
-      ? allDates.filter((d) => dow.includes(new Date(`${d}T00:00:00Z`).getUTCDay()))
-      : allDates;
-    if (dow) {
-      log(`${source}: dow=${dow.join(',')} -> ${dates.length} dates`);
-    }
+    const cliDow = args.dowGlobal ?? args.dowBySource[source] ?? null;
+    const dates = allDates.filter((d) => {
+      if (cliDow) return cliDow.includes(utcDow(d));
+      if (cfg.dateOk) return cfg.dateOk(d);
+      if (cfg.dow) return cfg.dow.includes(utcDow(d));
+      return true;
+    });
+    log(`${source}: ${dates.length} dates (directions=${args.directions})`);
     const sp = SP_DEST[source];
-    // Routes: PET->SP always; add the reverse (SP->PET) when --both-ways.
-    const routes: Array<[string, string]> = args.bothWays
-      ? [
-          [args.origin, sp],
-          [sp, args.origin],
-        ]
-      : [[args.origin, sp]];
+    const routes: Array<[string, string]> =
+      args.directions === 'both'
+        ? [
+            [args.origin, sp],
+            [sp, args.origin],
+          ]
+        : args.directions === 'reverse'
+          ? [[sp, args.origin]]
+          : [[args.origin, sp]];
     for (const [origin, destination] of routes) {
       for (const date of dates) {
         if (source === 'azul' || source === 'latam') {
