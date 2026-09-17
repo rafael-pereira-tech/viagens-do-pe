@@ -1,9 +1,9 @@
 import { useEffect, useState, type ReactNode } from 'react'
-import { Link, useLocation } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { API_URL } from '../lib/config.ts'
-import { usePlaygroundFf } from '../lib/playgroundFf.ts'
+import { useFeatureFlags } from '../lib/featureFlags.ts'
 
 const AUTH_KEY = 'vdpe-auth'
 
@@ -25,7 +25,8 @@ function LogoMark() {
 
 export function Shell({ children }: { children: ReactNode }) {
   const location = useLocation()
-  const playgroundFf = usePlaygroundFf()
+  const navigate = useNavigate()
+  const { playground, anyActive, clearAll } = useFeatureFlags()
   const [signedIn, setSignedIn] = useState(() => {
     try {
       return localStorage.getItem(AUTH_KEY) === '1'
@@ -44,6 +45,20 @@ export function Shell({ children }: { children: ReactNode }) {
 
   return (
     <div className="min-h-dvh bg-background px-3 py-4 sm:px-6 sm:py-8">
+      {anyActive ? (
+        <Button
+          type="button"
+          variant="secondary"
+          size="sm"
+          className="fixed top-3 right-3 z-50 shadow-md"
+          onClick={() => {
+            clearAll()
+            if (location.pathname.startsWith('/playground')) navigate('/', { replace: true })
+          }}
+        >
+          Limpar FF
+        </Button>
+      ) : null}
       <div className="mx-auto max-w-6xl rounded-3xl border border-border bg-card p-4 shadow-sm sm:p-6">
         <header className="flex flex-wrap items-center gap-3 border-b border-border pb-4">
           <div className="flex min-w-0 items-center gap-2.5">
@@ -59,7 +74,7 @@ export function Shell({ children }: { children: ReactNode }) {
             >
               <Link to="/">Dashboard</Link>
             </Button>
-            {playgroundFf ? (
+            {playground ? (
               <Button
                 asChild
                 variant={location.pathname === '/playground' ? 'secondary' : 'ghost'}
