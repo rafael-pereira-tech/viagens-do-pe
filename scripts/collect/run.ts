@@ -12,19 +12,23 @@
  *   scripts/collect/out/<range>/progress.json     (completed searches, for resume)
  *
  * Usage:
- *   # Launch a real Chrome first (separate profile, remote debugging):
+ *   # Default: launches installed Chrome via launchPersistentContext (webdriver=false).
+ *   # Optional CDP (may fail on newer Chrome that rejects Browser.setDownloadBehavior):
  *   "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" \
  *     --remote-debugging-port=9222 --user-data-dir="$HOME/.cache/chrome-debug-vdp" about:blank
- *
  *   pnpm collect -- --cdp=http://127.0.0.1:9222 --month=2026-10 --origin=PET
- *   pnpm collect -- --cdp=http://127.0.0.1:9222 --from=2026-10-01 --to=2026-10-02   # slice
+ *
+ *   pnpm collect -- --month=2026-10 --origin=PET
+ *   pnpm collect -- --from=2026-10-01 --to=2026-10-02 --sources=latam,smiles
  */
-import { chromium, type Browser, type BrowserContext, type Page } from '@playwright/test';
+import { chromium, type BrowserContext, type Page } from '@playwright/test';
 import { mkdir, readFile, appendFile, writeFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import {
   parseLatamCash,
+  parseLatamMiles,
   parseSmiles,
   parseAzulCash,
   parseAzulPoints,
@@ -32,7 +36,21 @@ import {
   type SnapshotRow,
 } from './parsers.ts';
 
-const SOURCE_ID = 'local-cdp-sweep';
+/** Dashboard Fonte filter ids (must match FILTER_FONTES in the app).
+ * Smiles search returns miles + MONEY cash together; cash is stored as `voegol`
+ * so `price_snapshots_latest` (1 row per source/day) keeps both, matching the
+ * Worker collector model (smiles_web miles + voegol cash).
+ * LATAM cash → latam_web; LATAM miles (redemption) → latam_pass. */
+function sourceIdFor(task: Task, row?: SnapshotRow): string {
+  if (task.source === 'smiles') {
+    // Pure cash MONEY fare → VoeGOL companion source.
+    if (row && row.miles == null && row.amountBrl != null) return 'voegol';
+    return 'smiles_web';
+  }
+  if (task.source === 'latam') return task.modality === 'points' ? 'latam_pass' : 'latam_web';
+  // Azul cash vs points collectors use different source labels in the UI.
+  return task.modality === 'points' ? 'tudoazul' : 'voeazul';
+}
 
 // PET -> São Paulo airport per airline (matches price_snapshots route notes).
 const SP_DEST: Record<string, string> = { latam: 'GRU', smiles: 'CGH', azul: 'VCP' };
@@ -57,6 +75,8 @@ interface SourceCfg {
   // Smiles MFE only re-fires its search XHR when it boots fresh from home; a
   // direct deep-link->deep-link navigation goes stale. Re-warm home each search.
   rewarmEachSearch?: boolean;
+  // Default weekdays to search (getUTCDay: 0=Sun..6=Sat). Overridden by --dow / --dow-<source>.
+  dow?: number[];
 }
 
 // --------------------------------------------------------------------------
@@ -81,16 +101,29 @@ function parseArgs() {
   if (!from) throw new Error('provide --month=YYYY-MM or --from/--to');
   if (!to) to = from;
   const sources = (get('sources', 'latam,smiles,azul').split(',').filter(Boolean)) as Task['source'][];
-  // Weekday filter: comma list of getUTCDay() numbers (0=Sun..6=Sat). Tue/Thu/Sat = 2,4,6.
-  const dowRaw = get('dow');
-  const dow = dowRaw ? dowRaw.split(',').map(Number).filter((n) => n >= 0 && n <= 6) : null;
+  // Weekday filter: comma list of getUTCDay() numbers (0=Sun..6=Sat).
+  // Global --dow overrides every source; else --dow-<source> or SourceCfg.dow defaults.
+  const parseDow = (raw: string): number[] | null => {
+    if (!raw) return null;
+    const nums = raw.split(',').map(Number).filter((n) => n >= 0 && n <= 6);
+    return nums.length ? nums : null;
+  };
+  const dowGlobal = parseDow(get('dow'));
+  const dowBySource: Partial<Record<Task['source'], number[] | null>> = {
+    latam: parseDow(get('dow-latam')),
+    smiles: parseDow(get('dow-smiles')),
+    azul: parseDow(get('dow-azul')),
+  };
+  // --cdp=URL tries connectOverCDP first; omit (or --no-cdp) to launch Chrome directly.
+  const cdpRaw = get('cdp', '');
   return {
-    cdpUrl: get('cdp', 'http://127.0.0.1:9222'),
+    cdpUrl: argv.includes('--no-cdp') ? '' : cdpRaw,
     origin,
     from,
     to,
     sources,
-    dow,
+    dowGlobal,
+    dowBySource,
     // --both-ways also sweeps the reverse route (e.g. CGH->PET as well as PET->CGH).
     bothWays: argv.includes('--both-ways'),
     minWaitMs: Number(get('min-wait', '18000')),
@@ -131,6 +164,8 @@ const SOURCES: Record<Task['source'], SourceCfg> = {
     home: 'https://www.latamairlines.com/br/pt',
     match: /air-offers\/(v\d+\/)?offers\/search/i,
     needsReloadRetry: false,
+    // Wed / Fri / Sat (PET→GRU schedule preference for Nov+)
+    dow: [3, 5, 6],
     deepLink(t) {
       const params = new URLSearchParams({
         origin: t.origin,
@@ -141,18 +176,23 @@ const SOURCES: Record<Task['source'], SourceCfg> = {
         inf: '0',
         trip: 'OW',
         cabin: 'Economy',
-        redemption: 'false',
+        redemption: t.modality === 'points' ? 'true' : 'false',
         sort: 'RECOMMENDED',
       });
       return `https://www.latamairlines.com/br/pt/oferta-voos?${params.toString()}`;
     },
-    parse: (b, t) => parseLatamCash(b, t.origin, t.destination, t.date),
+    parse: (b, t) =>
+      t.modality === 'points'
+        ? parseLatamMiles(b, t.origin, t.destination, t.date)
+        : parseLatamCash(b, t.origin, t.destination, t.date),
   },
   smiles: {
     home: 'https://www.smiles.com.br/home',
     match: /airlines\/search/i,
     needsReloadRetry: true, // reload re-boots the MFE if the first deep-link goes stale
     rewarmEachSearch: true, // MFE only fires search when booted from a fresh home load
+    // Tue / Thu / Sat
+    dow: [2, 4, 6],
     // One search per ~1 minute (with jitter) to stay well under the radar.
     minWaitMs: 55000,
     maxWaitMs: 72000,
@@ -184,6 +224,11 @@ const SOURCES: Record<Task['source'], SourceCfg> = {
     home: 'https://www.voeazul.com.br/br/pt/home',
     match: /availability/i,
     needsReloadRetry: true,
+    rewarmEachSearch: true,
+    // Mon / Fri
+    dow: [1, 5],
+    minWaitMs: 40000,
+    maxWaitMs: 60000,
     deepLink(t) {
       const [y, m, d] = t.date.split('-');
       const std = `${m}/${d}/${y}`;
@@ -259,17 +304,51 @@ async function acceptCookies(page: Page): Promise<void> {
 // --------------------------------------------------------------------------
 // Main
 // --------------------------------------------------------------------------
-async function connect(cdpUrl: string): Promise<Browser> {
-  let lastErr: unknown;
-  for (let attempt = 1; attempt <= 3; attempt++) {
-    try {
-      return await chromium.connectOverCDP(cdpUrl);
-    } catch (err) {
-      lastErr = err;
-      await sleep(1500);
+interface OpenedBrowser {
+  context: BrowserContext;
+  page: Page;
+  /** If true, we own the browser and must close the context on exit. */
+  owned: boolean;
+}
+
+/**
+ * Prefer CDP when asked, but Chrome 153+ rejects Playwright's
+ * Browser.setDownloadBehavior on connectOverCDP. Fall back to launching the
+ * installed Chrome channel with automation flags stripped (navigator.webdriver=false).
+ */
+async function openBrowser(cdpUrl: string, log: (m: string) => void): Promise<OpenedBrowser> {
+  if (cdpUrl) {
+    let lastErr: unknown;
+    for (let attempt = 1; attempt <= 2; attempt++) {
+      try {
+        const browser = await chromium.connectOverCDP(cdpUrl);
+        const context = browser.contexts()[0] ?? (await browser.newContext());
+        const page = await context.newPage();
+        log(`browser: CDP ${cdpUrl}`);
+        return { context, page, owned: false };
+      } catch (err) {
+        lastErr = err;
+        log(`browser: CDP attempt ${attempt} failed: ${(err as Error).message.split('\n')[0]}`);
+        await sleep(1000);
+      }
     }
+    log(`browser: CDP unavailable (${(lastErr as Error).message?.split('\n')[0] ?? 'error'}) — falling back to persistent Chrome`);
   }
-  throw lastErr;
+
+  const userDataDir = path.join(os.homedir(), '.cache', 'chrome-pw-vdp');
+  const context = await chromium.launchPersistentContext(userDataDir, {
+    channel: 'chrome',
+    headless: false,
+    ignoreDefaultArgs: ['--enable-automation'],
+    args: ['--disable-blink-features=AutomationControlled'],
+    locale: 'pt-BR',
+    timezoneId: 'America/Sao_Paulo',
+    viewport: { width: 1280, height: 900 },
+  });
+  const page = context.pages()[0] ?? (await context.newPage());
+  const wd = await page.evaluate(() => (navigator as { webdriver?: boolean }).webdriver);
+  log(`browser: persistent Chrome (webdriver=${wd ?? false})`);
+  return { context, page, owned: true };
 }
 
 async function main(): Promise<void> {
@@ -297,38 +376,51 @@ async function main(): Promise<void> {
   if (!existsSync(sqlPath)) {
     await writeFile(
       sqlPath,
-      `-- price_snapshots load — generated by scripts/collect/run.ts\n-- range ${label}, source=${SOURCE_ID}\n-- Safe to re-run: every statement is ON CONFLICT DO NOTHING.\n\n`,
+      `-- price_snapshots load — generated by scripts/collect/run.ts\n-- range ${label}\n-- Sources: smiles_web / latam_web / voeazul / tudoazul\n-- Safe to re-run: every statement is ON CONFLICT DO NOTHING.\n\n`,
     );
   }
 
   // Build task list grouped by source (keeps each source session warm).
-  let dates = datesInRange(args.from, args.to);
-  if (args.dow) {
-    dates = dates.filter((d) => args.dow!.includes(new Date(`${d}T00:00:00Z`).getUTCDay()));
-    log(`weekday filter dow=${args.dow.join(',')} -> ${dates.length} dates`);
-  }
+  const allDates = datesInRange(args.from, args.to);
   const tasks: Task[] = [];
   for (const source of args.sources) {
+    const cfg = SOURCES[source];
+    const dow = args.dowGlobal ?? args.dowBySource[source] ?? cfg.dow ?? null;
+    const dates = dow
+      ? allDates.filter((d) => dow.includes(new Date(`${d}T00:00:00Z`).getUTCDay()))
+      : allDates;
+    if (dow) {
+      log(`${source}: dow=${dow.join(',')} -> ${dates.length} dates`);
+    }
     const sp = SP_DEST[source];
     // Routes: PET->SP always; add the reverse (SP->PET) when --both-ways.
     const routes: Array<[string, string]> = args.bothWays
-      ? [[args.origin, sp], [sp, args.origin]]
+      ? [
+          [args.origin, sp],
+          [sp, args.origin],
+        ]
       : [[args.origin, sp]];
     for (const [origin, destination] of routes) {
       for (const date of dates) {
-        if (source === 'azul') {
+        if (source === 'azul' || source === 'latam') {
+          // Cash + miles/points as separate searches (LATAM needs login for points).
           tasks.push({ source, modality: 'cash', origin, destination, date });
           tasks.push({ source, modality: 'points', origin, destination, date });
         } else {
-          tasks.push({ source, modality: source === 'smiles' ? 'mixed' : 'cash', origin, destination, date });
+          tasks.push({
+            source,
+            modality: 'mixed',
+            origin,
+            destination,
+            date,
+          });
         }
       }
     }
   }
+  log(`queue: ${tasks.length} searches`);
 
-  const browser = await connect(args.cdpUrl);
-  const context: BrowserContext = browser.contexts()[0] ?? (await browser.newContext());
-  const page = await context.newPage();
+  const { context, page, owned } = await openBrowser(args.cdpUrl, log);
 
   // Single response listener; `active` is swapped per search.
   const active: { match: RegExp | null; body: unknown } = { match: null, body: null };
@@ -404,12 +496,24 @@ async function main(): Promise<void> {
         totals.empty++;
         log(`  empty (search ok, 0 offers) — empty_confirmed`);
       } else {
-        // Stream outputs.
+        // Stream outputs — Smiles cash rows use source `voegol` (see sourceIdFor).
         const jsonl = rows
-          .map((r) => JSON.stringify({ ...r, collectedAt, modality: task.modality, source: SOURCE_ID }))
+          .map((r) =>
+            JSON.stringify({ ...r, collectedAt, modality: task.modality, source: sourceIdFor(task, r) }),
+          )
           .join('\n');
         await appendFile(jsonlPath, jsonl + '\n');
-        await appendFile(sqlPath, rowsToSql(rows, SOURCE_ID, collectedAt));
+        // Group by dashboard source so SQL INSERTs carry the right source id.
+        const bySource = new Map<string, SnapshotRow[]>();
+        for (const r of rows) {
+          const sid = sourceIdFor(task, r);
+          const list = bySource.get(sid) ?? [];
+          list.push(r);
+          bySource.set(sid, list);
+        }
+        for (const [sid, group] of bySource) {
+          await appendFile(sqlPath, rowsToSql(group, sid, collectedAt));
+        }
         totals.rows += rows.length;
         const sample = rows[0];
         log(
@@ -429,7 +533,11 @@ async function main(): Promise<void> {
     await humanPause(page, minW, maxW);
   }
 
-  await page.close().catch(() => {});
+  if (owned) {
+    await context.close().catch(() => {});
+  } else {
+    await page.close().catch(() => {});
+  }
   log('');
   log(`DONE — searches=${totals.searches} rows=${totals.rows} empty=${totals.empty} failed=${totals.failed}`);
   log(`artifacts: ${outDir}`);
