@@ -14,6 +14,7 @@ import {
   toWindowStats,
 } from './aggregate';
 import { authorizeRead } from './auth';
+import { handlePostEvent } from './events';
 import { json, jsonError, publicErrorMessage } from './http';
 import { isDryRunSource, toPublicSnapshot } from './redact';
 import { isCashCompanionSource } from './sources';
@@ -37,6 +38,8 @@ import type { PriceSnapshot, SnapshotQuery, SnapshotStatsResponse } from './type
 
 export interface ReadApiDeps {
   rest?: SupabaseRest | null;
+  /** Test seam for POST /api/v1/events (Analytics Engine). */
+  writeDataPoint?: (point: import('./events').AnalyticsEngineDataPoint) => void;
 }
 
 const LATEST_GRAIN = 'origin,destination,airline,program,source,flight_date';
@@ -79,6 +82,12 @@ async function fetchSnapshots(
 export async function handleReadApi(request: Request, env: Env, deps: ReadApiDeps = {}): Promise<Response> {
   const url = new URL(request.url);
   const path = normalizePath(url.pathname);
+
+  // Public ingest — no READ_API_KEY (and not tied to stub Entrar).
+  if (path === '/api/v1/events') {
+    if (request.method !== 'POST') return jsonError('method_not_allowed', 405);
+    return handlePostEvent(request, env, { writeDataPoint: deps.writeDataPoint });
+  }
 
   if (request.method !== 'GET') {
     return jsonError('method_not_allowed', 405);
