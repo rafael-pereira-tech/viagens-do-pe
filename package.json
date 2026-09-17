@@ -21,7 +21,12 @@
     "size": "size-limit",
     "size:why": "size-limit --why",
     "test:e2e": "playwright test",
-    "test:e2e:ui": "playwright test --ui"
+    "test:e2e:ui": "playwright test --ui",
+    "discover": "tsx scripts/discover/run.ts",
+    "discover:latam": "tsx scripts/discover/run.ts --source=latam",
+    "discover:smiles": "tsx scripts/discover/run.ts --source=smiles",
+    "discover:azul": "tsx scripts/discover/run.ts --source=azul",
+    "collect": "tsx scripts/collect/run.ts"
   },
   "lint-staged": {
     "src/**/*.{ts,tsx}": [

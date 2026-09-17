@@ -27,6 +27,12 @@ playwright/.cache
 # Husky internals (hook scripts in .husky/ are committed)
 .husky/_
 
+# Crawler discovery artifacts (HAR/screenshots may contain cookies/tokens)
+scripts/discover/out/
+
+# Batch collector output (generated snapshot data + SQL to load into prod)
+scripts/collect/out/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
