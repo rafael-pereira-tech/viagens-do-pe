@@ -11,7 +11,7 @@ import { OffersTable } from '../components/OffersTable.tsx'
 import { StateView } from '../components/StateView.tsx'
 import { chartFromOffers, kpisFromOffers, PLACEHOLDER_OFFERS } from '../data/placeholders.ts'
 import { applyQuery } from '../lib/filters.ts'
-import { type ChartMode, type Destination, type DryMode, DESTINATIONS } from '../lib/query.ts'
+import { type ChartMode, type Destination, DESTINATIONS } from '../lib/query.ts'
 
 type Variant = 'success' | 'loading' | 'error' | 'empty'
 
@@ -35,8 +35,7 @@ export function Playground() {
   const [globalVariant, setGlobalVariant] = useState<Variant>('success')
   const [destination, setDestination] = useState<Destination>('GRU')
   const [chartMode, setChartMode] = useState<ChartMode>('both')
-  const [dryMode, setDryMode] = useState<DryMode>('include')
-  const [draft, setDraft] = useState({ from: '', until: '', fonte: '' })
+  const [draft, setDraft] = useState({ from: '', until: '' })
 
   const isLoading = globalVariant === 'loading'
   const isError = globalVariant === 'error'
@@ -48,13 +47,13 @@ export function Playground() {
       to: destination,
       from: draft.from,
       until: draft.until,
-      fonte: draft.fonte,
+      fonte: '',
       dia: '',
       bars: chartMode,
       ui: '' as const,
-      dryMode,
+      dryMode: 'live' as const,
     }),
-    [destination, draft, chartMode, dryMode],
+    [destination, draft, chartMode],
   )
 
   const tabRows = useMemo(() => applyQuery(PLACEHOLDER_OFFERS, baseQuery, { ignoreDay: true }), [baseQuery])
@@ -126,11 +125,9 @@ export function Playground() {
 
           <FiltersBar
             draft={draft}
-            dryMode={dryMode}
             onDraftChange={(patch) => setDraft((d) => ({ ...d, ...patch }))}
-            onDryModeChange={setDryMode}
             onApply={() => {}}
-            onClear={() => setDraft({ from: '', until: '', fonte: '' })}
+            onClear={() => setDraft({ from: '', until: '' })}
             isLoading={isLoading}
           />
           <p className="text-xs text-muted-foreground">
@@ -172,7 +169,7 @@ export function Playground() {
           <OffersTable
             rows={effectiveRows}
             isLoading={isLoading}
-            onResetFilters={() => setDraft({ from: '', until: '', fonte: '' })}
+            onResetFilters={() => setDraft({ from: '', until: '' })}
             error={errorMsg}
             onRetry={() => setGlobalVariant('success')}
           />
@@ -197,7 +194,7 @@ export function Playground() {
                 <StateView
                   variant="filtered-empty"
                   title="Sem ofertas futuras nesta aba"
-                  description="Ajuste a janela ou a fonte."
+                  description="Ajuste a janela de datas."
                   actionLabel="Limpar filtros"
                   onAction={() => {}}
                 />
