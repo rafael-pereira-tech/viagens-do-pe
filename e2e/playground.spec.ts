@@ -1,6 +1,12 @@
 import { expect, test } from '@playwright/test'
 
 test.describe('/playground - estados', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.addInitScript(() => {
+      localStorage.setItem('vdpe-ff-playground', '1')
+    })
+  })
+
   test('renders playground and toggles variants', async ({ page }) => {
     await page.goto('/playground')
 
@@ -55,5 +61,23 @@ test.describe('/playground - estados', () => {
         // Dashboard may add ?to=GRU&live=1, so just check pathname
         await expect(page).toHaveURL(/\//)
       })
+  })
+
+  test('redirects to dashboard when FF is off', async ({ page }) => {
+    await page.addInitScript(() => {
+      localStorage.removeItem('vdpe-ff-playground')
+    })
+    await page.goto('/playground')
+    await expect(page).toHaveURL(/\/(?:\?|$)/)
+    await expect(page.getByRole('navigation').getByRole('link', { name: 'Playground' })).toHaveCount(0)
+  })
+
+  test('enables via ?playground=1 query param', async ({ page }) => {
+    await page.addInitScript(() => {
+      localStorage.removeItem('vdpe-ff-playground')
+    })
+    await page.goto('/playground?playground=1')
+    await expect(page.getByRole('heading', { name: /Playground · estados/ })).toBeVisible()
+    await expect(page.getByRole('navigation').getByRole('link', { name: 'Playground' })).toBeVisible()
   })
 })

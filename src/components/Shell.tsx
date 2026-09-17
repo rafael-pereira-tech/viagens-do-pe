@@ -1,9 +1,9 @@
 import { useEffect, useState, type ReactNode } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
-import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { API_URL } from '../lib/config.ts'
+import { usePlaygroundFf } from '../lib/playgroundFf.ts'
 
 const AUTH_KEY = 'vdpe-auth'
 
@@ -25,6 +25,7 @@ function LogoMark() {
 
 export function Shell({ children }: { children: ReactNode }) {
   const location = useLocation()
+  const playgroundFf = usePlaygroundFf()
   const [signedIn, setSignedIn] = useState(() => {
     try {
       return localStorage.getItem(AUTH_KEY) === '1'
@@ -49,9 +50,6 @@ export function Shell({ children }: { children: ReactNode }) {
             <LogoMark />
             <span className="truncate text-base font-semibold tracking-tight text-foreground">Viagens do Pê</span>
           </div>
-          <Badge variant="success" className="h-auto px-3 py-1 text-xs font-medium">
-            Origem fixa · PET · ida
-          </Badge>
           <nav className="flex items-center gap-1 text-xs" aria-label="Navegação">
             <Button
               asChild
@@ -61,14 +59,16 @@ export function Shell({ children }: { children: ReactNode }) {
             >
               <Link to="/">Dashboard</Link>
             </Button>
-            <Button
-              asChild
-              variant={location.pathname === '/playground' ? 'secondary' : 'ghost'}
-              size="sm"
-              className="h-8 px-2.5"
-            >
-              <Link to="/playground">Playground</Link>
-            </Button>
+            {playgroundFf ? (
+              <Button
+                asChild
+                variant={location.pathname === '/playground' ? 'secondary' : 'ghost'}
+                size="sm"
+                className="h-8 px-2.5"
+              >
+                <Link to="/playground">Playground</Link>
+              </Button>
+            ) : null}
           </nav>
           <div className="ml-auto flex items-center gap-2">
             <Button
