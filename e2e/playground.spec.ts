@@ -70,14 +70,28 @@ test.describe('/playground - estados', () => {
     await page.goto('/playground')
     await expect(page).toHaveURL(/\/(?:\?|$)/)
     await expect(page.getByRole('navigation').getByRole('link', { name: 'Playground' })).toHaveCount(0)
+    await expect(page.getByRole('button', { name: 'Limpar FF' })).toHaveCount(0)
   })
 
-  test('enables via ?playground=1 query param', async ({ page }) => {
+  test('enables via ?playground=1, persists, strips QP', async ({ page }) => {
     await page.addInitScript(() => {
       localStorage.removeItem('vdpe-ff-playground')
     })
     await page.goto('/playground?playground=1')
     await expect(page.getByRole('heading', { name: /Playground · estados/ })).toBeVisible()
     await expect(page.getByRole('navigation').getByRole('link', { name: 'Playground' })).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Limpar FF' })).toBeVisible()
+    await expect(page).toHaveURL(/\/playground\/?(?:\?.*)?$/)
+    await expect(page).not.toHaveURL(/playground=1/)
+    expect(await page.evaluate(() => localStorage.getItem('vdpe-ff-playground'))).toBe('1')
+  })
+
+  test('Limpar FF clears storage and hides playground', async ({ page }) => {
+    await page.goto('/playground')
+    await expect(page.getByRole('button', { name: 'Limpar FF' })).toBeVisible()
+    await page.getByRole('button', { name: 'Limpar FF' }).click()
+    await expect(page).toHaveURL(/\/(?:\?|$)/)
+    await expect(page.getByRole('navigation').getByRole('link', { name: 'Playground' })).toHaveCount(0)
+    expect(await page.evaluate(() => localStorage.getItem('vdpe-ff-playground'))).toBeNull()
   })
 })
