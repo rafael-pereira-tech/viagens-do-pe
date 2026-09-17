@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { API_URL } from '../lib/config.ts'
-import { useFeatureFlags } from '../lib/featureFlags.ts'
+import { useFeatureFlags } from '../lib/featureFlags.tsx'
 
 const AUTH_KEY = 'vdpe-auth'
 
