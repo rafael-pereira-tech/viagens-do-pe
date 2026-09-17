@@ -1,7 +1,7 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import { Shell } from './components/Shell.tsx'
-import { FeatureFlagsProvider, useFeatureFlags } from './lib/featureFlags.ts'
+import { FeatureFlagsProvider, useFeatureFlags } from './lib/featureFlags.tsx'
 import { Dashboard } from './pages/Dashboard.tsx'
 import { Playground } from './pages/Playground.tsx'
 
