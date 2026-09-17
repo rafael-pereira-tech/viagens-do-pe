@@ -19,17 +19,16 @@ import {
   type ChartMode,
   type DashboardQuery,
   type Destination,
-  type DryMode,
 } from '../lib/query.ts'
 
-type FilterDraft = Pick<DashboardQuery, 'from' | 'until' | 'fonte'>
+type FilterDraft = Pick<DashboardQuery, 'from' | 'until'>
 
 function toDraft(query: DashboardQuery): FilterDraft {
-  return { from: query.from, until: query.until, fonte: query.fonte }
+  return { from: query.from, until: query.until }
 }
 
 function draftKey(draft: FilterDraft): string {
-  return `${draft.from}|${draft.until}|${draft.fonte}`
+  return `${draft.from}|${draft.until}`
 }
 
 export function Dashboard() {
@@ -58,7 +57,7 @@ export function Dashboard() {
   )
   const tabRows = useMemo(() => applyQuery(sourceRows, applied, { ignoreDay: true }), [applied, sourceRows])
   const rows = useMemo(() => applyQuery(sourceRows, applied), [applied, sourceRows])
-  const useApiStats = live && applied.dryMode !== 'only'
+  const useApiStats = live
   const kpis = kpisFromOffers(tabRows, useApiStats ? remote.windowStats : undefined)
   const chart =
     useApiStats && remote.routeDay.length > 0
@@ -74,14 +73,14 @@ export function Dashboard() {
   const effectiveKpis = forcedEmpty ? kpisFromOffers([], undefined) : kpis
 
   function commit(next: DashboardQuery) {
-    setSearchParams(queryToSearchParams(next), { replace: true })
+    setSearchParams(queryToSearchParams({ ...next, fonte: '', dryMode: 'live' }), { replace: true })
   }
 
   function applyFilters() {
     const today = todayIso()
     const from = draft.from && draft.from < today ? today : draft.from
     const until = draft.until && draft.until < today ? today : draft.until
-    commit({ ...applied, from, until, fonte: draft.fonte, dia: '' })
+    commit({ ...applied, from, until, fonte: '', dryMode: 'live', dia: '' })
   }
 
   function clearFilters() {
@@ -90,7 +89,6 @@ export function Dashboard() {
       to: applied.to,
       bars: applied.bars,
       ui: applied.ui,
-      dryMode: applied.dryMode,
     })
   }
 
@@ -111,9 +109,7 @@ export function Dashboard() {
       <DestinationTabs active={applied.to} onChange={onTab} />
       <FiltersBar
         draft={draft}
-        dryMode={applied.dryMode}
         onDraftChange={(patch) => setDraft((d) => ({ ...d, ...patch }))}
-        onDryModeChange={(dryMode: DryMode) => commit({ ...applied, dryMode })}
         onApply={applyFilters}
         onClear={clearFilters}
         isLoading={effectiveIsLoading}
@@ -141,18 +137,9 @@ export function Dashboard() {
         error={effectiveError}
         onRetry={remote.refresh}
       />
-      {applied.dryMode === 'include' ? (
-        <p className="text-xs text-muted-foreground">
-          Padrão: inclui <code className="font-mono">*_dry_run</code> (a base ainda é só fixture; stats já estão
-          limpos). Dados → Produção manda <code className="font-mono">exclude_dry_run=1</code> (
-          <code className="font-mono">?live=1</code>) e pode esvaziar KPIs até existir ingest live.
-        </p>
-      ) : null}
-      {applied.dryMode === 'live' ? (
-        <p className="text-xs text-muted-foreground">
-          Produção: <code className="font-mono">exclude_dry_run=1</code>. Sem linhas live a tabela/KPIs ficam vazios.
-        </p>
-      ) : null}
+      <p className="text-xs text-muted-foreground">
+        Produção: <code className="font-mono">exclude_dry_run=1</code>. Sem linhas live a tabela/KPIs ficam vazios.
+      </p>
       {applied.dia ? (
         <p className="text-xs text-muted-foreground">
           Tabela filtrada por {formatShortDate(applied.dia)}. Clique de novo na barra para limpar o dia.

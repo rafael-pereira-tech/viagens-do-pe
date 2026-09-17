@@ -13,7 +13,7 @@ export type ChartMode = 'both' | 'milhas' | 'brl'
 
 export type UiState = '' | 'loading' | 'error' | 'empty'
 
-/** Production reads are live by default; QA can opt into `dry` or `dry_run`. */
+/** Always production (`live`) in the dashboard; include/only kept for filter plumbing. */
 export type DryMode = 'live' | 'include' | 'only'
 
 export type DashboardQuery = {
@@ -50,14 +50,8 @@ function isChartMode(value: string): value is ChartMode {
   return value === 'both' || value === 'milhas' || value === 'brl'
 }
 
-export function parseDryMode(params: URLSearchParams): DryMode {
-  const live = (params.get('live') ?? params.get('prod') ?? params.get('exclude_dry_run') ?? '').toLowerCase()
-  if (live === '1' || live === 'true') return 'live'
-  const include = (params.get('dry') ?? '').toLowerCase()
-  if (include === '1' || include === 'true') return 'include'
-  const only = (params.get('dry_run') ?? '').toLowerCase()
-  if (only === '1' || only === 'true') return 'only'
-  if (only === '0' || only === 'false' || include === '0' || include === 'false') return 'live'
+/** Always `live`; URL dry/dry_run/live flags are ignored. */
+export function parseDryMode(): DryMode {
   return 'live'
 }
 
@@ -69,11 +63,13 @@ export function parseQuery(params: URLSearchParams): DashboardQuery {
     to: isDestination(toParam) ? toParam : 'GRU',
     from: params.get('from') ?? '',
     until: params.get('until') ?? '',
-    fonte: params.get('fonte') ?? '',
+    // Always all fontes — ignore ?fonte=
+    fonte: '',
     dia: params.get('dia') ?? '',
     bars: isChartMode(barsParam) ? barsParam : 'both',
     ui: isUiState(uiParam) ? uiParam : '',
-    dryMode: parseDryMode(params),
+    // Always production — ignore ?dry= / ?dry_run= / ?live=
+    dryMode: 'live',
   }
 }
 
@@ -82,12 +78,11 @@ export function queryToSearchParams(query: DashboardQuery): URLSearchParams {
   params.set('to', query.to)
   if (query.from) params.set('from', query.from)
   if (query.until) params.set('until', query.until)
-  if (query.fonte) params.set('fonte', query.fonte)
+  // Never persist fonte / dry_run — always all fontes + production
   if (query.dia) params.set('dia', query.dia)
   if (query.bars !== 'both') params.set('bars', query.bars)
   if (query.ui) params.set('ui', query.ui)
-  if (query.dryMode === 'live') params.set('live', '1')
-  if (query.dryMode === 'only') params.set('dry_run', '1')
+  params.set('live', '1')
   return params
 }
 
