@@ -7,6 +7,10 @@ export const FEATURE_FLAGS = {
     key: 'vdpe-ff-playground',
     param: 'playground',
   },
+  authUi: {
+    key: 'vdpe-ff-auth',
+    param: 'auth',
+  },
 } as const
 
 export type FeatureFlagId = keyof typeof FEATURE_FLAGS
@@ -38,7 +42,10 @@ function writeStored(id: FeatureFlagId, enabled: boolean) {
 }
 
 function readAllStored(): FlagState {
-  return { playground: readStored('playground') }
+  return {
+    playground: readStored('playground'),
+    authUi: readStored('authUi'),
+  }
 }
 
 function parseQp(value: string | null): boolean | null {
@@ -109,3 +116,5 @@ export function useFeatureFlags(): FeatureFlagsApi {
 
 export const PLAYGROUND_FF_KEY = FEATURE_FLAGS.playground.key
 export const PLAYGROUND_FF_PARAM = FEATURE_FLAGS.playground.param
+export const AUTH_UI_FF_KEY = FEATURE_FLAGS.authUi.key
+export const AUTH_UI_FF_PARAM = FEATURE_FLAGS.authUi.param
