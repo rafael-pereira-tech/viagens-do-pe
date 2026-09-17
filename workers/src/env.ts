@@ -96,4 +96,6 @@ export interface Env {
   SENTRY_DSN?: string;
   /** Wrangler version_metadata binding for Sentry release. */
   CF_VERSION_METADATA?: { id: string; tag?: string; timestamp?: string };
+  /** Product analytics (POST /api/v1/events). */
+  USER_EVENTS?: AnalyticsEngineDataset;
 }

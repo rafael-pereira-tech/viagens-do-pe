@@ -20,6 +20,7 @@ import {
   type DashboardQuery,
   type Destination,
 } from '../lib/query.ts'
+import { track } from '../lib/track.ts'
 
 type FilterDraft = Pick<DashboardQuery, 'from' | 'until'>
 
@@ -48,6 +49,10 @@ export function Dashboard() {
       setSearchParams(queryToSearchParams(applied), { replace: true })
     }
   }, [applied, searchParams, setSearchParams])
+
+  useEffect(() => {
+    track('page_view')
+  }, [])
 
   const live = CAN_FETCH_SNAPSHOTS
   const remote = useDashboardSnapshots(applied)
@@ -80,6 +85,7 @@ export function Dashboard() {
     const today = todayIso()
     const from = draft.from && draft.from < today ? today : draft.from
     const until = draft.until && draft.until < today ? today : draft.until
+    track('filter_apply', { from: from || null, until: until || null })
     commit({ ...applied, from, until, fonte: '', dryMode: 'live', dia: '' })
   }
 
@@ -93,6 +99,7 @@ export function Dashboard() {
   }
 
   function onTab(to: Destination) {
+    track('tab_change', { to })
     commit({ ...applied, to, dia: '' })
   }
 
@@ -101,6 +108,7 @@ export function Dashboard() {
   }
 
   function onSelectDate(isoDate: string) {
+    track('chart_click', { date: isoDate, to: applied.to })
     commit({ ...applied, dia: applied.dia === isoDate ? '' : isoDate })
   }
 

@@ -24,7 +24,7 @@ describe('CORS responses', () => {
     });
     const withCors = applyCors(allowed, {}, new Response('{"ok":true}'));
     assert.equal(withCors.headers.get('Access-Control-Allow-Origin'), PAGES_ORIGIN);
-    assert.equal(withCors.headers.get('Access-Control-Allow-Methods'), 'GET, OPTIONS');
+    assert.equal(withCors.headers.get('Access-Control-Allow-Methods'), 'GET, POST, OPTIONS');
 
     const blocked = applyCors(
       new Request('http://localhost:8787/api/v1/snapshots', { headers: { Origin: 'https://evil.example' } }),
