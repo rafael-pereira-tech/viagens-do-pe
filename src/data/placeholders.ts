@@ -1,4 +1,4 @@
-import { milheiroFromQuote } from '../lib/api.ts'
+import { attachClassicMilheiros, milheiroFromQuote } from '../lib/api.ts'
 import { airlineForDestination, airlineIdFromName, type AirlineId } from '../lib/airlines.ts'
 import { isCashCompanionSource, programLabel } from '../lib/filters.ts'
 import { formatShortDate } from '../lib/format.ts'
@@ -26,7 +26,7 @@ function row(
 }
 
 /** Local stubs only — PET one-way to GRU / CGH / VCP. Includes a past row per dest (filtered out). */
-export const PLACEHOLDER_OFFERS: OfferRow[] = [
+const PLACEHOLDER_OFFERS_RAW: OfferRow[] = [
   row('GRU', -4, {
     airline: 'LATAM',
     program: 'latam_pass',
@@ -90,6 +90,14 @@ export const PLACEHOLDER_OFFERS: OfferRow[] = [
     taxes_brl: 61,
     source: 'smiles_web_dry_run',
   }),
+  row('CGH', 5, {
+    airline: 'GOL',
+    program: 'smiles',
+    departure_time: '08:10',
+    amount_brl: 479,
+    taxes_brl: 49,
+    source: 'voegol_dry_run',
+  }),
   row('CGH', 12, {
     airline: 'GOL',
     program: 'smiles',
@@ -97,6 +105,14 @@ export const PLACEHOLDER_OFFERS: OfferRow[] = [
     amount_brl: 690,
     taxes_brl: 77,
     source: 'voegol_dry_run',
+  }),
+  row('CGH', 12, {
+    airline: 'GOL',
+    program: 'smiles',
+    departure_time: '15:30',
+    miles: 24_500,
+    taxes_brl: 49,
+    source: 'smiles_web_dry_run',
   }),
   row('CGH', 19, {
     airline: 'GOL',
@@ -148,6 +164,8 @@ export const PLACEHOLDER_OFFERS: OfferRow[] = [
   }),
 ]
 
+export const PLACEHOLDER_OFFERS: OfferRow[] = attachClassicMilheiros(PLACEHOLDER_OFFERS_RAW)
+
 export type KpiModel = {
   menorMilhas: { value: number; caption: string } | null
   menorBrl: { value: number; caption: string } | null
@@ -157,6 +175,11 @@ export type KpiModel = {
 function minBy<T>(rows: T[], value: (row: T) => number): T | null {
   if (rows.length === 0) return null
   return rows.reduce((acc, row) => (value(row) < value(acc) ? row : acc))
+}
+
+function maxBy<T>(rows: T[], value: (row: T) => number): T | null {
+  if (rows.length === 0) return null
+  return rows.reduce((acc, row) => (value(row) > value(acc) ? row : acc))
 }
 
 export function kpisFromOffers(rows: OfferRow[], stats?: SnapshotWindowStats | null): KpiModel {
@@ -170,7 +193,8 @@ export function kpisFromOffers(rows: OfferRow[], stats?: SnapshotWindowStats | n
     ),
     (row) => row.amount_brl,
   )
-  const bestMilheiro = minBy(
+  // Classic milheiro: higher R$/1k miles = better redemption value.
+  const bestMilheiro = maxBy(
     rows.filter((row): row is OfferRow & { milheiro: number } => row.milheiro != null),
     (row) => row.milheiro,
   )

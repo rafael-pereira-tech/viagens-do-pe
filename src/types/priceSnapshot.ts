@@ -20,8 +20,9 @@ export type PriceSnapshot = {
 }
 
 /**
- * Display row. `milheiro` is derived: `(taxes_brl / miles) * 1000` on award
- * quotes. `null` when miles are missing (cash-only) or taxes are unknown.
+ * Display row. `milheiro` is classic `(cash_brl / miles) * 1000`, pairing the
+ * award quote with the cash companion for the same route/day/airline.
+ * `null` when miles are missing (cash-only) or no companion cash fare exists.
  */
 export type OfferRow = PriceSnapshot & {
   milheiro: number | null

@@ -80,7 +80,8 @@ export function sortOffers(offers: OfferRow[]): OfferRow[] {
   return [...offers].sort((a, b) => {
     const byDate = a.flight_date.localeCompare(b.flight_date)
     if (byDate !== 0) return byDate
-    return (a.milheiro ?? Number.POSITIVE_INFINITY) - (b.milheiro ?? Number.POSITIVE_INFINITY)
+    // Classic milheiro: higher = better value → sort descending.
+    return (b.milheiro ?? Number.NEGATIVE_INFINITY) - (a.milheiro ?? Number.NEGATIVE_INFINITY)
   })
 }
 

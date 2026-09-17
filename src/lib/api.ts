@@ -1,4 +1,5 @@
 import { API_URL, READ_API_KEY } from './config.ts'
+import { isCashCompanionSource } from './filters.ts'
 import { todayIso, type DashboardQuery } from './query.ts'
 import type { ApiPriceSnapshot, SnapshotListQuery, SnapshotListResponse, SnapshotStatsResponse } from '../types/api.ts'
 import type { OfferRow } from '../types/priceSnapshot.ts'
@@ -122,13 +123,47 @@ export function fetchSnapshotStats(query: SnapshotListQuery, init?: RequestInit)
 }
 
 /**
- * Award milheiro (R$ / 1.000 milhas) from boarding taxes, not cash fare.
- * Cash-only rows (`miles` null) and unknown taxes → `null` (UI shows —).
+ * Classic milheiro: cash fare ÷ (miles / 1000) = R$ per 1.000 milhas.
+ * Higher = miles buy more reais (better to redeem). Requires a cash companion
+ * fare for the same route/day/airline (e.g. smiles_web + voegol).
  */
-export function milheiroFromQuote(input: { miles?: number | null; taxes_brl?: number | null }): number | null {
+export function milheiroFromCashAndMiles(cashBrl: number, miles: number): number | null {
+  if (!(miles > 0) || !(cashBrl > 0)) return null
+  return (cashBrl / miles) * 1000
+}
+
+/**
+ * Attach classic milheiro on award rows by pairing with the cheapest cash
+ * companion (`voegol` / `voeazul` / `latam_web`) on the same origin/destination/date/airline.
+ * Cash-only rows stay `milheiro: null`.
+ */
+export function attachClassicMilheiros(rows: OfferRow[]): OfferRow[] {
+  const cashByKey = new Map<string, number>()
+  for (const row of rows) {
+    if (!isCashCompanionSource(row.source) || row.amount_brl == null || !(row.amount_brl > 0)) continue
+    const key = `${row.origin}|${row.destination}|${row.flight_date}|${row.airline}`
+    const prev = cashByKey.get(key)
+    if (prev == null || row.amount_brl < prev) cashByKey.set(key, row.amount_brl)
+  }
+  return rows.map((row) => {
+    if (row.miles == null || !(row.miles > 0)) return { ...row, milheiro: null }
+    const cash = cashByKey.get(`${row.origin}|${row.destination}|${row.flight_date}|${row.airline}`)
+    if (cash == null) return { ...row, milheiro: null }
+    return { ...row, milheiro: milheiroFromCashAndMiles(cash, row.miles) }
+  })
+}
+
+/** @deprecated Prefer attachClassicMilheiros — tax-based milheiro was misleading. */
+export function milheiroFromQuote(input: {
+  miles?: number | null
+  taxes_brl?: number | null
+  amount_brl?: number | null
+}): number | null {
   const miles = input.miles
-  const taxes = input.taxes_brl
-  if (miles != null && miles > 0 && taxes != null) return (taxes / miles) * 1000
+  // Same-row cash+miles (rare); otherwise null until attachClassicMilheiros.
+  if (miles != null && miles > 0 && input.amount_brl != null && input.amount_brl > 0) {
+    return milheiroFromCashAndMiles(input.amount_brl, miles)
+  }
   return null
 }
 
@@ -150,6 +185,6 @@ export function toOfferRow(row: ApiPriceSnapshot): OfferRow {
     currency: row.currency,
     source: row.source,
     collected_at: row.collected_at,
-    milheiro: milheiroFromQuote(row),
+    milheiro: null,
   }
 }

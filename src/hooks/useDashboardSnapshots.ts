@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import {
+  attachClassicMilheiros,
   describeFetchError,
   fetchLatestSnapshots,
   fetchSnapshotStats,
@@ -75,7 +76,7 @@ export function useDashboardSnapshots(query: DashboardQuery): DashboardSnapshots
       dryOnly ? Promise.resolve(null) : fetchSnapshotStats({ ...filters, group_by: 'route_day' }, { signal }),
     ])
       .then(([latest, windowRes, dayRes]) => {
-        setOffers(latest.data.map(toOfferRow))
+        setOffers(attachClassicMilheiros(latest.data.map(toOfferRow)))
         setWindowStats(windowRes ? windowStatsFrom(windowRes.data) : null)
         setRouteDay(dayRes ? routeDayFrom(dayRes.data) : [])
         setIsLoading(false)
