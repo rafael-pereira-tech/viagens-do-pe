@@ -26,7 +26,7 @@ function LogoMark() {
 export function Shell({ children }: { children: ReactNode }) {
   const location = useLocation()
   const navigate = useNavigate()
-  const { playground, anyActive, clearAll } = useFeatureFlags()
+  const { playground, authUi, anyActive, clearAll } = useFeatureFlags()
   const [signedIn, setSignedIn] = useState(() => {
     try {
       return localStorage.getItem(AUTH_KEY) === '1'
@@ -36,12 +36,13 @@ export function Shell({ children }: { children: ReactNode }) {
   })
 
   useEffect(() => {
+    if (!authUi) return
     try {
       localStorage.setItem(AUTH_KEY, signedIn ? '1' : '0')
     } catch {
       /* ignore */
     }
-  }, [signedIn])
+  }, [authUi, signedIn])
 
   return (
     <div className="min-h-dvh bg-background px-3 py-4 sm:px-6 sm:py-8">
@@ -85,26 +86,28 @@ export function Shell({ children }: { children: ReactNode }) {
               </Button>
             ) : null}
           </nav>
-          <div className="ml-auto flex items-center gap-2">
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => setSignedIn((v) => !v)}
-              title="UI stub only — does not authorize snapshot API access"
-            >
-              {signedIn ? 'Sair' : 'Entrar'}
-            </Button>
-            <Avatar aria-label={signedIn ? 'Conta conectada' : 'Sem sessão'} size="default">
-              <AvatarFallback
-                className={
-                  signedIn ? 'bg-primary text-xs font-semibold text-primary-foreground' : 'text-xs font-semibold'
-                }
+          {authUi ? (
+            <div className="ml-auto flex items-center gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setSignedIn((v) => !v)}
+                title="UI stub only — does not authorize snapshot API access"
               >
-                {signedIn ? 'RP' : ''}
-              </AvatarFallback>
-            </Avatar>
-          </div>
+                {signedIn ? 'Sair' : 'Entrar'}
+              </Button>
+              <Avatar aria-label={signedIn ? 'Conta conectada' : 'Sem sessão'} size="default">
+                <AvatarFallback
+                  className={
+                    signedIn ? 'bg-primary text-xs font-semibold text-primary-foreground' : 'text-xs font-semibold'
+                  }
+                >
+                  {signedIn ? 'RP' : ''}
+                </AvatarFallback>
+              </Avatar>
+            </div>
+          ) : null}
         </header>
         <main className="pt-5">
           <span className="sr-only">API {API_URL || 'stubs locais'}</span>
