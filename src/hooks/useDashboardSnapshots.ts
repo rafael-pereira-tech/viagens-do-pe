@@ -35,6 +35,7 @@ export function useDashboardSnapshots(query: DashboardQuery): DashboardSnapshots
     () =>
       liveDashboardQuery({
         to: query.to,
+        sentido: query.sentido,
         from: query.from,
         until: query.until,
         fonte: query.fonte,
@@ -43,7 +44,7 @@ export function useDashboardSnapshots(query: DashboardQuery): DashboardSnapshots
         bars: 'both',
         ui: '',
       }),
-    [query.to, query.from, query.until, query.fonte, query.dryMode],
+    [query.to, query.sentido, query.from, query.until, query.fonte, query.dryMode],
   )
   const [offers, setOffers] = useState<OfferRow[]>([])
   const [windowStats, setWindowStats] = useState<SnapshotWindowStats | null>(null)

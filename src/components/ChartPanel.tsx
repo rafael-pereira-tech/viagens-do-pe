@@ -19,6 +19,8 @@ type Props = {
   isLoading: boolean
   selectedDate: string
   destination: string
+  /** e.g. "PET → CGH" or "CGH → PET" */
+  routeLabel?: string
   onModeChange: (mode: ChartMode) => void
   onSelectDate: (isoDate: string) => void
   error?: string | null
@@ -37,12 +39,14 @@ export function ChartPanel({
   isLoading,
   selectedDate,
   destination,
+  routeLabel,
   onModeChange,
   onSelectDate,
   error,
   onRetry,
 }: Props) {
   const fallbackFills = chartFillsForDestination(destination)
+  const titleRoute = routeLabel ?? `PET → ${destination}`
 
   return (
     <Card size="sm" aria-label="Gráfico de ofertas futuras">
@@ -51,7 +55,7 @@ export function ChartPanel({
           <Tooltip>
             <TooltipTrigger asChild>
               <CardTitle className="cursor-help text-sm font-semibold">
-                Ofertas futuras por data (PET → {destination})
+                Ofertas futuras por data ({titleRoute})
               </CardTitle>
             </TooltipTrigger>
             <TooltipContent>

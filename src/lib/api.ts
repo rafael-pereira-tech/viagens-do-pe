@@ -10,9 +10,11 @@ export const SNAPSHOTS_STATS_PATH = '/api/v1/snapshots/stats'
 
 /** Map D-1 dashboard query params onto the Worker read-API filters. */
 export function dashboardToSnapshotQuery(query: DashboardQuery): SnapshotListQuery {
+  const hub = query.to
+  const volta = query.sentido === 'volta'
   return {
-    origin: 'PET',
-    destination: query.to,
+    origin: volta ? hub : 'PET',
+    destination: volta ? 'PET' : hub,
     flight_date: query.dia || undefined,
     flight_date_from: query.from || undefined,
     flight_date_to: query.until || undefined,

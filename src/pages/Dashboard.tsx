@@ -19,6 +19,7 @@ import {
   type ChartMode,
   type DashboardQuery,
   type Destination,
+  type Sentido,
 } from '../lib/query.ts'
 import { track } from '../lib/track.ts'
 
@@ -93,6 +94,7 @@ export function Dashboard() {
     commit({
       ...defaultQuery,
       to: applied.to,
+      sentido: applied.sentido,
       bars: applied.bars,
       ui: applied.ui,
     })
@@ -101,6 +103,10 @@ export function Dashboard() {
   function onTab(to: Destination) {
     track('tab_change', { to })
     commit({ ...applied, to, dia: '' })
+  }
+
+  function onSentido(sentido: Sentido) {
+    commit({ ...applied, sentido, dia: '' })
   }
 
   function onBars(bars: ChartMode) {
@@ -114,7 +120,7 @@ export function Dashboard() {
 
   return (
     <div className="flex flex-col gap-4">
-      <DestinationTabs active={applied.to} onChange={onTab} />
+      <DestinationTabs active={applied.to} sentido={applied.sentido} onChange={onTab} onSentidoChange={onSentido} />
       <FiltersBar
         draft={draft}
         onDraftChange={(patch) => setDraft((d) => ({ ...d, ...patch }))}
@@ -140,6 +146,7 @@ export function Dashboard() {
         isLoading={effectiveIsLoading}
         selectedDate={applied.dia}
         destination={applied.to}
+        routeLabel={applied.sentido === 'volta' ? `${applied.to} → PET` : `PET → ${applied.to}`}
         onModeChange={onBars}
         onSelectDate={onSelectDate}
         error={effectiveError}
