@@ -469,7 +469,7 @@ async function main(): Promise<void> {
   };
 
   let warmed: string | null = null;
-  let totals = { searches: 0, rows: 0, empty: 0, failed: 0 };
+  const totals = { searches: 0, rows: 0, empty: 0, failed: 0 };
 
   for (const task of tasks) {
     // Route is part of the key so both directions are tracked independently.
