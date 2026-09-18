@@ -11,6 +11,7 @@ import { useDashboardSnapshots } from '../hooks/useDashboardSnapshots.ts'
 import { CAN_FETCH_SNAPSHOTS, CONFIG_ERROR } from '../lib/config.ts'
 import { applyQuery } from '../lib/filters.ts'
 import { formatShortDate } from '../lib/format.ts'
+import { attachChartHistory } from '../lib/history.ts'
 import {
   defaultQuery,
   parseQuery,
@@ -65,10 +66,11 @@ export function Dashboard() {
   const rows = useMemo(() => applyQuery(sourceRows, applied), [applied, sourceRows])
   const useApiStats = live
   const kpis = kpisFromOffers(tabRows, useApiStats ? remote.windowStats : undefined)
-  const chart =
+  const chartBase =
     useApiStats && remote.routeDay.length > 0
       ? chartFromRouteDayStats(remote.routeDay, tabRows, applied.to)
       : chartFromOffers(tabRows, applied.to)
+  const chart = attachChartHistory(chartBase, remote.observationDays)
   const isLoading = applied.ui === 'loading' || (live && remote.isLoading)
   const forcedError = applied.ui === 'error' ? 'Erro simulado via ?ui=error — verifique o retry.' : null
   const forcedEmpty = applied.ui === 'empty'

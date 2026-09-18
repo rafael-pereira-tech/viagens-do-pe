@@ -49,6 +49,30 @@ describe('OffersTable', () => {
     expect(screen.getAllByText(/LATAM/).length).toBeGreaterThanOrEqual(1)
   })
 
+  it('shows delta badge and min–max when history is significant', () => {
+    render(
+      <OffersTable
+        rows={[
+          {
+            ...row,
+            milesDeltaPct: -12.4,
+            milesMin: 10000,
+            milesMax: 15000,
+            amount_brl: 580,
+            brlDeltaPct: 8.2,
+            brlMin: 500,
+            brlMax: 700,
+          },
+        ]}
+        isLoading={false}
+        onResetFilters={vi.fn()}
+      />,
+    )
+    expect(screen.getByText('↓12%')).toBeInTheDocument()
+    expect(screen.getByText('↑8%')).toBeInTheDocument()
+    expect(screen.getByText(/10\.000–15\.000|10,000–15,000/)).toBeInTheDocument()
+  })
+
   it('loading takes precedence over error and empty', () => {
     render(<OffersTable rows={[]} isLoading error="boom" onResetFilters={vi.fn()} onRetry={vi.fn()} />)
     expect(screen.queryByRole('alert')).not.toBeInTheDocument()

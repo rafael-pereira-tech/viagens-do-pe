@@ -1,5 +1,6 @@
 import { API_URL, READ_API_KEY } from './config.ts'
 import { isCashCompanionSource } from './filters.ts'
+import type { ObservationSummaryResponse } from './history.ts'
 import { todayIso, type DashboardQuery } from './query.ts'
 import type { ApiPriceSnapshot, SnapshotListQuery, SnapshotListResponse, SnapshotStatsResponse } from '../types/api.ts'
 import type { OfferRow } from '../types/priceSnapshot.ts'
@@ -7,6 +8,7 @@ import type { OfferRow } from '../types/priceSnapshot.ts'
 export const SNAPSHOTS_PATH = '/api/v1/snapshots'
 export const SNAPSHOTS_LATEST_PATH = '/api/v1/snapshots/latest'
 export const SNAPSHOTS_STATS_PATH = '/api/v1/snapshots/stats'
+export const OBSERVATIONS_SUMMARY_PATH = '/api/v1/observations/summary'
 
 /** Map D-1 dashboard query params onto the Worker read-API filters. */
 export function dashboardToSnapshotQuery(query: DashboardQuery): SnapshotListQuery {
@@ -122,6 +124,22 @@ export function fetchSnapshots(query: SnapshotListQuery, init?: RequestInit): Pr
 /** KPI mins from SQL over the filtered set. `min_amount_brl` is cash-only. */
 export function fetchSnapshotStats(query: SnapshotListQuery, init?: RequestInit): Promise<SnapshotStatsResponse> {
   return getJson<SnapshotStatsResponse>(snapshotsUrl(SNAPSHOTS_STATS_PATH, query), init)
+}
+
+/** Per-source / per-day observation history (Δ% vs previous, min–max). */
+export function fetchObservationSummary(
+  query: Pick<SnapshotListQuery, 'origin' | 'destination' | 'flight_date_from' | 'flight_date_to'>,
+  init?: RequestInit,
+): Promise<ObservationSummaryResponse> {
+  return getJson<ObservationSummaryResponse>(
+    snapshotsUrl(OBSERVATIONS_SUMMARY_PATH, {
+      origin: query.origin,
+      destination: query.destination,
+      flight_date_from: query.flight_date_from,
+      flight_date_to: query.flight_date_to,
+    }),
+    init,
+  )
 }
 
 /**

@@ -8,7 +8,7 @@
     "build": "tsc -b && vite build",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:workers": "node --import tsx --test workers/test/api-*.test.ts workers/test/dates.test.ts workers/test/dry-run.test.ts workers/test/jobs.test.ts workers/test/sentry.test.ts workers/test/status.test.ts workers/test/supabase-stamp.test.ts workers/test/scheduler.test.ts workers/test/observations.test.ts workers/test/alerts.test.ts workers/test/smiles-*.test.ts workers/test/tudoazul-*.test.ts workers/test/latam-pass-*.test.ts workers/test/stub-collector.test.ts",
+    "test:workers": "node --import tsx --test workers/test/api-*.test.ts workers/test/dates.test.ts workers/test/dry-run.test.ts workers/test/jobs.test.ts workers/test/sentry.test.ts workers/test/status.test.ts workers/test/supabase-stamp.test.ts workers/test/scheduler.test.ts workers/test/observations.test.ts workers/test/alerts.test.ts workers/test/observation-summary.test.ts workers/test/smiles-*.test.ts workers/test/tudoazul-*.test.ts workers/test/latam-pass-*.test.ts workers/test/stub-collector.test.ts",
     "test:coverage": "vitest run --coverage",
     "test:all": "pnpm test && pnpm test:workers",
     "lint": "eslint .",
