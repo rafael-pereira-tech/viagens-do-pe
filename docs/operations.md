@@ -78,10 +78,12 @@ npx wrangler pages deploy dist
 
 Coleta agendada em [`../workers/`](../workers/). Ver [`../workers/README.md`](../workers/README.md) para credenciais, dry-run e `POST /run`.
 
-- Cron: 09:00 e 21:00 UTC (06:00 e 18:00 em São Paulo); janela móvel de 45 dias.
+- Cron (prod): 09:00 e 21:00 UTC (06:00 e 18:00 em São Paulo); janela móvel de 45 dias.
+- Cron (staging): a cada 6h UTC; janela móvel de 120 dias (soak de histórico/alertas).
 - Rotas: PET→CGH (Smiles/GOL), PET→VCP (TudoAzul/Azul), PET→GRU (LATAM Pass/LATAM). PET→POA e pontos LATAM podem estar desligados por flag no Worker.
 - Read API (mesmo Worker): `GET /health`, `/api/v1/health`, `/api/v1/snapshots`, `/latest`, `/stats`. Contrato: [`api-price-snapshots.md`](api-price-snapshots.md).
 - CORS liberado para o domínio do Pages, previews e desenvolvimento local.
+- Após cada ingest: deriva `price_observations` (melhor oferta por série) e avalia `price_alerts` (canal `log`).
 
 ## Schema
 
@@ -90,3 +92,5 @@ Coleta agendada em [`../workers/`](../workers/). Ver [`../workers/README.md`](..
 - [`../supabase/migrations/20260911180101_price_snapshots_nonneg_check.sql`](../supabase/migrations/20260911180101_price_snapshots_nonneg_check.sql)
 - [`../supabase/migrations/20260911180500_price_snapshots_ingest_run_id.sql`](../supabase/migrations/20260911180500_price_snapshots_ingest_run_id.sql)
 - [`../supabase/migrations/20260911192000_price_snapshots_latest.sql`](../supabase/migrations/20260911192000_price_snapshots_latest.sql)
+- [`../supabase/migrations/20260918000000_price_observations.sql`](../supabase/migrations/20260918000000_price_observations.sql)
+- [`../supabase/migrations/20260918000001_price_alerts.sql`](../supabase/migrations/20260918000001_price_alerts.sql)

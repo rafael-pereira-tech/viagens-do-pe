@@ -17,7 +17,7 @@ binding = "USER_EVENTS"
 dataset = "user_events"
 
 # Cron triggers are always evaluated in UTC by Cloudflare.
-# 09:00 / 21:00 UTC = 06:00 / 18:00 America/Sao_Paulo (UTC-3).
+# Production: 09:00 / 21:00 UTC = 06:00 / 18:00 America/Sao_Paulo (UTC-3).
 [triggers]
 crons = ["0 9 * * *", "0 21 * * *"]
 
@@ -37,13 +37,16 @@ LATAM_PASS_POINTS_ENABLED = "0"
 [env.staging]
 name = "viagens-do-pe-ingest-staging"
 workers_dev = true
+# Staging: every 6h UTC, ~4 month rolling window for history/alert soak.
+[env.staging.triggers]
+crons = ["0 */6 * * *"]
 [[env.staging.analytics_engine_datasets]]
 binding = "USER_EVENTS"
 dataset = "user_events"
 [env.staging.vars]
 ENVIRONMENT = "staging"
-FLIGHT_WINDOW_ROLLING = "0"
-FLIGHT_WINDOW_DAYS = "45"
+FLIGHT_WINDOW_ROLLING = "1"
+FLIGHT_WINDOW_DAYS = "120"
 ROUTE_POA_ENABLED = "0"
 CURRENT_READ_MODEL = "1"
 SMILES_POINTS_ENABLED = "1"
