@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import type { CollectParams, CollectResult, Snapshot } from '../src/collectors/types.ts';
 import { SkipIfRunningLock } from '../src/lock.ts';
+import { bestObservationsFromSnapshots } from '../src/observations.ts';
 import { runIngest } from '../src/scheduler.ts';
 import type { IngestRunFinish, IngestRunStart, SnapshotStore } from '../src/supabase.ts';
 import { toSnapshotRow } from '../src/supabase.ts';
@@ -50,6 +51,10 @@ function memoryStore() {
       for (const row of rows) toSnapshotRow(row);
       snapshots.push(...rows);
       return rows.length;
+    },
+    async insertObservations(rows) {
+      const observations = bestObservationsFromSnapshots(rows);
+      return { count: observations.length, ids: new Map(), observations };
     },
     async finishRun(id, patch: IngestRunFinish) {
       const row = runs.find((r) => r.id === id);

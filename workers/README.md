@@ -37,16 +37,18 @@ CORS allowlist: `https://viagens-do-pe.pages.dev`, Pages previews, `localhost` /
 
 ## Timezone
 
-Cloudflare Cron Triggers are **UTC only**. This worker runs four times per day:
+Cloudflare Cron Triggers are **UTC only**.
+
+**Production** (`[triggers].crons`):
 
 | Cron (UTC) | America/Sao_Paulo (UTC−3, no DST) |
 | --- | --- |
-| `0 0 * * *` (00:00) | 21:00 |
-| `0 6 * * *` (06:00) | 03:00 |
-| `0 12 * * *` (12:00) | 09:00 |
-| `0 18 * * *` (18:00) | 15:00 |
+| `0 9 * * *` (09:00) | 06:00 |
+| `0 21 * * *` (21:00) | 18:00 |
 
-Configured in `wrangler.toml` `[triggers].crons`.
+**Staging** (`[env.staging.triggers].crons`): `0 */6 * * *` (every 6h UTC) with `FLIGHT_WINDOW_DAYS=120` for history/alert soak.
+
+After each successful persist, the Worker also writes `price_observations` (best offer per route/source/day for that run) and evaluates enabled `price_alerts` (channel `log` → `price_alert_events` + console). Apply migrations `20260918000000_price_observations.sql` and `20260918000001_price_alerts.sql`.
 
 ## Route matrix
 
@@ -317,7 +319,7 @@ Skip-if-running (no destructive overlap):
 2. Partial unique index `ingest_runs_one_running_uidx` — a second tick gets a conflict and **skips** (HTTP 409 on `/run`). It does not write snapshots or a success row
 3. Stale `running` rows past `lease_expires_at` (15 minutes) are reaped as `scrape_failed`, never as `success`
 
-Every snapshot write is stamped with `collected_at` (batch time) and `ingest_run_id` (FK to that run). The persist helper refuses unstamped rows. Snapshots are insert-only.
+Every snapshot write is stamped with `collected_at` (batch time) and `ingest_run_id` (FK to that run). The persist helper refuses unstamped rows. Snapshots are insert-only. The same batch is reduced into `price_observations` (one best row per origin/destination/source/flight_date).
 
 ## Secrets
 

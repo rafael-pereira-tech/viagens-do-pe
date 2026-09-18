@@ -4,6 +4,7 @@ import type { CollectParams, CollectResult, Collector, Snapshot } from './collec
 import type { Env } from './env';
 import { isolateLock, type SkipIfRunningLock } from './lock';
 import { buildJobs } from './jobs';
+import { evaluateAlerts } from './alerts';
 import { aggregateStatus, isFailureStatus, type RunStatus } from './status';
 import {
   createSupabase,
@@ -260,12 +261,30 @@ export async function runIngest(deps: IngestDeps): Promise<IngestSummary> {
 
     let error: string | undefined;
     const persistable = pending.filter(isPersistableSnapshot);
+    let observationCount = 0;
 
     if (store && persistable.length > 0) {
       try {
         await store.insertSnapshots(persistable);
       } catch (err) {
         error = err instanceof Error ? err.message : String(err);
+        status = status === 'success' || status === 'empty' ? 'partial' : status;
+      }
+
+      try {
+        const obsResult = await store.insertObservations(persistable);
+        observationCount = obsResult.count;
+        if (store.rest && obsResult.observations.length > 0) {
+          try {
+            await evaluateAlerts(store.rest, obsResult.observations, obsResult.ids);
+          } catch (alertErr) {
+            const message = alertErr instanceof Error ? alertErr.message : String(alertErr);
+            console.log(JSON.stringify({ msg: 'price_alert_eval_failed', error: message, runId }));
+          }
+        }
+      } catch (err) {
+        const message = err instanceof Error ? err.message : String(err);
+        error = error ? `${error}; observations: ${message}` : `observations: ${message}`;
         status = status === 'success' || status === 'empty' ? 'partial' : status;
       }
     }
@@ -296,7 +315,13 @@ export async function runIngest(deps: IngestDeps): Promise<IngestSummary> {
           snapshot_count: summary.snapshotCount,
           job_count: summary.jobCount,
           error_message: summary.error ?? null,
-          details: { window, routes, failures, collected_at: collectedAt },
+          details: {
+            window,
+            routes,
+            failures,
+            collected_at: collectedAt,
+            observation_count: observationCount,
+          },
         });
         summary.persisted = finished;
         if (!finished) {
@@ -323,6 +348,7 @@ export async function runIngest(deps: IngestDeps): Promise<IngestSummary> {
         cron: summary.cron,
         jobCount: summary.jobCount,
         snapshotCount: summary.snapshotCount,
+        observationCount,
         persisted: summary.persisted,
       }),
     );

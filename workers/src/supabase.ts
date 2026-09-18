@@ -1,5 +1,10 @@
 import type { Snapshot } from './collectors/types';
 import type { Env } from './env';
+import {
+  bestObservationsFromSnapshots,
+  toObservationRow,
+  type PriceObservation,
+} from './observations';
 import type { IngestRunStatus, RunStatus } from './status';
 
 export interface IngestRunStart {
@@ -21,11 +26,22 @@ export interface IngestRunFinish {
 
 export type BeginRunResult = { acquired: true } | { acquired: false; reason: 'already_running' };
 
+export interface InsertObservationsResult {
+  count: number;
+  /** series key → observation id */
+  ids: Map<string, string>;
+  observations: PriceObservation[];
+}
+
 export interface SnapshotStore {
   expireStaleRuns(nowIso: string): Promise<number>;
   beginRun(run: IngestRunStart): Promise<BeginRunResult>;
   insertSnapshots(snapshots: Snapshot[]): Promise<number>;
+  /** Derive best-of-batch observations and insert; returns ids for alert wiring. */
+  insertObservations(snapshots: Snapshot[]): Promise<InsertObservationsResult>;
   finishRun(id: string, patch: IngestRunFinish): Promise<boolean>;
+  /** Underlying REST client for alert evaluation (null in memory mocks if unused). */
+  rest?: SupabaseRest;
 }
 
 export function stampSnapshot(snapshot: Snapshot, runId: string, collectedAt: string): Snapshot {
@@ -178,6 +194,33 @@ export function createSupabase(env: Env): SnapshotStore | null {
       return rows.length;
     },
 
+    async insertObservations(snapshots: Snapshot[]): Promise<InsertObservationsResult> {
+      const observations = bestObservationsFromSnapshots(snapshots);
+      if (observations.length === 0) {
+        return { count: 0, ids: new Map(), observations: [] };
+      }
+      const rows = observations.map(toObservationRow);
+      const response = await rest('price_observations', {
+        method: 'POST',
+        headers: { Prefer: 'return=representation' },
+        body: JSON.stringify(rows),
+      });
+      const inserted = (await response.json()) as Array<{
+        id: string;
+        origin: string;
+        destination: string;
+        source: string;
+        flight_date: string;
+      }>;
+      const ids = new Map<string, string>();
+      if (Array.isArray(inserted)) {
+        for (const row of inserted) {
+          ids.set(`${row.origin}|${row.destination}|${row.source}|${row.flight_date}`, row.id);
+        }
+      }
+      return { count: observations.length, ids, observations };
+    },
+
     async finishRun(id: string, patch: IngestRunFinish): Promise<boolean> {
       const response = await rest(`ingest_runs?id=eq.${encodeURIComponent(id)}&status=eq.running`, {
         method: 'PATCH',
@@ -187,5 +230,7 @@ export function createSupabase(env: Env): SnapshotStore | null {
       const rows = (await response.json()) as unknown[];
       return Array.isArray(rows) && rows.length > 0;
     },
+
+    rest,
   };
 }
