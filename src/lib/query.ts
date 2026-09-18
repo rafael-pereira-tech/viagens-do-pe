@@ -11,6 +11,9 @@ export const AIRPORT_LABEL: Record<Destination, string> = {
 
 export type ChartMode = 'both' | 'milhas' | 'brl'
 
+/** PET → SP hub (`ida`) or hub → PET (`volta`). */
+export type Sentido = 'ida' | 'volta'
+
 export type UiState = '' | 'loading' | 'error' | 'empty'
 
 /** Always production (`live`) in the dashboard; include/only kept for filter plumbing. */
@@ -18,6 +21,7 @@ export type DryMode = 'live' | 'include' | 'only'
 
 export type DashboardQuery = {
   to: Destination
+  sentido: Sentido
   from: string
   until: string
   fonte: string
@@ -29,6 +33,7 @@ export type DashboardQuery = {
 
 export const defaultQuery: DashboardQuery = {
   to: 'GRU',
+  sentido: 'ida',
   from: '',
   until: '',
   fonte: '',
@@ -59,8 +64,11 @@ export function parseQuery(params: URLSearchParams): DashboardQuery {
   const toParam = (params.get('to') ?? '').toUpperCase()
   const barsParam = params.get('bars') ?? ''
   const uiParam = params.get('ui') ?? ''
+  const sentidoParam = (params.get('sentido') ?? params.get('dir') ?? '').toLowerCase()
+  const sentido: Sentido = sentidoParam === 'volta' || sentidoParam === 'back' ? 'volta' : 'ida'
   return {
     to: isDestination(toParam) ? toParam : 'GRU',
+    sentido,
     from: params.get('from') ?? '',
     until: params.get('until') ?? '',
     // Always all fontes — ignore ?fonte=
@@ -76,6 +84,7 @@ export function parseQuery(params: URLSearchParams): DashboardQuery {
 export function queryToSearchParams(query: DashboardQuery): URLSearchParams {
   const params = new URLSearchParams()
   params.set('to', query.to)
+  if (query.sentido === 'volta') params.set('sentido', 'volta')
   if (query.from) params.set('from', query.from)
   if (query.until) params.set('until', query.until)
   // Never persist fonte / dry_run — always all fontes + production

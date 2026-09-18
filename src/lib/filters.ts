@@ -60,8 +60,13 @@ export function filterOffers(
   const today = todayIso()
 
   return offers.filter((row) => {
-    if (row.origin !== ORIGIN) return false
-    if (row.destination !== query.to) return false
+    const volta = query.sentido === 'volta'
+    if (volta) {
+      if (row.origin !== query.to || row.destination !== ORIGIN) return false
+    } else {
+      if (row.origin !== ORIGIN) return false
+      if (row.destination !== query.to) return false
+    }
     if (!isFutureDate(row.flight_date, today)) return false
     if (query.dryMode === 'only' && !isDryRunSource(row.source)) return false
     if (query.dryMode === 'live' && isDryRunSource(row.source)) return false

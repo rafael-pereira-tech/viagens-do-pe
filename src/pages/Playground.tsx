@@ -45,6 +45,7 @@ export function Playground() {
   const baseQuery = useMemo(
     () => ({
       to: destination,
+      sentido: 'ida' as const,
       from: draft.from,
       until: draft.until,
       fonte: '',
