@@ -5,6 +5,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import type { OfferRow } from '../types/priceSnapshot.ts'
 import { programLabel, sourceLabel } from '../lib/filters.ts'
 import { formatBrl, formatMiles, formatMilheiro, formatShortDate } from '../lib/format.ts'
+import { deltaBadgeLabel, significantDelta } from '../lib/history.ts'
 import { FIELD_LABEL } from '../lib/ui.ts'
 import { StateView } from './StateView.tsx'
 
@@ -71,8 +72,14 @@ export function OffersTable({ rows, isLoading, onResetFilters, error, onRetry }:
                   <TableCell>
                     <Badge variant="outline">{sourceLabel(row.source)}</Badge>
                   </TableCell>
-                  <TableCell className="text-right tabular-nums text-card-foreground">
-                    {row.miles != null ? formatMiles(row.miles) : '—'}
+                  <TableCell className="text-right text-card-foreground">
+                    <PriceCell
+                      value={row.miles != null ? formatMiles(row.miles) : null}
+                      deltaPct={row.milesDeltaPct}
+                      min={row.milesMin}
+                      max={row.milesMax}
+                      formatRange={formatMiles}
+                    />
                   </TableCell>
                   <TableCell className="text-right tabular-nums text-card-foreground">
                     {row.stops != null ? row.stops : '—'}
@@ -80,8 +87,14 @@ export function OffersTable({ rows, isLoading, onResetFilters, error, onRetry }:
                   <TableCell className="text-right tabular-nums text-card-foreground">
                     {row.taxes_brl != null ? formatBrl(row.taxes_brl, true) : '—'}
                   </TableCell>
-                  <TableCell className="text-right tabular-nums text-card-foreground">
-                    {row.amount_brl != null ? formatBrl(row.amount_brl, true) : '—'}
+                  <TableCell className="text-right text-card-foreground">
+                    <PriceCell
+                      value={row.amount_brl != null ? formatBrl(row.amount_brl, true) : null}
+                      deltaPct={row.brlDeltaPct}
+                      min={row.brlMin}
+                      max={row.brlMax}
+                      formatRange={(n) => formatBrl(n, true)}
+                    />
                   </TableCell>
                   <TableCell className="text-right tabular-nums font-medium text-card-foreground">
                     {row.milheiro != null ? formatMilheiro(row.milheiro) : '—'}
@@ -93,6 +106,46 @@ export function OffersTable({ rows, isLoading, onResetFilters, error, onRetry }:
         )}
       </CardContent>
     </Card>
+  )
+}
+
+function PriceCell({
+  value,
+  deltaPct,
+  min,
+  max,
+  formatRange,
+}: {
+  value: string | null
+  deltaPct?: number | null
+  min?: number | null
+  max?: number | null
+  formatRange: (n: number) => string
+}) {
+  if (value == null) return <span className="tabular-nums">—</span>
+  const showBadge = significantDelta(deltaPct)
+  const drop = deltaPct != null && deltaPct < 0
+  return (
+    <div className="flex flex-col items-end gap-0.5">
+      <span className="inline-flex items-center gap-1.5 tabular-nums">
+        {value}
+        {showBadge && deltaPct != null ? (
+          <Badge
+            variant="outline"
+            className={`px-1.5 py-0 text-[10px] font-semibold ${
+              drop ? 'border-emerald-200 bg-emerald-50 text-emerald-800' : 'border-amber-200 bg-amber-50 text-amber-800'
+            }`}
+          >
+            {deltaBadgeLabel(deltaPct)}
+          </Badge>
+        ) : null}
+      </span>
+      {min != null && max != null ? (
+        <span className="text-[10px] tabular-nums text-muted-foreground">
+          {formatRange(min)}–{formatRange(max)}
+        </span>
+      ) : null}
+    </div>
   )
 }
 

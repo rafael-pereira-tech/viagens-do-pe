@@ -55,6 +55,24 @@ describe('ChartPanel', () => {
     expect(screen.getByText(/Menor milhas.*cia vencedora/)).toBeInTheDocument()
   })
 
+  it('renders significant delta markers above bars', () => {
+    renderChart({
+      points: [
+        {
+          ...points[0],
+          milesDeltaPct: -12,
+          milesMin: 10000,
+          milesMax: 14000,
+          brlDeltaPct: 8,
+          brlMin: 500,
+          brlMax: 700,
+        },
+      ],
+    })
+    expect(document.querySelector('svg')?.textContent).toMatch(/▼-12%/)
+    expect(document.querySelector('svg')?.textContent).toMatch(/▲\+8%/)
+  })
+
   it('mode toggle: calls onModeChange', async () => {
     const user = userEvent.setup()
     const onModeChange = vi.fn()

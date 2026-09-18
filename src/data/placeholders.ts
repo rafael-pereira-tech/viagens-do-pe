@@ -243,6 +243,12 @@ export type ChartPoint = {
   /** Winning airline of the day for that metric — bar fill, not a 3-cia stack. */
   milesAirline: AirlineId
   brlAirline: AirlineId
+  milesDeltaPct?: number | null
+  brlDeltaPct?: number | null
+  milesMin?: number | null
+  milesMax?: number | null
+  brlMin?: number | null
+  brlMax?: number | null
 }
 
 export function chartFromOffers(rows: OfferRow[], fallbackDestination = ''): ChartPoint[] {

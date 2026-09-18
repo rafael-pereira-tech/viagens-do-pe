@@ -10,6 +10,7 @@ import {
   type AirlineChartFills,
 } from '../lib/airlines.ts'
 import { formatBrl, formatMiles, formatShortDate } from '../lib/format.ts'
+import { formatDeltaPct, significantDelta } from '../lib/history.ts'
 import type { ChartMode } from '../lib/query.ts'
 import { StateView } from './StateView.tsx'
 
@@ -60,7 +61,7 @@ export function ChartPanel({
             </TooltipTrigger>
             <TooltipContent>
               Barras agrupadas milhas|BRL. Cor = cia vencedora daquele dia na métrica (não empilha 3 cias). Fallback da
-              rota: {fallbackFills.label}.
+              rota: {fallbackFills.label}. Marcador ±% só quando |Δ| ≥ 5 vs observation anterior.
             </TooltipContent>
           </Tooltip>
           <ToggleGroup
@@ -124,17 +125,38 @@ function seriesBars(
   showBrl: boolean,
   milesFills: AirlineChartFills,
   brlFills: AirlineChartFills,
-): { key: string; x: number; h: number; fill: string }[] {
-  const bars: { key: string; x: number; h: number; fill: string }[] = []
+  milesDelta: number | null | undefined,
+  brlDelta: number | null | undefined,
+): { key: string; x: number; h: number; fill: string; deltaPct: number | null | undefined }[] {
+  const bars: { key: string; x: number; h: number; fill: string; deltaPct: number | null | undefined }[] = []
   let x = gx
   if (showMiles) {
-    bars.push({ key: 'milhas', x, h: milesH, fill: milesFills.miles })
+    bars.push({ key: 'milhas', x, h: milesH, fill: milesFills.miles, deltaPct: milesDelta })
     x += barW + 3
   }
   if (showBrl) {
-    bars.push({ key: 'brl', x, h: brlH, fill: brlFills.brl })
+    bars.push({ key: 'brl', x, h: brlH, fill: brlFills.brl, deltaPct: brlDelta })
   }
   return bars
+}
+
+function deltaMarker(deltaPct: number): { arrow: string; className: string } {
+  if (deltaPct < 0) return { arrow: '▼', className: 'fill-emerald-700' }
+  return { arrow: '▲', className: 'fill-amber-700' }
+}
+
+function historyTooltipLine(
+  label: string,
+  current: string,
+  min: number | null | undefined,
+  max: number | null | undefined,
+  deltaPct: number | null | undefined,
+  formatRange: (n: number) => string,
+): string {
+  const parts = [`${label} ${current}`]
+  if (min != null && max != null) parts.push(`min–max ${formatRange(min)}–${formatRange(max)}`)
+  if (deltaPct != null && Number.isFinite(deltaPct)) parts.push(`Δ ${formatDeltaPct(deltaPct)} vs ant.`)
+  return parts.join(' · ')
 }
 
 function GroupedBars({
@@ -154,7 +176,7 @@ function GroupedBars({
   const showBrl = mode === 'both' || mode === 'brl'
   const series = Number(showMiles) + Number(showBrl)
   const height = 230
-  const pad = { top: 16, right: 8, bottom: 36, left: 8 }
+  const pad = { top: 28, right: 8, bottom: 36, left: 8 }
   const innerH = height - pad.top - pad.bottom
   const minGroupW = 44
   const innerW = Math.max(640 - pad.left - pad.right, points.length * minGroupW)
@@ -189,6 +211,8 @@ function GroupedBars({
                 showBrl,
                 milesFills,
                 brlFills,
+                point.milesDeltaPct,
+                point.brlDeltaPct,
               )
               return (
                 <g key={point.date}>
@@ -199,18 +223,37 @@ function GroupedBars({
                     height={innerH}
                     fill={selected ? milesFills.selection : 'transparent'}
                   />
-                  {bars.map((bar) => (
-                    <rect
-                      key={bar.key}
-                      x={bar.x}
-                      y={pad.top + innerH - bar.h}
-                      width={barW}
-                      height={bar.h}
-                      rx="3"
-                      fill={bar.fill}
-                      opacity={selected ? 1 : 0.9}
-                    />
-                  ))}
+                  {bars.map((bar) => {
+                    const top = pad.top + innerH - bar.h
+                    const showDelta = significantDelta(bar.deltaPct)
+                    const marker = showDelta && bar.deltaPct != null ? deltaMarker(bar.deltaPct) : null
+                    return (
+                      <g key={bar.key}>
+                        <rect
+                          x={bar.x}
+                          y={top}
+                          width={barW}
+                          height={bar.h}
+                          rx="3"
+                          fill={bar.fill}
+                          opacity={selected ? 1 : 0.9}
+                        />
+                        {marker ? (
+                          <text
+                            x={bar.x + barW / 2}
+                            y={Math.max(10, top - 4)}
+                            textAnchor="middle"
+                            className={marker.className}
+                            fontSize="9"
+                            fontWeight="600"
+                          >
+                            {marker.arrow}
+                            {formatDeltaPct(bar.deltaPct!)}
+                          </text>
+                        ) : null}
+                      </g>
+                    )
+                  })}
                   <text
                     x={pad.left + i * groupW + groupW / 2}
                     y={height - 12}
@@ -241,12 +284,31 @@ function GroupedBars({
                       onClick={() => onSelectDate(point.date)}
                     />
                   </TooltipTrigger>
-                  <TooltipContent className="tabular-nums">
-                    <span className="font-medium">{formatShortDate(point.date)}</span>
-                    {' · '}
-                    {formatMiles(point.milhas)} milhas ({milesLabel}){' · '}
-                    {formatBrl(point.brl, true)} ({brlLabel}){' · '}
-                    {point.sampleSize} oferta{point.sampleSize === 1 ? '' : 's'}
+                  <TooltipContent className="max-w-xs tabular-nums">
+                    <div className="font-medium">{formatShortDate(point.date)}</div>
+                    <div>
+                      {historyTooltipLine(
+                        'Milhas',
+                        `${formatMiles(point.milhas)} (${milesLabel})`,
+                        point.milesMin,
+                        point.milesMax,
+                        point.milesDeltaPct,
+                        formatMiles,
+                      )}
+                    </div>
+                    <div>
+                      {historyTooltipLine(
+                        'BRL',
+                        `${formatBrl(point.brl, true)} (${brlLabel})`,
+                        point.brlMin,
+                        point.brlMax,
+                        point.brlDeltaPct,
+                        (n) => formatBrl(n, true),
+                      )}
+                    </div>
+                    <div className="text-muted-foreground">
+                      {point.sampleSize} oferta{point.sampleSize === 1 ? '' : 's'}
+                    </div>
                   </TooltipContent>
                 </Tooltip>
               )

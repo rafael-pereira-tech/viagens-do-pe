@@ -16,6 +16,11 @@ import {
 import { authorizeRead } from './auth';
 import { handlePostEvent } from './events';
 import { json, jsonError, publicErrorMessage } from './http';
+import {
+  parseObservationSummaryRow,
+  rollupObservationDays,
+  type ObservationSummaryRow,
+} from './observation-summary';
 import { isDryRunSource, toPublicSnapshot } from './redact';
 import { isCashCompanionSource } from './sources';
 import {
@@ -104,6 +109,7 @@ export async function handleReadApi(request: Request, env: Env, deps: ReadApiDep
     if (path === '/api/v1/snapshots') return await listSnapshots(url, env, deps);
     if (path === '/api/v1/snapshots/latest') return await latestSnapshots(url, env, deps);
     if (path === '/api/v1/snapshots/stats') return await snapshotStats(url, env, deps);
+    if (path === '/api/v1/observations/summary') return await observationSummary(url, env, deps);
   } catch (err) {
     return jsonError('upstream_error', 502, publicErrorMessage(err));
   }
@@ -323,4 +329,51 @@ async function sampleStats(rest: SupabaseRest, query: SnapshotQuery, table = 'pr
       fallback: 'in_memory_sample',
     },
   };
+}
+
+async function observationSummary(url: URL, env: Env, deps: ReadApiDeps): Promise<Response> {
+  const restOrErr = requireRest(env, deps);
+  if (restOrErr instanceof Response) return restOrErr;
+  const rest = restOrErr;
+
+  const origin = (url.searchParams.get('origin') ?? '').trim().toUpperCase();
+  const destination = (url.searchParams.get('destination') ?? '').trim().toUpperCase();
+  if (origin.length !== 3) return jsonError('invalid_origin', 400, 'origin must be a 3-letter IATA code');
+  if (destination.length !== 3) {
+    return jsonError('invalid_destination', 400, 'destination must be a 3-letter IATA code');
+  }
+
+  const flightDateFrom = url.searchParams.get('flight_date_from') || null;
+  const flightDateTo = url.searchParams.get('flight_date_to') || null;
+
+  const response = await rest('rpc/price_observation_summary', {
+    method: 'POST',
+    body: JSON.stringify({
+      p_origin: origin,
+      p_destination: destination,
+      p_flight_date_from: flightDateFrom,
+      p_flight_date_to: flightDateTo,
+    }),
+  });
+
+  const raw = (await response.json()) as unknown;
+  const rows: ObservationSummaryRow[] = Array.isArray(raw)
+    ? raw
+        .map((row) => parseObservationSummaryRow(row as Record<string, unknown>))
+        .filter((row): row is ObservationSummaryRow => row != null)
+    : [];
+
+  return json({
+    data: {
+      by_source: rows,
+      by_day: rollupObservationDays(rows),
+    },
+    meta: {
+      origin,
+      destination,
+      flight_date_from: flightDateFrom,
+      flight_date_to: flightDateTo,
+      row_count: rows.length,
+    },
+  });
 }
