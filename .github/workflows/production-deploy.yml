@@ -65,9 +65,15 @@ jobs:
           node-version: 24
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - run: pnpm build
+      - run: |
+          if [ -z "${VITE_API_TOKEN}${VITE_READ_API_KEY}" ]; then
+            echo "Missing VITE_API_TOKEN / VITE_READ_API_KEY — refusing to build a Pages bundle that would 401."
+            exit 1
+          fi
+          pnpm build
         env:
           VITE_API_URL: ${{ vars.VITE_API_URL }}
+          VITE_API_TOKEN: ${{ secrets.VITE_API_TOKEN }}
           VITE_READ_API_KEY: ${{ secrets.VITE_READ_API_KEY }}
           VITE_USE_STUBS: '0'
       - run: npx --yes wrangler@4.131.1 pages deploy dist --project-name viagens-do-pe --branch main
