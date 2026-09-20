@@ -37,15 +37,13 @@ Pre-commit (Husky + lint-staged): `pnpm install` liga o hook via `prepare`. No c
 
 ## Variáveis de ambiente (frontend)
 
-| Variável            | Obrigatória                                      | Uso                                                                                                       |
-| ------------------- | ------------------------------------------------ | --------------------------------------------------------------------------------------------------------- |
-| `VITE_API_URL`      | Sim no Pages (dados reais)                       | Base URL da read API. Vazia = stubs locais. Contrato: [`api-price-snapshots.md`](api-price-snapshots.md). |
-| `VITE_API_TOKEN`    | Sim no Pages se o Worker tiver `API_READ_SECRET` | `Authorization: Bearer …` — mesmo valor que `API_READ_SECRET` / `READ_API_KEY`. **Nunca** `SUPABASE_*`.   |
-| `VITE_READ_API_KEY` | Alias de `VITE_API_TOKEN`                        | Mesmo header.                                                                                             |
+| Variável       | Obrigatória                | Uso                                                                                                       |
+| -------------- | -------------------------- | --------------------------------------------------------------------------------------------------------- |
+| `VITE_API_URL` | Sim no Pages (dados reais) | Base URL da read API. Vazia = stubs locais. Contrato: [`api-price-snapshots.md`](api-price-snapshots.md). |
 
-O Vite só expõe prefixo `VITE_`. Reinicie `npm run dev` depois de mudar o `.env`. Sem `VITE_API_URL` o Dashboard usa `src/data/placeholders.ts`. Com a URL, o client chama o Worker e manda Bearer se o token existir. Sem token o `/api/v1` responde 401.
+O Vite só expõe prefixo `VITE_`, e **qualquer** `VITE_*` é inlined no JS público. **Não** use `VITE_READ_API_KEY`, `VITE_API_TOKEN` nem `Authorization: Bearer` no browser. Reinicie `npm run dev` depois de mudar o `.env`. Sem `VITE_API_URL` o Dashboard usa `src/data/placeholders.ts`. Com a URL, o client chama `/api/v1/*` **sem** header de autorização.
 
-**Nunca** coloque `SUPABASE_SERVICE_ROLE_KEY` nem `VITE_SUPABASE*` no frontend.
+O Worker precisa permitir CORS nas origens do Pages **sem** exigir Bearer nas leituras do browser. Alternativa (fora do FE): um proxy Pages Function que segura o secret. **Nunca** coloque `SUPABASE_SERVICE_ROLE_KEY` nem `VITE_SUPABASE*` no frontend.
 
 ### Modo de dados (query)
 
@@ -60,10 +58,8 @@ O Vite só expõe prefixo `VITE_`. Reinicie `npm run dev` depois de mudar o `.en
 `VITE_*` é inlined no `npm run build`. Sem a variável no ambiente de build, o site fica nos stubs.
 
 1. Pages → projeto → **Settings** → **Environment variables**.
-2. Production e Preview:
-   - `VITE_API_URL=https://viagens-do-pe-ingest.rafaellimapereira.workers.dev`
-   - `VITE_API_TOKEN` = o mesmo valor de `API_READ_SECRET` / `READ_API_KEY` no Worker.
-3. Não use `SUPABASE_*` nem `INGEST_TRIGGER_SECRET` no Pages.
+2. Production e Preview: só `VITE_API_URL=https://viagens-do-pe-ingest.rafaellimapereira.workers.dev`.
+3. Não use `VITE_READ_API_KEY`, `VITE_API_TOKEN`, `SUPABASE_*` nem `INGEST_TRIGGER_SECRET` no Pages.
 4. Redeploy depois de mudar env — sem rebuild o JS não atualiza.
 
 Build: `npm run build` → `dist`. Node 24. SPA: `public/_redirects` (`/* /index.html 200`).

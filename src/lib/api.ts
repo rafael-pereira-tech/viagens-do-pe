@@ -1,4 +1,4 @@
-import { API_URL, READ_API_KEY } from './config.ts'
+import { API_URL } from './config.ts'
 import { isCashCompanionSource } from './filters.ts'
 import type { ObservationSummaryResponse } from './history.ts'
 import { todayIso, type DashboardQuery } from './query.ts'
@@ -80,22 +80,13 @@ export function snapshotsUrl(path: string, query: SnapshotListQuery = {}): strin
   return params ? `${base}${path}?${params}` : `${base}${path}`
 }
 
-/** Header the FE must send. Stub Entrar/Sair does not authorize reads. */
-export const READ_AUTH_HEADER = 'Authorization'
-
-export function readAuthHeaders(init?: HeadersInit): Headers {
-  const next = new Headers(init)
-  if (READ_API_KEY) next.set(READ_AUTH_HEADER, `Bearer ${READ_API_KEY}`)
-  return next
-}
-
 export function describeFetchError(err: unknown): string {
   const detail = err instanceof Error ? err.message : 'erro desconhecido'
   if (detail.includes('404')) {
     return 'A API ainda não está no ar (404). Tente de novo depois do deploy do Worker.'
   }
   if (detail.includes('401')) {
-    return 'A API pediu autorização (401). Defina VITE_API_TOKEN ou VITE_READ_API_KEY e faça rebuild.'
+    return 'A API pediu autorização (401). O browser não envia credencial de leitura — o Worker precisa aceitar CORS nas origens do Pages sem header de autenticação, ou a Platform precisa de um proxy Pages Function que segura o secret.'
   }
   if (detail.includes('503')) {
     return 'A API não está pronta (503). Confira o Worker.'
@@ -104,7 +95,7 @@ export function describeFetchError(err: unknown): string {
 }
 
 async function getJson<T>(url: string, init?: RequestInit): Promise<T> {
-  const response = await fetch(url, { ...init, headers: readAuthHeaders(init?.headers) })
+  const response = await fetch(url, init)
   if (!response.ok) {
     throw new Error(`API ${response.status}`)
   }

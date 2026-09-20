@@ -22,7 +22,7 @@ Estado da UI (aba, datas, fonte, dia, modo do gráfico) vive na query string —
 
 Vite · React 19 · TypeScript · Tailwind v4 · shadcn/ui · Vitest · Playwright · Cloudflare Pages + Workers · Supabase Postgres
 
-O frontend não fala com o banco. Um Worker coleta snapshots, persiste no Postgres e expõe uma read API autenticada por Bearer. Sem `VITE_API_URL`, o app sobe com stubs locais.
+O frontend não fala com o banco. Um Worker coleta snapshots, persiste no Postgres e expõe `/api/v1/*`. O browser chama essa API **sem** `Authorization` — não existe `VITE_READ_API_KEY` / `VITE_API_TOKEN` (qualquer `VITE_*` entra no JS público). Sem `VITE_API_URL`, o app sobe com stubs locais.
 
 ## Desenvolvimento
 

@@ -255,24 +255,30 @@ anon/authenticated policies (`policies []` today). Do **not** add a browser
 Supabase client or anon key until tight SELECT RLS exists.
 
 The dashboard **Entrar / Sair** buttons are a UI stub. They do **not** authorize
-snapshot data. The Worker checks a real Bearer on every `/api/v1/snapshots*` call.
+snapshot data.
 
-| Who                | Credential                                                       | Header                                                       |
-| ------------------ | ---------------------------------------------------------------- | ------------------------------------------------------------ |
-| Worker → Supabase  | `SUPABASE_SERVICE_ROLE_KEY` (Worker secret only)                 | PostgREST `Authorization` / `apikey` — **never** in `VITE_*` |
-| FE / curl → Worker | `READ_API_KEY` (Worker secret) = `VITE_READ_API_KEY` (Pages env) | `Authorization: Bearer <READ_API_KEY>`                       |
-| Ingest `POST /run` | `INGEST_TRIGGER_SECRET`                                          | **Not accepted** on read routes                              |
+| Who                  | Credential                                       | Header                                                       |
+| -------------------- | ------------------------------------------------ | ------------------------------------------------------------ |
+| Worker → Supabase    | `SUPABASE_SERVICE_ROLE_KEY` (Worker secret only) | PostgREST `Authorization` / `apikey` — **never** in `VITE_*` |
+| Browser → Worker     | none                                             | **no** `Authorization` header                                |
+| curl / server        | `READ_API_KEY` (Worker secret, not in Pages)     | `Authorization: Bearer <READ_API_KEY>`                       |
+| Ingest `POST /run`   | `INGEST_TRIGGER_SECRET`                          | **Not accepted** on read routes                              |
 
 `READ_API_KEY` must be **distinct** from `INGEST_TRIGGER_SECRET`. Reusing the
-ingest trigger is rejected (`read_api_key_reuses_ingest_secret`). A later
-session/login can replace this v1 Pages-safe Bearer; until then the Worker
-still requires the header. If `READ_API_KEY` is unset, snapshot routes return
-**503** (`read_api_key_not_configured`) — they do not fall open.
+ingest trigger is rejected (`read_api_key_reuses_ingest_secret`). If
+`READ_API_KEY` is unset, non-browser clients that still send Bearer get **503**
+(`read_api_key_not_configured`) — they do not fall open.
 
-v1 note: `VITE_READ_API_KEY` is bundled into the Pages build (public config).
-It is only a shared Bearer the Worker knows. It is **not** a secret equivalent
-to the service role. Never embed `SUPABASE_URL` / `SUPABASE_ANON_KEY` /
-`SUPABASE_SERVICE_ROLE_KEY` in the FE.
+**Browser reads (QA-4):** any `VITE_*` value is inlined into the public Pages
+bundle. Do **not** ship `VITE_READ_API_KEY` / `VITE_API_TOKEN`. The Vite app
+fetches `/api/v1/*` with no Authorization whenever `VITE_API_URL` is set
+(otherwise placeholders). Pages redeploy only needs `VITE_API_URL`.
+
+The Worker must allow CORS for Pages origins **without** requiring Bearer for
+those browser reads. **Preferred if the Worker must keep Bearer for all
+clients:** Platform adds a Cloudflare Pages Function proxy that holds
+`READ_API_KEY` server-side (out of FE scope). Never embed `SUPABASE_URL` /
+`SUPABASE_ANON_KEY` / `SUPABASE_SERVICE_ROLE_KEY` in the FE.
 
 `raw_payload` is stripped unless `include_raw=1`. When included, keys that look
 like secrets (`password`, `authorization`, `cookie`, `api_key`, …) are replaced
@@ -290,15 +296,19 @@ Allowed request `Origin` values:
 
 `curl` (no `Origin`) is not blocked by CORS.
 
+Browser `GET /api/v1/snapshots*` from an allowed Pages origin must succeed
+**without** `Authorization`. That is a Worker (or Pages Function proxy) change,
+not an FE `VITE_*` secret.
+
 ## How the FE should call it
 
 Dashboard query today: `to`, `from`, `until`, `fonte` (see `src/lib/query.ts`).
 
 ```ts
-import { API_URL, READ_API_KEY } from './lib/config.ts'
+import { API_URL } from './lib/config.ts'
 import { fetchLatestSnapshots, fetchSnapshotStats, liveDashboardQuery, toOfferRow } from './lib/api.ts'
 
-if (!API_URL || !READ_API_KEY) {
+if (!API_URL) {
   // keep using src/data/placeholders.ts
 } else {
   const filters = liveDashboardQuery(query) // PET, include dry-run by default, from=today
@@ -314,19 +324,14 @@ if (!API_URL || !READ_API_KEY) {
 }
 ```
 
-The Worker read API is **live with Bearer** (`API_READ_SECRET` / `READ_API_KEY`).
-Cloudflare Pages needs **both** build-time vars, then **redeploy**:
+Cloudflare Pages needs **only** this build-time var, then **redeploy**:
 
 ```
 VITE_API_URL=https://viagens-do-pe-ingest.rafaellimapereira.workers.dev
-VITE_API_TOKEN=<same value as Worker API_READ_SECRET or READ_API_KEY>
-# alias:
-VITE_READ_API_KEY=<same value>
 ```
 
-`src/lib/api.ts` sends `Authorization: Bearer …` when `VITE_API_TOKEN` or
-`VITE_READ_API_KEY` is set. URL without token → 401. Never invent a key;
-never `VITE_SUPABASE*`.
+`src/lib/api.ts` fetches `/api/v1/*` **without** `Authorization`. Never invent a
+`VITE_*` key; never `VITE_SUPABASE*`.
 
 ## Env (Worker)
 

@@ -1,4 +1,4 @@
-/** Workers API base URL. Empty = local stubs. Never put SUPABASE_* keys here. */
+/** Workers API base URL. Empty = local stubs. Never put secrets in VITE_* (inlined). */
 export const API_URL = import.meta.env.VITE_API_URL ?? ''
 
 /** Stubs are opt-in. Production builds fail visibly if the API is missing. */
@@ -8,12 +8,5 @@ export const CONFIG_ERROR =
     ? 'Configuração de produção incompleta: VITE_API_URL não foi definido no build.'
     : null
 
-/**
- * Bearer for the live Worker: `VITE_API_TOKEN` or alias `VITE_READ_API_KEY`.
- * Required when the Worker has `API_READ_SECRET` / `READ_API_KEY`.
- * Not the service role, not `INGEST_TRIGGER_SECRET`, and not stub Entrar/Sair.
- */
-export const READ_API_KEY = import.meta.env.VITE_API_TOKEN ?? import.meta.env.VITE_READ_API_KEY ?? ''
-
-/** Fetch live snapshots whenever the Worker base URL is set. */
+/** Fetch live snapshots whenever the Worker base URL is set. No client secret. */
 export const CAN_FETCH_SNAPSHOTS = Boolean(API_URL) && !USE_STUBS

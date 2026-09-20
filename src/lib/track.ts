@@ -13,7 +13,7 @@ function currentPath(): string {
 
 /**
  * Fire-and-forget product event. Never throws; never blocks UI.
- * Public Worker ingest — no READ_API_KEY / Entrar.
+ * Public Worker ingest — no Authorization header / Entrar.
  */
 export function track(event: TrackEvent, props?: TrackProps): void {
   const base = API_URL.replace(/\/$/, '')
