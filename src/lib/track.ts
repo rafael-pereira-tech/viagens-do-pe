@@ -1,4 +1,4 @@
-import { API_URL, CAN_FETCH_SNAPSHOTS } from './config.ts'
+import { CAN_FETCH_SNAPSHOTS } from './config.ts'
 
 export type TrackEvent = 'page_view' | 'filter_apply' | 'tab_change' | 'chart_click'
 
@@ -17,7 +17,6 @@ function currentPath(): string {
  */
 export function track(event: TrackEvent, props?: TrackProps): void {
   if (!CAN_FETCH_SNAPSHOTS) return
-  const base = API_URL.replace(/\/$/, '')
 
   const cleanProps: Record<string, string | number | boolean | null> = {}
   if (props) {
@@ -34,7 +33,7 @@ export function track(event: TrackEvent, props?: TrackProps): void {
   })
 
   try {
-    void fetch(`${base}${EVENTS_PATH}`, {
+    void fetch(EVENTS_PATH, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body,

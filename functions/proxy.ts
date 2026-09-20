@@ -13,6 +13,11 @@ export function apiV1Path(paramsPath: string | string[] | undefined): string | n
   return `/api/${segments.join('/')}`
 }
 
+export function hasIncludeRaw(search: string): boolean {
+  const params = new URLSearchParams(search.startsWith('?') ? search.slice(1) : search)
+  return [...params.keys()].some((key) => key.toLowerCase() === 'include_raw')
+}
+
 export function upstreamUrl(env: ProxyEnv, pathname: string, search: string): string {
   const base = (env.WORKER_API_URL || DEFAULT_WORKER_API_URL).replace(/\/$/, '')
   return `${base}${pathname}${search}`
@@ -62,7 +67,12 @@ export async function proxyApiV1(
     )
   }
 
-  const target = upstreamUrl(env, pathname, new URL(request.url).search)
+  const search = new URL(request.url).search
+  if (hasIncludeRaw(search)) {
+    return jsonError(400, 'include_raw_forbidden', 'include_raw is not available through the Pages proxy.')
+  }
+
+  const target = upstreamUrl(env, pathname, search)
   const init: RequestInit = {
     method: request.method,
     headers: proxyHeaders(request, secret),

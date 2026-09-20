@@ -1,4 +1,3 @@
-import { API_URL } from './config.ts'
 import { isCashCompanionSource } from './filters.ts'
 import type { ObservationSummaryResponse } from './history.ts'
 import { todayIso, type DashboardQuery } from './query.ts'
@@ -61,7 +60,6 @@ export function snapshotSearchParams(query: SnapshotListQuery): URLSearchParams 
     ['collected_at', query.collected_at],
     ['collected_at_from', query.collected_at_from],
     ['collected_at_to', query.collected_at_to],
-    ['include_raw', query.include_raw ? '1' : undefined],
     ['exclude_dry_run', query.exclude_dry_run ? '1' : undefined],
     ['limit', query.limit],
     ['offset', query.offset],
@@ -75,9 +73,8 @@ export function snapshotSearchParams(query: SnapshotListQuery): URLSearchParams 
 }
 
 export function snapshotsUrl(path: string, query: SnapshotListQuery = {}): string {
-  const base = API_URL.replace(/\/$/, '')
   const params = snapshotSearchParams(query).toString()
-  return params ? `${base}${path}?${params}` : `${base}${path}`
+  return params ? `${path}?${params}` : path
 }
 
 export function describeFetchError(err: unknown): string {

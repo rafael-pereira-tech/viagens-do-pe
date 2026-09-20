@@ -64,7 +64,6 @@ export type SnapshotListQuery = {
   collected_at?: string
   collected_at_from?: string
   collected_at_to?: string
-  include_raw?: boolean
   /**
    * Drop collector fixture rows (`*_dry_run` sources from SMILES_DRY_RUN /
    * TUDOAZUL_DRY_RUN / LATAM_DRY_RUN). Live sources stay unsuffixed.

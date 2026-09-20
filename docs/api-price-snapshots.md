@@ -34,7 +34,7 @@ All list/latest/stats endpoints accept:
 | `flight_date_from` / `flight_date_to`   | `gte` / `lte`      | Civil date range                                                                       |
 | `collected_at`                          | `eq` or day window | ISO timestamp → `eq`; `YYYY-MM-DD` → that UTC day                                      |
 | `collected_at_from` / `collected_at_to` | `gte` / `lte`      | ISO-8601 or `YYYY-MM-DD`                                                               |
-| `include_raw`                           | select             | `1` to include redacted `raw_payload` (omitted by default)                             |
+| `include_raw`                           | select             | Worker/`curl` only. Pages Function **rejects** this from the browser                   |
 | `exclude_dry_run`                       | see below          | Drop collector **fixture** rows. Does **not** change cash-vs-miles KPI rules           |
 | `limit` / `offset`                      | page               | List default **100** (max 500). Latest default 500 (max 2000). **Ignored on `/stats`** |
 | `group_by`                              | —                  | Stats only: `window` (default) or `route_day`                                          |
@@ -287,9 +287,15 @@ Platform:
 Never embed `SUPABASE_URL` / `SUPABASE_ANON_KEY` /
 `SUPABASE_SERVICE_ROLE_KEY` in the FE.
 
-`raw_payload` is stripped unless `include_raw=1`. When included, keys that look
-like secrets (`password`, `authorization`, `cookie`, `api_key`, …) are replaced
-with `"[redacted]"`. Error bodies never echo Bearer tokens or JWTs.
+`raw_payload` is omitted unless `include_raw=1` on a **direct Worker** call
+(`curl` with Bearer). The Pages Function **rejects** `include_raw` from the
+browser (`400 include_raw_forbidden`) and does not forward it. The FE never
+sends that query param. When the Worker does include raw, secret-looking keys
+(`password`, `authorization`, `cookie`, `api_key`, …) are replaced with
+`"[redacted]"`. Error bodies never echo Bearer tokens or JWTs.
+
+The Worker **keeps requiring Bearer** on `/api/v1/snapshots*`. Do not switch
+to CORS-only reads.
 
 ## CORS
 
@@ -303,9 +309,10 @@ Allowed request `Origin` values:
 
 `curl` (no `Origin`) is not blocked by CORS.
 
-Browser `GET /api/v1/snapshots*` is **same-origin** on Pages, so CORS does not
-apply. The Pages Function adds Bearer server-side. `curl` against the Worker
-still needs the header.
+Browser `GET /api/v1/snapshots*` is **same-origin** on Pages (`/api/v1/…` only),
+so CORS does not apply. The Pages Function adds Bearer server-side. Direct
+`curl` against the Worker still needs the header. Worker CORS is unchanged and
+is **not** a substitute for Bearer.
 
 ## How the FE should call it
 

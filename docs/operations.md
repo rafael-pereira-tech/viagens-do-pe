@@ -17,7 +17,7 @@ cp .env.example .env
 npm run dev
 ```
 
-Abre `http://localhost:5173`. Sem `VITE_API_URL` o Vite usa stubs locais. Para o proxy same-origin: `npm run build && npx wrangler pages dev dist` (lê `.dev.vars`).
+Abre `http://localhost:5173` com stubs locais. Para o proxy same-origin: `npm run build && npx wrangler pages dev dist` (lê `.dev.vars`).
 
 ```bash
 npm run lint
@@ -37,14 +37,13 @@ Pre-commit (Husky + lint-staged): `pnpm install` liga o hook via `prepare`. No c
 
 ## Variáveis de ambiente (frontend)
 
-| Variável          | Onde                         | Uso                                                                                         |
-| ----------------- | ---------------------------- | ------------------------------------------------------------------------------------------- |
-| `VITE_API_URL`    | Só Vite local (opcional)     | Origem absoluta. Vazia = same-origin. **Não** usar no Pages — Functions cobrem `/api/v1/*`. |
-| `VITE_USE_STUBS`  | Só local / e2e               | `1` = placeholders. Produção deve ficar unset.                                              |
-| `API_READ_SECRET` | **Pages Functions** (secret) | Bearer injetado no proxy. Mesmo valor que `READ_API_KEY` no Worker. **Nunca** `VITE_*`.     |
-| `WORKER_API_URL`  | Pages Functions (var)        | Origin do Worker. Default no `wrangler.toml`.                                               |
+| Variável          | Onde                         | Uso                                                                                     |
+| ----------------- | ---------------------------- | --------------------------------------------------------------------------------------- |
+| `VITE_USE_STUBS`  | Só local / e2e               | `1` = placeholders. Produção deve ficar unset.                                          |
+| `API_READ_SECRET` | **Pages Functions** (secret) | Bearer injetado no proxy. Mesmo valor que `READ_API_KEY` no Worker. **Nunca** `VITE_*`. |
+| `WORKER_API_URL`  | Pages Functions (var)        | Origin do Worker. Default no `wrangler.toml`.                                           |
 
-O Vite só expõe prefixo `VITE_`, e **qualquer** `VITE_*` é inlined no JS público. **Não** use `VITE_READ_API_KEY`, `VITE_API_TOKEN` nem Bearer no browser. Reinicie `npm run dev` depois de mudar o `.env`. Sem `VITE_API_URL` no Vite o Dashboard usa `src/data/placeholders.ts`. Em produção o client chama same-origin `/api/v1/*` **sem** header de autorização.
+O Vite só expõe prefixo `VITE_`, e **qualquer** `VITE_*` é inlined no JS público. **Não** use `VITE_READ_API_KEY`, `VITE_API_TOKEN` nem Bearer no browser. O client chama **somente** same-origin `/api/v1/*` — nunca o Worker e nunca com `include_raw`. O Worker **continua exigindo Bearer**; não há modo CORS-only.
 
 **Nunca** coloque `SUPABASE_SERVICE_ROLE_KEY` nem `VITE_SUPABASE*` no frontend.
 

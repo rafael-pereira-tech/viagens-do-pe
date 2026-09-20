@@ -57,6 +57,19 @@ describe('proxyApiV1', () => {
     expect(response.status).toBe(404)
   })
 
+  it('blocks include_raw from the browser', async () => {
+    const fetchMock = vi.fn()
+    vi.stubGlobal('fetch', fetchMock)
+    const response = await proxyApiV1(
+      new Request('https://pages.example/api/v1/snapshots?include_raw=1'),
+      { API_READ_SECRET: 'pages-secret' },
+      ['v1', 'snapshots'],
+    )
+    expect(response.status).toBe(400)
+    await expect(response.json()).resolves.toMatchObject({ error: 'include_raw_forbidden' })
+    expect(fetchMock).not.toHaveBeenCalled()
+  })
+
   it('returns 503 when the Pages secret is missing', async () => {
     const response = await proxyApiV1(new Request('https://pages.example/api/v1/health'), {}, ['v1', 'health'])
     expect(response.status).toBe(503)
