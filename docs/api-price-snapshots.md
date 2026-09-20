@@ -257,12 +257,12 @@ Supabase client or anon key until tight SELECT RLS exists.
 The dashboard **Entrar / Sair** buttons are a UI stub. They do **not** authorize
 snapshot data.
 
-| Who                  | Credential                                       | Header                                                       |
-| -------------------- | ------------------------------------------------ | ------------------------------------------------------------ |
-| Worker → Supabase    | `SUPABASE_SERVICE_ROLE_KEY` (Worker secret only) | PostgREST `Authorization` / `apikey` — **never** in `VITE_*` |
-| Browser → Worker     | none                                             | **no** `Authorization` header                                |
-| curl / server        | `READ_API_KEY` (Worker secret, not in Pages)     | `Authorization: Bearer <READ_API_KEY>`                       |
-| Ingest `POST /run`   | `INGEST_TRIGGER_SECRET`                          | **Not accepted** on read routes                              |
+| Who                | Credential                                       | Header                                                       |
+| ------------------ | ------------------------------------------------ | ------------------------------------------------------------ |
+| Worker → Supabase  | `SUPABASE_SERVICE_ROLE_KEY` (Worker secret only) | PostgREST `Authorization` / `apikey` — **never** in `VITE_*` |
+| Browser → Worker   | none                                             | **no** `Authorization` header                                |
+| curl / server      | `READ_API_KEY` (Worker secret, not in Pages)     | `Authorization: Bearer <READ_API_KEY>`                       |
+| Ingest `POST /run` | `INGEST_TRIGGER_SECRET`                          | **Not accepted** on read routes                              |
 
 `READ_API_KEY` must be **distinct** from `INGEST_TRIGGER_SECRET`. Reusing the
 ingest trigger is rejected (`read_api_key_reuses_ingest_secret`). If
