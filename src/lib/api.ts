@@ -86,7 +86,7 @@ export function describeFetchError(err: unknown): string {
     return 'A API ainda não está no ar (404). Tente de novo depois do deploy do Worker.'
   }
   if (detail.includes('401')) {
-    return 'A API pediu autorização (401). O browser não envia credencial de leitura — o Worker precisa aceitar CORS nas origens do Pages sem header de autenticação, ou a Platform precisa de um proxy Pages Function que segura o secret.'
+    return 'A API pediu autorização (401). Confira o secret de leitura nas Pages Functions — nunca no prefixo VITE_.'
   }
   if (detail.includes('503')) {
     return 'A API não está pronta (503). Confira o Worker.'

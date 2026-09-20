@@ -1,4 +1,4 @@
-import { API_URL } from './config.ts'
+import { API_URL, CAN_FETCH_SNAPSHOTS } from './config.ts'
 
 export type TrackEvent = 'page_view' | 'filter_apply' | 'tab_change' | 'chart_click'
 
@@ -13,11 +13,11 @@ function currentPath(): string {
 
 /**
  * Fire-and-forget product event. Never throws; never blocks UI.
- * Public Worker ingest — no Authorization header / Entrar.
+ * Public same-origin ingest — Pages Function adds the server credential.
  */
 export function track(event: TrackEvent, props?: TrackProps): void {
+  if (!CAN_FETCH_SNAPSHOTS) return
   const base = API_URL.replace(/\/$/, '')
-  if (!base) return
 
   const cleanProps: Record<string, string | number | boolean | null> = {}
   if (props) {

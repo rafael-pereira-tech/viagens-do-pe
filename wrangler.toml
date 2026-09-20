@@ -1,3 +1,8 @@
 name = "viagens-do-pe"
 compatibility_date = "2026-09-11"
 pages_build_output_dir = "dist"
+
+# Public Worker origin for the Pages Function proxy. Secret stays in
+# `npx wrangler pages secret put API_READ_SECRET` (never VITE_*).
+[vars]
+WORKER_API_URL = "https://viagens-do-pe-ingest.rafaellimapereira.workers.dev"

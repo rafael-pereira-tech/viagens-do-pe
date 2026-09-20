@@ -1,0 +1,6 @@
+# Pages Functions / `wrangler pages dev` only (server env — not VITE_*).
+# Same value as Worker READ_API_KEY. Rotate if it ever lived in a Pages bundle.
+API_READ_SECRET=
+
+# Optional. Defaults to the production ingest Worker.
+WORKER_API_URL=https://viagens-do-pe-ingest.rafaellimapereira.workers.dev

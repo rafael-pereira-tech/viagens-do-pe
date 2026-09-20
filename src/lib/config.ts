@@ -1,12 +1,17 @@
-/** Workers API base URL. Empty = local stubs. Never put secrets in VITE_* (inlined). */
-export const API_URL = import.meta.env.VITE_API_URL ?? ''
+/**
+ * Optional origin for local Vite. Production always uses same-origin `/api/v1/*`
+ * (Pages Function). Empty string = relative. Never put secrets in VITE_*.
+ */
+export const API_URL = import.meta.env.PROD ? '' : (import.meta.env.VITE_API_URL ?? '').replace(/\/$/, '')
 
-/** Stubs are opt-in. Production builds fail visibly if the API is missing. */
+/** Local/e2e placeholders. Production Pages must leave this unset. */
 export const USE_STUBS = import.meta.env.VITE_USE_STUBS === '1'
-export const CONFIG_ERROR =
-  import.meta.env.PROD && !USE_STUBS && !API_URL
-    ? 'Configuração de produção incompleta: VITE_API_URL não foi definido no build.'
-    : null
 
-/** Fetch live snapshots whenever the Worker base URL is set. No client secret. */
-export const CAN_FETCH_SNAPSHOTS = Boolean(API_URL) && !USE_STUBS
+export const CONFIG_ERROR = null
+
+/**
+ * Production: same-origin Pages Function.
+ * Dev: fetch only when VITE_API_URL is set (empty string = same-origin / pages dev).
+ */
+export const CAN_FETCH_SNAPSHOTS =
+  !USE_STUBS && (Boolean(import.meta.env.PROD) || import.meta.env.VITE_API_URL !== undefined)
