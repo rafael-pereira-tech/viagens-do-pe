@@ -267,7 +267,7 @@ function GroupedBars({
               )
             })}
           </svg>
-          <div className="absolute inset-0 flex pb-9" role="list" aria-label="Datas do gráfico">
+          <div className="absolute inset-0 flex pb-9" role="group" aria-label="Datas do gráfico">
             {points.map((point) => {
               const selected = point.date === selectedDate
               const milesLabel = chartFillsForAirline(point.milesAirline).label
@@ -277,7 +277,6 @@ function GroupedBars({
                   <TooltipTrigger asChild>
                     <button
                       type="button"
-                      role="listitem"
                       className="h-full flex-1 rounded-md focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none"
                       aria-pressed={selected}
                       aria-label={`${formatShortDate(point.date)}: ${formatMiles(point.milhas)} milhas (${milesLabel}), ${formatBrl(point.brl, true)} (${brlLabel}), ${point.sampleSize} ofertas`}

@@ -1,4 +1,3 @@
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { AIRPORT_LABEL, DESTINATIONS, ORIGIN, type Destination, type Sentido } from '../lib/query.ts'
 
 type Props = {
@@ -8,36 +7,50 @@ type Props = {
   onSentidoChange: (sentido: Sentido) => void
 }
 
+const optionClass =
+  'min-h-9 rounded-lg px-3 text-sm font-semibold text-foreground hover:bg-background/60 aria-pressed:bg-background aria-pressed:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring'
+
 export function DestinationTabs({ active, sentido, onChange, onSentidoChange }: Props) {
   const routeLabel =
     sentido === 'volta' ? `${AIRPORT_LABEL[active]} → ${ORIGIN}` : `${ORIGIN} → ${AIRPORT_LABEL[active]}`
-
   return (
     <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4">
         <p className="text-sm text-muted-foreground">
           Rota · <span className="font-medium text-foreground">{routeLabel}</span>
         </p>
-        <Tabs value={sentido} onValueChange={(value) => onSentidoChange(value as Sentido)} className="gap-0">
-          <TabsList aria-label="Sentido da viagem" className="grid h-9 w-full grid-cols-2 sm:w-auto">
-            <TabsTrigger value="ida" className="px-3 text-xs font-semibold sm:text-sm">
-              Ida · {ORIGIN}→SP
-            </TabsTrigger>
-            <TabsTrigger value="volta" className="px-3 text-xs font-semibold sm:text-sm">
-              Volta · SP→{ORIGIN}
-            </TabsTrigger>
-          </TabsList>
-        </Tabs>
+        <div role="group" aria-label="Sentido da viagem" className="grid grid-cols-2 gap-1 rounded-xl bg-muted p-1">
+          <button
+            type="button"
+            className={optionClass}
+            aria-pressed={sentido === 'ida'}
+            onClick={() => onSentidoChange('ida')}
+          >
+            Ida · {ORIGIN}→SP
+          </button>
+          <button
+            type="button"
+            className={optionClass}
+            aria-pressed={sentido === 'volta'}
+            onClick={() => onSentidoChange('volta')}
+          >
+            Volta · SP→{ORIGIN}
+          </button>
+        </div>
       </div>
-      <Tabs value={active} onValueChange={(value) => onChange(value as Destination)} className="gap-0">
-        <TabsList aria-label="Aeroporto em São Paulo" className="grid h-10 w-full grid-cols-3 sm:w-auto">
-          {DESTINATIONS.map((code) => (
-            <TabsTrigger key={code} value={code} className="min-w-16 px-3 font-semibold">
-              {code}
-            </TabsTrigger>
-          ))}
-        </TabsList>
-      </Tabs>
+      <div role="group" aria-label="Aeroporto em São Paulo" className="grid grid-cols-3 gap-1 rounded-xl bg-muted p-1">
+        {DESTINATIONS.map((code) => (
+          <button
+            key={code}
+            type="button"
+            className={`${optionClass} min-w-16`}
+            aria-pressed={active === code}
+            onClick={() => onChange(code)}
+          >
+            {code}
+          </button>
+        ))}
+      </div>
     </div>
   )
 }

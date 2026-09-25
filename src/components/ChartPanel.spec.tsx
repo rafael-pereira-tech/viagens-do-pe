@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react'
+import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import { ChartPanel } from './ChartPanel.tsx'
@@ -51,7 +51,7 @@ describe('ChartPanel', () => {
   it('success: renders bars and legend', () => {
     renderChart({ points })
     // chart renders accessible buttons per date
-    expect(screen.getAllByRole('listitem').length).toBe(2)
+    expect(within(screen.getByRole('group', { name: 'Datas do gráfico' })).getAllByRole('button').length).toBe(2)
     expect(screen.getByText(/Menor milhas.*cia vencedora/)).toBeInTheDocument()
   })
 

@@ -18,6 +18,8 @@ export default defineConfig({
     },
   ],
   webServer: {
+    // Browser tests use the labeled synthetic demo, never the live API.
+    env: { VITE_USE_STUBS: '1', VITE_API_URL: '', VITE_READ_API_KEY: '', VITE_API_TOKEN: '' },
     command: 'pnpm build && pnpm preview --port 4173 --strictPort',
     url: 'http://localhost:4173',
     reuseExistingServer: !process.env.CI,

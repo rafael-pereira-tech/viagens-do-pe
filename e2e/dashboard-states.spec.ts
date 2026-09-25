@@ -23,8 +23,19 @@ test.describe('Dashboard ?ui states', () => {
 
   test('default shows success with tabs and chart', async ({ page }) => {
     await page.goto('/')
-    await expect(page.getByRole('tab', { name: 'GRU' })).toBeVisible()
+    await expect(page.getByRole('button', { name: 'GRU' })).toBeVisible()
     await expect(page.getByText('Ofertas futuras por data')).toBeVisible()
     // just check tabs/chart, not KpiStrip which may be loading
   })
+})
+
+test('demo shows illustrative prices and keeps destination filters working', async ({ page }) => {
+  await page.goto('/')
+  await expect(page.getByText('Demonstração · dados fictícios')).toBeVisible()
+  await expect(page.getByRole('table')).toBeVisible()
+  await expect(page.getByRole('row')).toHaveCount(6)
+  await page.getByRole('button', { name: 'CGH', exact: true }).click()
+  await expect(page).toHaveURL(/to=CGH/)
+  await expect(page.getByRole('table')).toBeVisible()
+  await expect(page.getByText('Demonstração · dados fictícios')).toBeVisible()
 })
