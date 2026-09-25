@@ -5,6 +5,7 @@ import { ChartPanel } from '../components/ChartPanel.tsx'
 import { DestinationTabs } from '../components/DestinationTabs.tsx'
 import { FiltersBar } from '../components/FiltersBar.tsx'
 import { KpiStrip } from '../components/KpiStrip.tsx'
+import { PriceDataStatus } from '../components/PriceDataStatus.tsx'
 import { OffersTable } from '../components/OffersTable.tsx'
 import { chartFromOffers, chartFromRouteDayStats, kpisFromOffers, PLACEHOLDER_OFFERS } from '../data/placeholders.ts'
 import { useDashboardSnapshots } from '../hooks/useDashboardSnapshots.ts'
@@ -62,8 +63,11 @@ export function Dashboard() {
     () => (live ? remote.offers : CONFIG_ERROR ? [] : PLACEHOLDER_OFFERS),
     [live, remote.offers],
   )
-  const tabRows = useMemo(() => applyQuery(sourceRows, applied, { ignoreDay: true }), [applied, sourceRows])
-  const rows = useMemo(() => applyQuery(sourceRows, applied), [applied, sourceRows])
+  const demo = !live && !CONFIG_ERROR
+  // Demo fixtures are tagged dry-run; live requests keep the production filter.
+  const displayQuery = useMemo(() => (demo ? { ...applied, dryMode: 'include' as const } : applied), [demo, applied])
+  const tabRows = useMemo(() => applyQuery(sourceRows, displayQuery, { ignoreDay: true }), [displayQuery, sourceRows])
+  const rows = useMemo(() => applyQuery(sourceRows, displayQuery), [displayQuery, sourceRows])
   const useApiStats = live
   const kpis = kpisFromOffers(tabRows, useApiStats ? remote.windowStats : undefined)
   const chartBase =
@@ -122,6 +126,11 @@ export function Dashboard() {
 
   return (
     <div className="flex flex-col gap-4">
+      <header className="mb-2">
+        <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Passagens entre Pelotas e São Paulo</h1>
+        <p className="mt-2 text-sm text-muted-foreground">Compare datas, preços em reais e opções com milhas.</p>
+      </header>
+      <PriceDataStatus demo={demo} rows={effectiveRows} isLoading={effectiveIsLoading} error={effectiveError} />
       <DestinationTabs active={applied.to} sentido={applied.sentido} onChange={onTab} onSentidoChange={onSentido} />
       <FiltersBar
         draft={draft}
@@ -154,15 +163,11 @@ export function Dashboard() {
         error={effectiveError}
         onRetry={remote.refresh}
       />
-      <p className="text-xs text-muted-foreground">
-        Produção: <code className="font-mono">exclude_dry_run=1</code>. Sem linhas live a tabela/KPIs ficam vazios.
-      </p>
       {applied.dia ? (
         <p className="text-xs text-muted-foreground">
           Tabela filtrada por {formatShortDate(applied.dia)}. Clique de novo na barra para limpar o dia.
         </p>
       ) : null}
-      {live && remote.offers.length > 0 ? <FreshnessNotice rows={remote.offers} /> : null}
       <OffersTable
         rows={effectiveIsLoading ? [] : effectiveRows}
         isLoading={effectiveIsLoading}
@@ -171,16 +176,5 @@ export function Dashboard() {
         onRetry={remote.refresh}
       />
     </div>
-  )
-}
-
-function FreshnessNotice({ rows }: { rows: { collected_at: string }[] }) {
-  const latest = rows.reduce((max, row) => (row.collected_at > max ? row.collected_at : max), '')
-  const ageHours = latest ? (Date.now() - Date.parse(latest)) / 3_600_000 : Number.POSITIVE_INFINITY
-  if (!Number.isFinite(ageHours) || ageHours <= 12) return null
-  return (
-    <p className="text-xs text-amber-700" role="status">
-      Dados atualizados há {Math.floor(ageHours)}h; a última coleta pode estar desatualizada.
-    </p>
   )
 }

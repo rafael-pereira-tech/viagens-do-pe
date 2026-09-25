@@ -40,7 +40,7 @@ export function isCashCompanionSource(source: string): boolean {
 export function sourceLabel(source: string): string {
   const { base, dryRun } = stripDryRunSuffix(source)
   const label = SOURCE_LABELS[base as LiveSource] ?? base
-  return dryRun ? `${label} (dry-run)` : label
+  return dryRun ? `${label} (exemplo)` : label
 }
 
 export function programLabel(program: string): string {
