@@ -2,7 +2,7 @@ import { useEffect, useState, type ReactNode } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
-import { API_URL } from '../lib/config.ts'
+import { CAN_FETCH_SNAPSHOTS } from '../lib/config.ts'
 import { useFeatureFlags } from '../lib/featureFlags.tsx'
 
 const AUTH_KEY = 'vdpe-auth'
@@ -110,7 +110,7 @@ export function Shell({ children }: { children: ReactNode }) {
           ) : null}
         </header>
         <main className="pt-5">
-          <span className="sr-only">API {API_URL || 'stubs locais'}</span>
+          <span className="sr-only">API {CAN_FETCH_SNAPSHOTS ? 'same-origin /api/v1' : 'stubs locais'}</span>
           {children}
         </main>
       </div>

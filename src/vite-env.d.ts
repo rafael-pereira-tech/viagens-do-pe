@@ -1,11 +1,8 @@
 /// <reference types="vite/client" />
 
 interface ImportMetaEnv {
-  readonly VITE_API_URL?: string
-  /** Pages alias for Worker `API_READ_SECRET` / `READ_API_KEY`. Sent as Bearer. */
-  readonly VITE_API_TOKEN?: string
-  /** Alias of `VITE_API_TOKEN`. Never a Supabase key. */
-  readonly VITE_READ_API_KEY?: string
+  /** Opt-in placeholders (local / e2e). Must stay unset on Pages. Never a secret. */
+  readonly VITE_USE_STUBS?: string
 }
 
 interface ImportMeta {

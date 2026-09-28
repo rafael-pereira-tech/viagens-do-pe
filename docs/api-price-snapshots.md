@@ -34,7 +34,7 @@ All list/latest/stats endpoints accept:
 | `flight_date_from` / `flight_date_to`   | `gte` / `lte`      | Civil date range                                                                       |
 | `collected_at`                          | `eq` or day window | ISO timestamp → `eq`; `YYYY-MM-DD` → that UTC day                                      |
 | `collected_at_from` / `collected_at_to` | `gte` / `lte`      | ISO-8601 or `YYYY-MM-DD`                                                               |
-| `include_raw`                           | select             | `1` to include redacted `raw_payload` (omitted by default)                             |
+| `include_raw`                           | select             | Worker/`curl` only. Pages Function **rejects** this from the browser                   |
 | `exclude_dry_run`                       | see below          | Drop collector **fixture** rows. Does **not** change cash-vs-miles KPI rules           |
 | `limit` / `offset`                      | page               | List default **100** (max 500). Latest default 500 (max 2000). **Ignored on `/stats`** |
 | `group_by`                              | —                  | Stats only: `window` (default) or `route_day`                                          |
@@ -255,28 +255,47 @@ anon/authenticated policies (`policies []` today). Do **not** add a browser
 Supabase client or anon key until tight SELECT RLS exists.
 
 The dashboard **Entrar / Sair** buttons are a UI stub. They do **not** authorize
-snapshot data. The Worker checks a real Bearer on every `/api/v1/snapshots*` call.
+snapshot data.
 
-| Who                | Credential                                                       | Header                                                       |
-| ------------------ | ---------------------------------------------------------------- | ------------------------------------------------------------ |
-| Worker → Supabase  | `SUPABASE_SERVICE_ROLE_KEY` (Worker secret only)                 | PostgREST `Authorization` / `apikey` — **never** in `VITE_*` |
-| FE / curl → Worker | `READ_API_KEY` (Worker secret) = `VITE_READ_API_KEY` (Pages env) | `Authorization: Bearer <READ_API_KEY>`                       |
-| Ingest `POST /run` | `INGEST_TRIGGER_SECRET`                                          | **Not accepted** on read routes                              |
+| Who                     | Credential                                       | Header                                                       |
+| ----------------------- | ------------------------------------------------ | ------------------------------------------------------------ |
+| Worker → Supabase       | `SUPABASE_SERVICE_ROLE_KEY` (Worker secret only) | PostgREST `Authorization` / `apikey` — **never** in `VITE_*` |
+| Browser → Pages         | none                                             | **no** `Authorization` header (same-origin `/api/v1/*`)      |
+| Pages Function → Worker | `API_READ_SECRET` (Pages **server** secret)      | `Authorization: Bearer <API_READ_SECRET>`                    |
+| curl / server → Worker  | `READ_API_KEY` (Worker secret)                   | `Authorization: Bearer <READ_API_KEY>`                       |
+| Ingest `POST /run`      | `INGEST_TRIGGER_SECRET`                          | **Not accepted** on read routes                              |
 
-`READ_API_KEY` must be **distinct** from `INGEST_TRIGGER_SECRET`. Reusing the
-ingest trigger is rejected (`read_api_key_reuses_ingest_secret`). A later
-session/login can replace this v1 Pages-safe Bearer; until then the Worker
-still requires the header. If `READ_API_KEY` is unset, snapshot routes return
-**503** (`read_api_key_not_configured`) — they do not fall open.
+`API_READ_SECRET` (Pages) and `READ_API_KEY` (Worker) must be the **same**
+value, and **distinct** from `INGEST_TRIGGER_SECRET`. Reusing the ingest
+trigger is rejected (`read_api_key_reuses_ingest_secret`). If the Worker key
+is unset, snapshot routes return **503** (`read_api_key_not_configured`) —
+they do not fall open.
 
-v1 note: `VITE_READ_API_KEY` is bundled into the Pages build (public config).
-It is only a shared Bearer the Worker knows. It is **not** a secret equivalent
-to the service role. Never embed `SUPABASE_URL` / `SUPABASE_ANON_KEY` /
+**Browser reads (QA-4 / preferred path):** any `VITE_*` value is inlined into
+the public Pages bundle. Do **not** ship `VITE_READ_API_KEY` / `VITE_API_TOKEN`.
+The Vite app calls **relative** `/api/v1/*` only. `functions/api/[[path]].ts`
+proxies to the ingest Worker and injects the Bearer from Pages server env.
+
+Platform:
+
+1. Set `API_READ_SECRET` on Pages Functions (Production + Preview) **and** the
+   matching `READ_API_KEY` on the Worker.
+2. **Rotate** any token that was previously inlined via `VITE_*`.
+3. Rebuild/redeploy Pages **without** any `VITE_*` secret. `WORKER_API_URL` is
+   optional (default in `wrangler.toml`).
+
+Never embed `SUPABASE_URL` / `SUPABASE_ANON_KEY` /
 `SUPABASE_SERVICE_ROLE_KEY` in the FE.
 
-`raw_payload` is stripped unless `include_raw=1`. When included, keys that look
-like secrets (`password`, `authorization`, `cookie`, `api_key`, …) are replaced
-with `"[redacted]"`. Error bodies never echo Bearer tokens or JWTs.
+`raw_payload` is omitted unless `include_raw=1` on a **direct Worker** call
+(`curl` with Bearer). The Pages Function **rejects** `include_raw` from the
+browser (`400 include_raw_forbidden`) and does not forward it. The FE never
+sends that query param. When the Worker does include raw, secret-looking keys
+(`password`, `authorization`, `cookie`, `api_key`, …) are replaced with
+`"[redacted]"`. Error bodies never echo Bearer tokens or JWTs.
+
+The Worker **keeps requiring Bearer** on `/api/v1/snapshots*`. Do not switch
+to CORS-only reads.
 
 ## CORS
 
@@ -290,15 +309,20 @@ Allowed request `Origin` values:
 
 `curl` (no `Origin`) is not blocked by CORS.
 
+Browser `GET /api/v1/snapshots*` is **same-origin** on Pages (`/api/v1/…` only),
+so CORS does not apply. The Pages Function adds Bearer server-side. Direct
+`curl` against the Worker still needs the header. Worker CORS is unchanged and
+is **not** a substitute for Bearer.
+
 ## How the FE should call it
 
 Dashboard query today: `to`, `from`, `until`, `fonte` (see `src/lib/query.ts`).
 
 ```ts
-import { API_URL, READ_API_KEY } from './lib/config.ts'
+import { CAN_FETCH_SNAPSHOTS } from './lib/config.ts'
 import { fetchLatestSnapshots, fetchSnapshotStats, liveDashboardQuery, toOfferRow } from './lib/api.ts'
 
-if (!API_URL || !READ_API_KEY) {
+if (!CAN_FETCH_SNAPSHOTS) {
   // keep using src/data/placeholders.ts
 } else {
   const filters = liveDashboardQuery(query) // PET, include dry-run by default, from=today
@@ -314,19 +338,17 @@ if (!API_URL || !READ_API_KEY) {
 }
 ```
 
-The Worker read API is **live with Bearer** (`API_READ_SECRET` / `READ_API_KEY`).
-Cloudflare Pages needs **both** build-time vars, then **redeploy**:
+Cloudflare Pages build does **not** need `VITE_*`. Platform sets the Function
+secret, then redeploys:
 
-```
-VITE_API_URL=https://viagens-do-pe-ingest.rafaellimapereira.workers.dev
-VITE_API_TOKEN=<same value as Worker API_READ_SECRET or READ_API_KEY>
-# alias:
-VITE_READ_API_KEY=<same value>
+```bash
+npx wrangler pages secret put API_READ_SECRET --project-name viagens-do-pe
+# same value:
+npx wrangler secret put READ_API_KEY   # in workers/
 ```
 
-`src/lib/api.ts` sends `Authorization: Bearer …` when `VITE_API_TOKEN` or
-`VITE_READ_API_KEY` is set. URL without token → 401. Never invent a key;
-never `VITE_SUPABASE*`.
+`src/lib/api.ts` fetches relative `/api/v1/*` **without** `Authorization`.
+Never invent a `VITE_*` key; never `VITE_SUPABASE*`.
 
 ## Env (Worker)
 

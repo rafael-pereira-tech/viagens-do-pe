@@ -34,6 +34,16 @@ export default tseslint.config(
     },
   },
   {
+    files: ['functions/**/*.ts'],
+    languageOptions: {
+      globals: globals.worker,
+    },
+    rules: {
+      'react-refresh/only-export-components': 'off',
+      'react-hooks/rules-of-hooks': 'off',
+    },
+  },
+  {
     files: ['src/components/ui/**/*.{ts,tsx}'],
     rules: {
       'react-refresh/only-export-components': 'off',

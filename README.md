@@ -22,7 +22,7 @@ Estado da UI (aba, datas, fonte, dia, modo do gráfico) vive na query string —
 
 Vite · React 19 · TypeScript · Tailwind v4 · shadcn/ui · Vitest · Playwright · Cloudflare Pages + Workers · Supabase Postgres
 
-O frontend não fala com o banco. Um Worker coleta snapshots, persiste no Postgres e expõe uma read API autenticada por Bearer. Sem `VITE_API_URL`, o app sobe com stubs locais.
+O frontend não fala com o banco. Um Worker coleta snapshots, persiste no Postgres e expõe `/api/v1/*` com Bearer. O browser chama **só** same-origin `/api/v1/…` (nunca o Worker). Uma Pages Function (`functions/api/[[path]].ts`) faz proxy e injeta `Authorization` a partir de `API_READ_SECRET` (secret de servidor — **nunca** `VITE_*`). `include_raw` é bloqueado no proxy. Sem Functions no Vite local, o app sobe com stubs.
 
 ## Desenvolvimento
 
@@ -33,7 +33,7 @@ cp .env.example .env
 npm run dev
 ```
 
-`http://localhost:5173`. Deixe `VITE_API_URL` vazio para trabalhar só com stubs.
+`http://localhost:5173` usa stubs. Pages de produção não precisa de `VITE_*`.
 
 ```bash
 npm run lint && npm run typecheck && npm run test && npm run build

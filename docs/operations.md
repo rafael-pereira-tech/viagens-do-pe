@@ -17,7 +17,7 @@ cp .env.example .env
 npm run dev
 ```
 
-Abre `http://localhost:5173`. Para stubs locais, deixe `VITE_API_URL` vazio e reinicie o Vite.
+Abre `http://localhost:5173` com stubs locais. Para o proxy same-origin: `npm run build && npx wrangler pages dev dist` (lê `.dev.vars`).
 
 ```bash
 npm run lint
@@ -37,13 +37,13 @@ Pre-commit (Husky + lint-staged): `pnpm install` liga o hook via `prepare`. No c
 
 ## Variáveis de ambiente (frontend)
 
-| Variável            | Obrigatória                                      | Uso                                                                                                       |
-| ------------------- | ------------------------------------------------ | --------------------------------------------------------------------------------------------------------- |
-| `VITE_API_URL`      | Sim no Pages (dados reais)                       | Base URL da read API. Vazia = stubs locais. Contrato: [`api-price-snapshots.md`](api-price-snapshots.md). |
-| `VITE_API_TOKEN`    | Sim no Pages se o Worker tiver `API_READ_SECRET` | `Authorization: Bearer …` — mesmo valor que `API_READ_SECRET` / `READ_API_KEY`. **Nunca** `SUPABASE_*`.   |
-| `VITE_READ_API_KEY` | Alias de `VITE_API_TOKEN`                        | Mesmo header.                                                                                             |
+| Variável          | Onde                         | Uso                                                                                     |
+| ----------------- | ---------------------------- | --------------------------------------------------------------------------------------- |
+| `VITE_USE_STUBS`  | Só local / e2e               | `1` = placeholders. Produção deve ficar unset.                                          |
+| `API_READ_SECRET` | **Pages Functions** (secret) | Bearer injetado no proxy. Mesmo valor que `READ_API_KEY` no Worker. **Nunca** `VITE_*`. |
+| `WORKER_API_URL`  | Pages Functions (var)        | Origin do Worker. Default no `wrangler.toml`.                                           |
 
-O Vite só expõe prefixo `VITE_`. Reinicie `npm run dev` depois de mudar o `.env`. Sem `VITE_API_URL` o Dashboard usa `src/data/placeholders.ts`. Com a URL, o client chama o Worker e manda Bearer se o token existir. Sem token o `/api/v1` responde 401.
+O Vite só expõe prefixo `VITE_`, e **qualquer** `VITE_*` é inlined no JS público. **Não** use `VITE_READ_API_KEY`, `VITE_API_TOKEN` nem Bearer no browser. O client chama **somente** same-origin `/api/v1/*` — nunca o Worker e nunca com `include_raw`. O Worker **continua exigindo Bearer**; não há modo CORS-only.
 
 **Nunca** coloque `SUPABASE_SERVICE_ROLE_KEY` nem `VITE_SUPABASE*` no frontend.
 
@@ -57,18 +57,19 @@ O Vite só expõe prefixo `VITE_`. Reinicie `npm run dev` depois de mudar o `.en
 
 ### Cloudflare Pages
 
-`VITE_*` é inlined no `npm run build`. Sem a variável no ambiente de build, o site fica nos stubs.
+`VITE_*` é inlined no `npm run build`. Pages de produção **não** precisa de nenhuma variável `VITE_*` — o browser fala só com `/api/v1/*` na mesma origem.
 
-1. Pages → projeto → **Settings** → **Environment variables**.
-2. Production e Preview:
-   - `VITE_API_URL=https://viagens-do-pe-ingest.rafaellimapereira.workers.dev`
-   - `VITE_API_TOKEN` = o mesmo valor de `API_READ_SECRET` / `READ_API_KEY` no Worker.
+1. Pages → projeto → **Settings** → **Environment variables** (Functions / Production e Preview):
+   - `API_READ_SECRET` = o mesmo valor de `READ_API_KEY` no Worker (**Encrypt** / secret).
+   - `WORKER_API_URL` opcional (já tem default no `wrangler.toml`).
+2. Remova `VITE_READ_API_KEY`, `VITE_API_TOKEN` e qualquer outro `VITE_*` secret. **Rotacione** o token que vazou no bundle antigo.
 3. Não use `SUPABASE_*` nem `INGEST_TRIGGER_SECRET` no Pages.
-4. Redeploy depois de mudar env — sem rebuild o JS não atualiza.
+4. Redeploy o Pages **depois** de gravar o secret das Functions (`npx wrangler pages secret put API_READ_SECRET --project-name viagens-do-pe`).
 
-Build: `npm run build` → `dist`. Node 24. SPA: `public/_redirects` (`/* /index.html 200`).
+Build: `npm run build` → `dist`. Node 24. SPA: `public/_redirects` (`/* /index.html 200`). Functions em `functions/` têm precedência sobre o fallback SPA.
 
 ```bash
+npx wrangler pages secret put API_READ_SECRET --project-name viagens-do-pe
 npx wrangler pages deploy dist
 ```
 
