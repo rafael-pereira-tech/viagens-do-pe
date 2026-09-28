@@ -188,6 +188,7 @@ async function main() {
             .join('\n');
           await appendFile(JSONL, lines + '\n');
         }
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars -- drop parsed rows from stats
         const { parsed: _parsed, ...stat } = row;
         runs.push(stat);
         console.log(

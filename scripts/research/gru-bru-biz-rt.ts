@@ -328,7 +328,7 @@ async function probeBizRtInbound(
       u.searchParams.set('outOfferId', bizOutOfferId);
       const res = await route.fetch({ url: u.toString() });
       const text = await res.text();
-      let body: unknown = null;
+      let body: unknown;
       try {
         body = JSON.parse(text);
       } catch {

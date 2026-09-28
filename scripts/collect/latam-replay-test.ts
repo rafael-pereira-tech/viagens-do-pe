@@ -119,7 +119,7 @@ async function main() {
   const started = Date.now();
   for (const date of all) {
     const t = Date.now();
-    let status = 0;
+    let status: number;
     let json: unknown = null;
     let note = '';
     const replay = async () => {
