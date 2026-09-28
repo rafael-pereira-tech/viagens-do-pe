@@ -1,0 +1,137 @@
+{
+  "upgradePremium": {
+    "outBrand": {
+      "brand": "PREMIUM BUSINESS FULL",
+      "amount": 10849.49,
+      "offerId": "0b6087a739f417260a962e6f8768ae667f5323e8e403aaaa437928b0eade198b"
+    },
+    "inboundN": 46,
+    "inboundStatus": 200,
+    "ecoTop": [
+      {
+        "brand": "LIGHT",
+        "amount": 3977.19,
+        "stops": 0,
+        "flights": "LA8157",
+        "route": "BRU→GRU",
+        "dep": "2027-01-03T12:05:00",
+        "arr": "2027-01-03T20:15:00",
+        "duration": 730
+      },
+      {
+        "brand": "STANDARD",
+        "amount": 4260.85,
+        "stops": 0,
+        "flights": "LA8157",
+        "route": "BRU→GRU",
+        "dep": "2027-01-03T12:05:00",
+        "arr": "2027-01-03T20:15:00",
+        "duration": 730
+      },
+      {
+        "brand": "FULL",
+        "amount": 4621.88,
+        "stops": 0,
+        "flights": "LA8157",
+        "route": "BRU→GRU",
+        "dep": "2027-01-03T12:05:00",
+        "arr": "2027-01-03T20:15:00",
+        "duration": 730
+      }
+    ],
+    "bizTop": [
+      {
+        "brand": "PREMIUM BUSINESS FULL",
+        "amount": 12280.77,
+        "stops": 0,
+        "flights": "LA8157",
+        "route": "BRU→GRU",
+        "dep": "2027-01-03T12:05:00",
+        "arr": "2027-01-03T20:15:00",
+        "duration": 730
+      },
+      {
+        "brand": "PREMIUM BUSINESS FULL",
+        "amount": 12374.47,
+        "stops": 1,
+        "flights": "LA5444+LA8075",
+        "route": "BRU→MAD · MAD→GRU",
+        "dep": "2027-01-03T07:00:00",
+        "arr": "2027-01-03T20:35:00",
+        "duration": 1055
+      },
+      {
+        "brand": "PREMIUM BUSINESS FULL",
+        "amount": 12374.47,
+        "stops": 1,
+        "flights": "IB604+LA8075",
+        "route": "BRU→MAD · MAD→GRU",
+        "dep": "2027-01-03T07:00:00",
+        "arr": "2027-01-03T20:35:00",
+        "duration": 1055
+      }
+    ],
+    "ui": {
+      "line": "Escolha um voo de volta",
+      "upsell": false,
+      "cards": 46,
+      "bodyHasVolta": true,
+      "bodyHasSemVoo": false,
+      "snip": [
+        "Voltar ao conteúdo principal.",
+        "PremiumBusiness",
+        "Ida e volta",
+        "oo de ida em cabine PREMIUM BUSINESS FULL. sábado, 26 de dezembro de 2026",
+        "Premium Business Full",
+        "Escolha um voo de volta",
+        "Escolha um voo de volta",
+        "s imagens da cabine Premium Business são para referência."
+      ]
+    }
+  },
+  "standardOutEcoInRT": {
+    "out": null,
+    "in": {
+      "brand": "LIGHT",
+      "amount": 3977.19,
+      "stops": 0,
+      "flights": "LA8157",
+      "route": "BRU→GRU",
+      "dep": "2027-01-03T12:05:00",
+      "arr": "2027-01-03T20:15:00",
+      "duration": 730
+    },
+    "alternatives": [
+      {
+        "brand": "LIGHT",
+        "amount": 3977.19,
+        "stops": 0,
+        "flights": "LA8157",
+        "route": "BRU→GRU",
+        "dep": "2027-01-03T12:05:00",
+        "arr": "2027-01-03T20:15:00",
+        "duration": 730
+      },
+      {
+        "brand": "STANDARD",
+        "amount": 4266.01,
+        "stops": 0,
+        "flights": "LA8157",
+        "route": "BRU→GRU",
+        "dep": "2027-01-03T12:05:00",
+        "arr": "2027-01-03T20:15:00",
+        "duration": 730
+      },
+      {
+        "brand": "FULL",
+        "amount": 4627.03,
+        "stops": 0,
+        "flights": "LA8157",
+        "route": "BRU→GRU",
+        "dep": "2027-01-03T12:05:00",
+        "arr": "2027-01-03T20:15:00",
+        "duration": 730
+      }
+    ]
+  }
+}

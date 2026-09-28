@@ -1,0 +1,532 @@
+{
+  "out": "2026-12-26",
+  "in": "2027-01-03",
+  "pax": "1 adt + 1 chd",
+  "cabin": "Economy",
+  "results": [
+    {
+      "dest": "AMS",
+      "outbound": [
+        {
+          "stops": 0,
+          "durationMin": 720,
+          "price": 3823.27,
+          "brand": "LIGHT",
+          "flights": "LA8078",
+          "route": "GRU→AMS",
+          "dep": "2026-12-26T22:55:00",
+          "arr": "2026-12-27T14:55:00",
+          "connects": []
+        },
+        {
+          "stops": 1,
+          "durationMin": 815,
+          "price": 4601.02,
+          "brand": "LIGHT",
+          "flights": "LA8156+KL1704",
+          "route": "GRU→BRU · BRU→AMS",
+          "dep": "2026-12-26T18:00:00",
+          "arr": "2026-12-27T11:35:00",
+          "connects": [
+            {
+              "hub": "BRU",
+              "min": 55
+            }
+          ]
+        },
+        {
+          "stops": 1,
+          "durationMin": 885,
+          "price": 5070.57,
+          "brand": "LIGHT",
+          "flights": "LA8070+LH998",
+          "route": "GRU→FRA · FRA→AMS",
+          "dep": "2026-12-26T23:10:00",
+          "arr": "2026-12-27T17:55:00",
+          "connects": [
+            {
+              "hub": "FRA",
+              "min": 105
+            }
+          ]
+        },
+        {
+          "stops": 1,
+          "durationMin": 885,
+          "price": 7200.62,
+          "brand": "LIGHT",
+          "flights": "LA8070+LA8694",
+          "route": "GRU→FRA · FRA→AMS",
+          "dep": "2026-12-26T23:10:00",
+          "arr": "2026-12-27T17:55:00",
+          "connects": [
+            {
+              "hub": "FRA",
+              "min": 105
+            }
+          ]
+        }
+      ],
+      "inbound": [
+        {
+          "stops": 0,
+          "durationMin": 730,
+          "price": 6111.31,
+          "brand": "LIGHT",
+          "flights": "LA8079",
+          "route": "AMS→GRU",
+          "dep": "2027-01-03T20:35:00",
+          "arr": "2027-01-04T04:45:00",
+          "connects": []
+        },
+        {
+          "stops": 1,
+          "durationMin": 890,
+          "price": 6648.29,
+          "brand": "LIGHT",
+          "flights": "KL1703+LA8157",
+          "route": "AMS→BRU · BRU→GRU",
+          "dep": "2027-01-03T09:25:00",
+          "arr": "2027-01-03T20:15:00",
+          "connects": [
+            {
+              "hub": "BRU",
+              "min": 115
+            }
+          ]
+        },
+        {
+          "stops": 1,
+          "durationMin": 935,
+          "price": 7201.49,
+          "brand": "LIGHT",
+          "flights": "BA441+LA8085",
+          "route": "AMS→LHR · LHR→GRU",
+          "dep": "2027-01-03T17:25:00",
+          "arr": "2027-01-04T05:00:00",
+          "connects": [
+            {
+              "hub": "LHR",
+              "min": 155
+            }
+          ]
+        },
+        {
+          "stops": 1,
+          "durationMin": 940,
+          "price": 12796.28,
+          "brand": "LIGHT",
+          "flights": "KL1405+LA8133",
+          "route": "AMS→CDG · CDG→GRU",
+          "dep": "2027-01-03T08:20:00",
+          "arr": "2027-01-03T20:00:00",
+          "connects": [
+            {
+              "hub": "CDG",
+              "min": 150
+            }
+          ]
+        }
+      ],
+      "pairedWith": {
+        "flights": "LA8078",
+        "dep": "2026-12-26T22:55:00",
+        "brand": "LIGHT"
+      },
+      "inboundSource": "OW return-day search (schedule + one-way a partir de)"
+    },
+    {
+      "dest": "CDG",
+      "outbound": [
+        {
+          "stops": 0,
+          "durationMin": 685,
+          "price": 5262.21,
+          "brand": "LIGHT",
+          "flights": "LA8132",
+          "route": "GRU→CDG",
+          "dep": "2026-12-26T18:20:00",
+          "arr": "2026-12-27T09:45:00",
+          "connects": []
+        },
+        {
+          "stops": 1,
+          "durationMin": 860,
+          "price": 5634.29,
+          "brand": "LIGHT",
+          "flights": "LA8066+LA1669",
+          "route": "GRU→MAD · MAD→CDG",
+          "dep": "2026-12-26T23:35:00",
+          "arr": "2026-12-27T17:55:00",
+          "connects": [
+            {
+              "hub": "MAD",
+              "min": 125
+            }
+          ]
+        },
+        {
+          "stops": 1,
+          "durationMin": 860,
+          "price": 6026.26,
+          "brand": "LIGHT",
+          "flights": "LA8066+IB589",
+          "route": "GRU→MAD · MAD→CDG",
+          "dep": "2026-12-26T23:35:00",
+          "arr": "2026-12-27T17:55:00",
+          "connects": [
+            {
+              "hub": "MAD",
+              "min": 125
+            }
+          ]
+        },
+        {
+          "stops": 1,
+          "durationMin": 895,
+          "price": 10432.14,
+          "brand": "LIGHT",
+          "flights": "LA8078+KL1409",
+          "route": "GRU→AMS · AMS→CDG",
+          "dep": "2026-12-26T22:55:00",
+          "arr": "2026-12-27T17:50:00",
+          "connects": [
+            {
+              "hub": "AMS",
+              "min": 105
+            }
+          ]
+        }
+      ],
+      "inbound": [
+        {
+          "stops": 0,
+          "durationMin": 715,
+          "price": 5660.74,
+          "brand": "LIGHT",
+          "flights": "LA8133",
+          "route": "CDG→GRU",
+          "dep": "2027-01-03T12:05:00",
+          "arr": "2027-01-03T20:00:00",
+          "connects": []
+        },
+        {
+          "stops": 1,
+          "durationMin": 875,
+          "price": 5536.99,
+          "brand": "LIGHT",
+          "flights": "IB590+LA8065",
+          "route": "CDG→MAD · MAD→GRU",
+          "dep": "2027-01-03T18:45:00",
+          "arr": "2027-01-04T05:20:00",
+          "connects": [
+            {
+              "hub": "MAD",
+              "min": 110
+            }
+          ]
+        },
+        {
+          "stops": 1,
+          "durationMin": 875,
+          "price": 5708.44,
+          "brand": "LIGHT",
+          "flights": "LA1608+LA8065",
+          "route": "CDG→MAD · MAD→GRU",
+          "dep": "2027-01-03T18:45:00",
+          "arr": "2027-01-04T05:20:00",
+          "connects": [
+            {
+              "hub": "MAD",
+              "min": 110
+            }
+          ]
+        },
+        {
+          "stops": 1,
+          "durationMin": 935,
+          "price": 22236.68,
+          "brand": "PREMIUM BUSINESS FULL",
+          "flights": "AF1140+LA8079",
+          "route": "CDG→AMS · AMS→GRU",
+          "dep": "2027-01-03T17:10:00",
+          "arr": "2027-01-04T04:45:00",
+          "connects": [
+            {
+              "hub": "AMS",
+              "min": 120
+            }
+          ]
+        }
+      ],
+      "pairedWith": {
+        "flights": "LA8132",
+        "dep": "2026-12-26T18:20:00",
+        "brand": "LIGHT"
+      },
+      "inboundSource": "OW return-day search (schedule + one-way a partir de)"
+    },
+    {
+      "dest": "BRU",
+      "outbound": [
+        {
+          "stops": 0,
+          "durationMin": 710,
+          "price": 4072.54,
+          "brand": "LIGHT",
+          "flights": "LA8156",
+          "route": "GRU→BRU",
+          "dep": "2026-12-26T18:00:00",
+          "arr": "2026-12-27T09:50:00",
+          "connects": []
+        },
+        {
+          "stops": 1,
+          "durationMin": 920,
+          "price": 5856.83,
+          "brand": "LIGHT",
+          "flights": "LA8148+SN3816",
+          "route": "GRU→LIS · LIS→BRU",
+          "dep": "2026-12-26T22:10:00",
+          "arr": "2026-12-27T17:30:00",
+          "connects": [
+            {
+              "hub": "LIS",
+              "min": 165
+            }
+          ]
+        },
+        {
+          "stops": 1,
+          "durationMin": 925,
+          "price": 5440.02,
+          "brand": "LIGHT",
+          "flights": "LA8066+LA1566",
+          "route": "GRU→MAD · MAD→BRU",
+          "dep": "2026-12-26T23:35:00",
+          "arr": "2026-12-27T19:00:00",
+          "connects": [
+            {
+              "hub": "MAD",
+              "min": 175
+            }
+          ]
+        },
+        {
+          "stops": 1,
+          "durationMin": 925,
+          "price": 5816.52,
+          "brand": "LIGHT",
+          "flights": "LA8066+IB601",
+          "route": "GRU→MAD · MAD→BRU",
+          "dep": "2026-12-26T23:35:00",
+          "arr": "2026-12-27T19:00:00",
+          "connects": [
+            {
+              "hub": "MAD",
+              "min": 175
+            }
+          ]
+        }
+      ],
+      "inbound": [
+        {
+          "stops": 0,
+          "durationMin": 730,
+          "price": 7003.64,
+          "brand": "LIGHT",
+          "flights": "LA8157",
+          "route": "BRU→GRU",
+          "dep": "2027-01-03T12:05:00",
+          "arr": "2027-01-03T20:15:00",
+          "connects": []
+        },
+        {
+          "stops": 1,
+          "durationMin": 920,
+          "price": 8126.05,
+          "brand": "LIGHT",
+          "flights": "LA1613+LA1572",
+          "route": "BRU→MAD · MAD→GRU",
+          "dep": "2027-01-03T19:45:00",
+          "arr": "2027-01-04T07:05:00",
+          "connects": [
+            {
+              "hub": "MAD",
+              "min": 105
+            }
+          ]
+        },
+        {
+          "stops": 1,
+          "durationMin": 925,
+          "price": 9979.79,
+          "brand": "LIGHT",
+          "flights": "BA393+LA8085",
+          "route": "BRU→LHR · LHR→GRU",
+          "dep": "2027-01-03T17:35:00",
+          "arr": "2027-01-04T05:00:00",
+          "connects": [
+            {
+              "hub": "LHR",
+              "min": 150
+            }
+          ]
+        },
+        {
+          "stops": 1,
+          "durationMin": 945,
+          "price": 7454.55,
+          "brand": "LIGHT",
+          "flights": "SN3633+LA8133",
+          "route": "BRU→CDG · CDG→GRU",
+          "dep": "2027-01-03T08:15:00",
+          "arr": "2027-01-03T20:00:00",
+          "connects": [
+            {
+              "hub": "CDG",
+              "min": 170
+            }
+          ]
+        }
+      ],
+      "pairedWith": {
+        "flights": "LA8156",
+        "dep": "2026-12-26T18:00:00",
+        "brand": "LIGHT"
+      },
+      "inboundSource": "OW return-day search (schedule + one-way a partir de)"
+    },
+    {
+      "dest": "FRA",
+      "outbound": [
+        {
+          "stops": 0,
+          "durationMin": 705,
+          "price": 4994.02,
+          "brand": "LIGHT",
+          "flights": "LA8070",
+          "route": "GRU→FRA",
+          "dep": "2026-12-26T23:10:00",
+          "arr": "2026-12-27T14:55:00",
+          "connects": []
+        },
+        {
+          "stops": 1,
+          "durationMin": 900,
+          "price": 4753.73,
+          "brand": "LIGHT",
+          "flights": "LA8078+KL1821",
+          "route": "GRU→AMS · AMS→FRA",
+          "dep": "2026-12-26T22:55:00",
+          "arr": "2026-12-27T17:55:00",
+          "connects": [
+            {
+              "hub": "AMS",
+              "min": 115
+            }
+          ]
+        },
+        {
+          "stops": 1,
+          "durationMin": 915,
+          "price": 5943.74,
+          "brand": "LIGHT",
+          "flights": "LA8066+IB1333",
+          "route": "GRU→MAD · MAD→FRA",
+          "dep": "2026-12-26T23:35:00",
+          "arr": "2026-12-27T18:50:00",
+          "connects": [
+            {
+              "hub": "MAD",
+              "min": 145
+            }
+          ]
+        },
+        {
+          "stops": 1,
+          "durationMin": 970,
+          "price": 5943.74,
+          "brand": "LIGHT",
+          "flights": "LA8066+LH1115",
+          "route": "GRU→MAD · MAD→FRA",
+          "dep": "2026-12-26T23:35:00",
+          "arr": "2026-12-27T19:45:00",
+          "connects": [
+            {
+              "hub": "MAD",
+              "min": 215
+            }
+          ]
+        }
+      ],
+      "inbound": [
+        {
+          "stops": 0,
+          "durationMin": 735,
+          "price": 6361.69,
+          "brand": "LIGHT",
+          "flights": "LA8071",
+          "route": "FRA→GRU",
+          "dep": "2027-01-03T20:50:00",
+          "arr": "2027-01-04T05:05:00",
+          "connects": []
+        },
+        {
+          "stops": 1,
+          "durationMin": 915,
+          "price": 10116.07,
+          "brand": "LIGHT",
+          "flights": "SN2608+LA8157",
+          "route": "FRA→BRU · BRU→GRU",
+          "dep": "2027-01-03T09:00:00",
+          "arr": "2027-01-03T20:15:00",
+          "connects": [
+            {
+              "hub": "BRU",
+              "min": 115
+            }
+          ]
+        },
+        {
+          "stops": 1,
+          "durationMin": 930,
+          "price": 7286.34,
+          "brand": "LIGHT",
+          "flights": "LA1609+LA1572",
+          "route": "FRA→MAD · MAD→GRU",
+          "dep": "2027-01-03T19:35:00",
+          "arr": "2027-01-04T07:05:00",
+          "connects": [
+            {
+              "hub": "MAD",
+              "min": 90
+            }
+          ]
+        },
+        {
+          "stops": 1,
+          "durationMin": 955,
+          "price": 6687.78,
+          "brand": "LIGHT",
+          "flights": "LH1124+LA8115",
+          "route": "FRA→BCN · BCN→GRU",
+          "dep": "2027-01-03T07:10:00",
+          "arr": "2027-01-03T19:05:00",
+          "connects": [
+            {
+              "hub": "BCN",
+              "min": 160
+            }
+          ]
+        }
+      ],
+      "pairedWith": {
+        "flights": "LA8070",
+        "dep": "2026-12-26T23:10:00",
+        "brand": "LIGHT"
+      },
+      "inboundSource": "OW return-day search (schedule + one-way a partir de)"
+    }
+  ]
+}

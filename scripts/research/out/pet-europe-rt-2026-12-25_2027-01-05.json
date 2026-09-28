@@ -1,0 +1,3215 @@
+{
+  "outDate": "2026-12-25",
+  "inDate": "2027-01-05",
+  "petEvening": ["18:00", "20:30"],
+  "results": [
+    {
+      "dest": {
+        "iata": "LHR",
+        "name": "Londres"
+      },
+      "rt": {
+        "status": "ok",
+        "total": 6,
+        "eveningPet": 6,
+        "best": {
+          "brl": 5064.02,
+          "taxesBrl": null,
+          "stops": 2,
+          "durationMin": 1155,
+          "firstDep": "2026-12-25T18:20:00",
+          "finalArr": "2026-12-26T16:35:00",
+          "flights": ["LA4745", "LA8066", "LA5409"],
+          "route": "PET→GRU · GRU→MAD · MAD→LHR",
+          "connects": [
+            {
+              "hub": "GRU",
+              "min": 190,
+              "label": "3h10"
+            },
+            {
+              "hub": "MAD",
+              "min": 85,
+              "label": "1h25"
+            }
+          ],
+          "segments": [
+            {
+              "origin": "PET",
+              "destination": "GRU",
+              "departure": "2026-12-25T18:20:00",
+              "arrival": "2026-12-25T20:25:00",
+              "flightCode": "LA4745",
+              "durationMin": 125
+            },
+            {
+              "origin": "GRU",
+              "destination": "MAD",
+              "departure": "2026-12-25T23:35:00",
+              "arrival": "2026-12-26T13:40:00",
+              "flightCode": "LA8066",
+              "durationMin": 605
+            },
+            {
+              "origin": "MAD",
+              "destination": "LHR",
+              "departure": "2026-12-26T15:05:00",
+              "arrival": "2026-12-26T16:35:00",
+              "flightCode": "LA5409",
+              "durationMin": 150
+            }
+          ]
+        },
+        "top": [
+          {
+            "brl": 5064.02,
+            "taxesBrl": null,
+            "stops": 2,
+            "durationMin": 1155,
+            "firstDep": "2026-12-25T18:20:00",
+            "finalArr": "2026-12-26T16:35:00",
+            "flights": ["LA4745", "LA8066", "LA5409"],
+            "route": "PET→GRU · GRU→MAD · MAD→LHR",
+            "connects": [
+              {
+                "hub": "GRU",
+                "min": 190,
+                "label": "3h10"
+              },
+              {
+                "hub": "MAD",
+                "min": 85,
+                "label": "1h25"
+              }
+            ],
+            "segments": [
+              {
+                "origin": "PET",
+                "destination": "GRU",
+                "departure": "2026-12-25T18:20:00",
+                "arrival": "2026-12-25T20:25:00",
+                "flightCode": "LA4745",
+                "durationMin": 125
+              },
+              {
+                "origin": "GRU",
+                "destination": "MAD",
+                "departure": "2026-12-25T23:35:00",
+                "arrival": "2026-12-26T13:40:00",
+                "flightCode": "LA8066",
+                "durationMin": 605
+              },
+              {
+                "origin": "MAD",
+                "destination": "LHR",
+                "departure": "2026-12-26T15:05:00",
+                "arrival": "2026-12-26T16:35:00",
+                "flightCode": "LA5409",
+                "durationMin": 150
+              }
+            ]
+          },
+          {
+            "brl": 5064.02,
+            "taxesBrl": null,
+            "stops": 2,
+            "durationMin": 1255,
+            "firstDep": "2026-12-25T18:20:00",
+            "finalArr": "2026-12-26T18:15:00",
+            "flights": ["LA4745", "LA8066", "LA1702"],
+            "route": "PET→GRU · GRU→MAD · MAD→LHR",
+            "connects": [
+              {
+                "hub": "GRU",
+                "min": 190,
+                "label": "3h10"
+              },
+              {
+                "hub": "MAD",
+                "min": 185,
+                "label": "3h05"
+              }
+            ],
+            "segments": [
+              {
+                "origin": "PET",
+                "destination": "GRU",
+                "departure": "2026-12-25T18:20:00",
+                "arrival": "2026-12-25T20:25:00",
+                "flightCode": "LA4745",
+                "durationMin": 125
+              },
+              {
+                "origin": "GRU",
+                "destination": "MAD",
+                "departure": "2026-12-25T23:35:00",
+                "arrival": "2026-12-26T13:40:00",
+                "flightCode": "LA8066",
+                "durationMin": 605
+              },
+              {
+                "origin": "MAD",
+                "destination": "LHR",
+                "departure": "2026-12-26T16:45:00",
+                "arrival": "2026-12-26T18:15:00",
+                "flightCode": "LA1702",
+                "durationMin": 150
+              }
+            ]
+          },
+          {
+            "brl": 5064.02,
+            "taxesBrl": null,
+            "stops": 2,
+            "durationMin": 1155,
+            "firstDep": "2026-12-25T18:20:00",
+            "finalArr": "2026-12-26T16:35:00",
+            "flights": ["LA4745", "LA8066", "IB719"],
+            "route": "PET→GRU · GRU→MAD · MAD→LHR",
+            "connects": [
+              {
+                "hub": "GRU",
+                "min": 190,
+                "label": "3h10"
+              },
+              {
+                "hub": "MAD",
+                "min": 85,
+                "label": "1h25"
+              }
+            ],
+            "segments": [
+              {
+                "origin": "PET",
+                "destination": "GRU",
+                "departure": "2026-12-25T18:20:00",
+                "arrival": "2026-12-25T20:25:00",
+                "flightCode": "LA4745",
+                "durationMin": 125
+              },
+              {
+                "origin": "GRU",
+                "destination": "MAD",
+                "departure": "2026-12-25T23:35:00",
+                "arrival": "2026-12-26T13:40:00",
+                "flightCode": "LA8066",
+                "durationMin": 605
+              },
+              {
+                "origin": "MAD",
+                "destination": "LHR",
+                "departure": "2026-12-26T15:05:00",
+                "arrival": "2026-12-26T16:35:00",
+                "flightCode": "IB719",
+                "durationMin": 150
+              }
+            ]
+          },
+          {
+            "brl": 5615.13,
+            "taxesBrl": null,
+            "stops": 1,
+            "durationMin": 1005,
+            "firstDep": "2026-12-25T18:20:00",
+            "finalArr": "2026-12-26T14:05:00",
+            "flights": ["LA4745", "LA8084"],
+            "route": "PET→GRU · GRU→LHR",
+            "connects": [
+              {
+                "hub": "GRU",
+                "min": 195,
+                "label": "3h15"
+              }
+            ],
+            "segments": [
+              {
+                "origin": "PET",
+                "destination": "GRU",
+                "departure": "2026-12-25T18:20:00",
+                "arrival": "2026-12-25T20:25:00",
+                "flightCode": "LA4745",
+                "durationMin": 125
+              },
+              {
+                "origin": "GRU",
+                "destination": "LHR",
+                "departure": "2026-12-25T23:40:00",
+                "arrival": "2026-12-26T14:05:00",
+                "flightCode": "LA8084",
+                "durationMin": 685
+              }
+            ]
+          },
+          {
+            "brl": 5688.08,
+            "taxesBrl": null,
+            "stops": 2,
+            "durationMin": 1195,
+            "firstDep": "2026-12-25T18:20:00",
+            "finalArr": "2026-12-26T17:15:00",
+            "flights": ["LA4745", "LA8066", "LA1701"],
+            "route": "PET→GRU · GRU→MAD · MAD→LHR",
+            "connects": [
+              {
+                "hub": "GRU",
+                "min": 190,
+                "label": "3h10"
+              },
+              {
+                "hub": "MAD",
+                "min": 130,
+                "label": "2h10"
+              }
+            ],
+            "segments": [
+              {
+                "origin": "PET",
+                "destination": "GRU",
+                "departure": "2026-12-25T18:20:00",
+                "arrival": "2026-12-25T20:25:00",
+                "flightCode": "LA4745",
+                "durationMin": 125
+              },
+              {
+                "origin": "GRU",
+                "destination": "MAD",
+                "departure": "2026-12-25T23:35:00",
+                "arrival": "2026-12-26T13:40:00",
+                "flightCode": "LA8066",
+                "durationMin": 605
+              },
+              {
+                "origin": "MAD",
+                "destination": "LHR",
+                "departure": "2026-12-26T15:50:00",
+                "arrival": "2026-12-26T17:15:00",
+                "flightCode": "LA1701",
+                "durationMin": 145
+              }
+            ]
+          }
+        ]
+      },
+      "owOut": {
+        "status": "ok",
+        "total": 6,
+        "eveningPet": 6,
+        "best": {
+          "brl": 5806.7,
+          "taxesBrl": null,
+          "stops": 2,
+          "durationMin": 1155,
+          "firstDep": "2026-12-25T18:20:00",
+          "finalArr": "2026-12-26T16:35:00",
+          "flights": ["LA4745", "LA8066", "LA5409"],
+          "route": "PET→GRU · GRU→MAD · MAD→LHR",
+          "connects": [
+            {
+              "hub": "GRU",
+              "min": 190,
+              "label": "3h10"
+            },
+            {
+              "hub": "MAD",
+              "min": 85,
+              "label": "1h25"
+            }
+          ],
+          "segments": [
+            {
+              "origin": "PET",
+              "destination": "GRU",
+              "departure": "2026-12-25T18:20:00",
+              "arrival": "2026-12-25T20:25:00",
+              "flightCode": "LA4745",
+              "durationMin": 125
+            },
+            {
+              "origin": "GRU",
+              "destination": "MAD",
+              "departure": "2026-12-25T23:35:00",
+              "arrival": "2026-12-26T13:40:00",
+              "flightCode": "LA8066",
+              "durationMin": 605
+            },
+            {
+              "origin": "MAD",
+              "destination": "LHR",
+              "departure": "2026-12-26T15:05:00",
+              "arrival": "2026-12-26T16:35:00",
+              "flightCode": "LA5409",
+              "durationMin": 150
+            }
+          ]
+        },
+        "top": [
+          {
+            "brl": 5806.7,
+            "taxesBrl": null,
+            "stops": 2,
+            "durationMin": 1155,
+            "firstDep": "2026-12-25T18:20:00",
+            "finalArr": "2026-12-26T16:35:00",
+            "flights": ["LA4745", "LA8066", "LA5409"],
+            "route": "PET→GRU · GRU→MAD · MAD→LHR",
+            "connects": [
+              {
+                "hub": "GRU",
+                "min": 190,
+                "label": "3h10"
+              },
+              {
+                "hub": "MAD",
+                "min": 85,
+                "label": "1h25"
+              }
+            ],
+            "segments": [
+              {
+                "origin": "PET",
+                "destination": "GRU",
+                "departure": "2026-12-25T18:20:00",
+                "arrival": "2026-12-25T20:25:00",
+                "flightCode": "LA4745",
+                "durationMin": 125
+              },
+              {
+                "origin": "GRU",
+                "destination": "MAD",
+                "departure": "2026-12-25T23:35:00",
+                "arrival": "2026-12-26T13:40:00",
+                "flightCode": "LA8066",
+                "durationMin": 605
+              },
+              {
+                "origin": "MAD",
+                "destination": "LHR",
+                "departure": "2026-12-26T15:05:00",
+                "arrival": "2026-12-26T16:35:00",
+                "flightCode": "LA5409",
+                "durationMin": 150
+              }
+            ]
+          },
+          {
+            "brl": 5806.7,
+            "taxesBrl": null,
+            "stops": 2,
+            "durationMin": 1255,
+            "firstDep": "2026-12-25T18:20:00",
+            "finalArr": "2026-12-26T18:15:00",
+            "flights": ["LA4745", "LA8066", "LA1702"],
+            "route": "PET→GRU · GRU→MAD · MAD→LHR",
+            "connects": [
+              {
+                "hub": "GRU",
+                "min": 190,
+                "label": "3h10"
+              },
+              {
+                "hub": "MAD",
+                "min": 185,
+                "label": "3h05"
+              }
+            ],
+            "segments": [
+              {
+                "origin": "PET",
+                "destination": "GRU",
+                "departure": "2026-12-25T18:20:00",
+                "arrival": "2026-12-25T20:25:00",
+                "flightCode": "LA4745",
+                "durationMin": 125
+              },
+              {
+                "origin": "GRU",
+                "destination": "MAD",
+                "departure": "2026-12-25T23:35:00",
+                "arrival": "2026-12-26T13:40:00",
+                "flightCode": "LA8066",
+                "durationMin": 605
+              },
+              {
+                "origin": "MAD",
+                "destination": "LHR",
+                "departure": "2026-12-26T16:45:00",
+                "arrival": "2026-12-26T18:15:00",
+                "flightCode": "LA1702",
+                "durationMin": 150
+              }
+            ]
+          },
+          {
+            "brl": 5806.7,
+            "taxesBrl": null,
+            "stops": 2,
+            "durationMin": 1155,
+            "firstDep": "2026-12-25T18:20:00",
+            "finalArr": "2026-12-26T16:35:00",
+            "flights": ["LA4745", "LA8066", "IB719"],
+            "route": "PET→GRU · GRU→MAD · MAD→LHR",
+            "connects": [
+              {
+                "hub": "GRU",
+                "min": 190,
+                "label": "3h10"
+              },
+              {
+                "hub": "MAD",
+                "min": 85,
+                "label": "1h25"
+              }
+            ],
+            "segments": [
+              {
+                "origin": "PET",
+                "destination": "GRU",
+                "departure": "2026-12-25T18:20:00",
+                "arrival": "2026-12-25T20:25:00",
+                "flightCode": "LA4745",
+                "durationMin": 125
+              },
+              {
+                "origin": "GRU",
+                "destination": "MAD",
+                "departure": "2026-12-25T23:35:00",
+                "arrival": "2026-12-26T13:40:00",
+                "flightCode": "LA8066",
+                "durationMin": 605
+              },
+              {
+                "origin": "MAD",
+                "destination": "LHR",
+                "departure": "2026-12-26T15:05:00",
+                "arrival": "2026-12-26T16:35:00",
+                "flightCode": "IB719",
+                "durationMin": 150
+              }
+            ]
+          },
+          {
+            "brl": 6481.59,
+            "taxesBrl": null,
+            "stops": 1,
+            "durationMin": 1005,
+            "firstDep": "2026-12-25T18:20:00",
+            "finalArr": "2026-12-26T14:05:00",
+            "flights": ["LA4745", "LA8084"],
+            "route": "PET→GRU · GRU→LHR",
+            "connects": [
+              {
+                "hub": "GRU",
+                "min": 195,
+                "label": "3h15"
+              }
+            ],
+            "segments": [
+              {
+                "origin": "PET",
+                "destination": "GRU",
+                "departure": "2026-12-25T18:20:00",
+                "arrival": "2026-12-25T20:25:00",
+                "flightCode": "LA4745",
+                "durationMin": 125
+              },
+              {
+                "origin": "GRU",
+                "destination": "LHR",
+                "departure": "2026-12-25T23:40:00",
+                "arrival": "2026-12-26T14:05:00",
+                "flightCode": "LA8084",
+                "durationMin": 685
+              }
+            ]
+          },
+          {
+            "brl": 6554.54,
+            "taxesBrl": null,
+            "stops": 2,
+            "durationMin": 1195,
+            "firstDep": "2026-12-25T18:20:00",
+            "finalArr": "2026-12-26T17:15:00",
+            "flights": ["LA4745", "LA8066", "LA1701"],
+            "route": "PET→GRU · GRU→MAD · MAD→LHR",
+            "connects": [
+              {
+                "hub": "GRU",
+                "min": 190,
+                "label": "3h10"
+              },
+              {
+                "hub": "MAD",
+                "min": 130,
+                "label": "2h10"
+              }
+            ],
+            "segments": [
+              {
+                "origin": "PET",
+                "destination": "GRU",
+                "departure": "2026-12-25T18:20:00",
+                "arrival": "2026-12-25T20:25:00",
+                "flightCode": "LA4745",
+                "durationMin": 125
+              },
+              {
+                "origin": "GRU",
+                "destination": "MAD",
+                "departure": "2026-12-25T23:35:00",
+                "arrival": "2026-12-26T13:40:00",
+                "flightCode": "LA8066",
+                "durationMin": 605
+              },
+              {
+                "origin": "MAD",
+                "destination": "LHR",
+                "departure": "2026-12-26T15:50:00",
+                "arrival": "2026-12-26T17:15:00",
+                "flightCode": "LA1701",
+                "durationMin": 145
+              }
+            ]
+          }
+        ]
+      },
+      "owIn": {
+        "status": "ok",
+        "total": 6,
+        "best": {
+          "brl": 5887.53,
+          "taxesBrl": null,
+          "stops": 1,
+          "durationMin": 1460,
+          "firstDep": "2027-01-05T20:15:00",
+          "finalArr": "2027-01-06T17:35:00",
+          "flights": ["LA8085", "LA4744"],
+          "route": "LHR→GRU · GRU→PET",
+          "connects": [
+            {
+              "hub": "GRU",
+              "min": 630,
+              "label": "10h30"
+            }
+          ],
+          "segments": [
+            {
+              "origin": "LHR",
+              "destination": "GRU",
+              "departure": "2027-01-05T20:15:00",
+              "arrival": "2027-01-06T05:00:00",
+              "flightCode": "LA8085",
+              "durationMin": 705
+            },
+            {
+              "origin": "GRU",
+              "destination": "PET",
+              "departure": "2027-01-06T15:30:00",
+              "arrival": "2027-01-06T17:35:00",
+              "flightCode": "LA4744",
+              "durationMin": 125
+            }
+          ]
+        },
+        "top": [
+          {
+            "brl": 5887.53,
+            "taxesBrl": null,
+            "stops": 1,
+            "durationMin": 1460,
+            "firstDep": "2027-01-05T20:15:00",
+            "finalArr": "2027-01-06T17:35:00",
+            "flights": ["LA8085", "LA4744"],
+            "route": "LHR→GRU · GRU→PET",
+            "connects": [
+              {
+                "hub": "GRU",
+                "min": 630,
+                "label": "10h30"
+              }
+            ],
+            "segments": [
+              {
+                "origin": "LHR",
+                "destination": "GRU",
+                "departure": "2027-01-05T20:15:00",
+                "arrival": "2027-01-06T05:00:00",
+                "flightCode": "LA8085",
+                "durationMin": 705
+              },
+              {
+                "origin": "GRU",
+                "destination": "PET",
+                "departure": "2027-01-06T15:30:00",
+                "arrival": "2027-01-06T17:35:00",
+                "flightCode": "LA4744",
+                "durationMin": 125
+              }
+            ]
+          },
+          {
+            "brl": 6982.61,
+            "taxesBrl": null,
+            "stops": 2,
+            "durationMin": 1495,
+            "firstDep": "2027-01-05T19:40:00",
+            "finalArr": "2027-01-06T17:35:00",
+            "flights": ["LA1542", "LA1572", "LA4744"],
+            "route": "LHR→MAD · MAD→GRU · GRU→PET",
+            "connects": [
+              {
+                "hub": "MAD",
+                "min": 45,
+                "label": "0h45"
+              },
+              {
+                "hub": "GRU",
+                "min": 505,
+                "label": "8h25"
+              }
+            ],
+            "segments": [
+              {
+                "origin": "LHR",
+                "destination": "MAD",
+                "departure": "2027-01-05T19:40:00",
+                "arrival": "2027-01-05T23:10:00",
+                "flightCode": "LA1542",
+                "durationMin": 150
+              },
+              {
+                "origin": "MAD",
+                "destination": "GRU",
+                "departure": "2027-01-05T23:55:00",
+                "arrival": "2027-01-06T07:05:00",
+                "flightCode": "LA1572",
+                "durationMin": 670
+              },
+              {
+                "origin": "GRU",
+                "destination": "PET",
+                "departure": "2027-01-06T15:30:00",
+                "arrival": "2027-01-06T17:35:00",
+                "flightCode": "LA4744",
+                "durationMin": 125
+              }
+            ]
+          },
+          {
+            "brl": 6982.61,
+            "taxesBrl": null,
+            "stops": 2,
+            "durationMin": 1530,
+            "firstDep": "2027-01-05T19:05:00",
+            "finalArr": "2027-01-06T17:35:00",
+            "flights": ["LA1543", "LA1572", "LA4744"],
+            "route": "LHR→MAD · MAD→GRU · GRU→PET",
+            "connects": [
+              {
+                "hub": "MAD",
+                "min": 80,
+                "label": "1h20"
+              },
+              {
+                "hub": "GRU",
+                "min": 505,
+                "label": "8h25"
+              }
+            ],
+            "segments": [
+              {
+                "origin": "LHR",
+                "destination": "MAD",
+                "departure": "2027-01-05T19:05:00",
+                "arrival": "2027-01-05T22:35:00",
+                "flightCode": "LA1543",
+                "durationMin": 150
+              },
+              {
+                "origin": "MAD",
+                "destination": "GRU",
+                "departure": "2027-01-05T23:55:00",
+                "arrival": "2027-01-06T07:05:00",
+                "flightCode": "LA1572",
+                "durationMin": 670
+              },
+              {
+                "origin": "GRU",
+                "destination": "PET",
+                "departure": "2027-01-06T15:30:00",
+                "arrival": "2027-01-06T17:35:00",
+                "flightCode": "LA4744",
+                "durationMin": 125
+              }
+            ]
+          },
+          {
+            "brl": 6982.61,
+            "taxesBrl": null,
+            "stops": 2,
+            "durationMin": 1550,
+            "firstDep": "2027-01-05T18:45:00",
+            "finalArr": "2027-01-06T17:35:00",
+            "flights": ["LA1541", "LA1572", "LA4744"],
+            "route": "LHR→MAD · MAD→GRU · GRU→PET",
+            "connects": [
+              {
+                "hub": "MAD",
+                "min": 105,
+                "label": "1h45"
+              },
+              {
+                "hub": "GRU",
+                "min": 505,
+                "label": "8h25"
+              }
+            ],
+            "segments": [
+              {
+                "origin": "LHR",
+                "destination": "MAD",
+                "departure": "2027-01-05T18:45:00",
+                "arrival": "2027-01-05T22:10:00",
+                "flightCode": "LA1541",
+                "durationMin": 145
+              },
+              {
+                "origin": "MAD",
+                "destination": "GRU",
+                "departure": "2027-01-05T23:55:00",
+                "arrival": "2027-01-06T07:05:00",
+                "flightCode": "LA1572",
+                "durationMin": 670
+              },
+              {
+                "origin": "GRU",
+                "destination": "PET",
+                "departure": "2027-01-06T15:30:00",
+                "arrival": "2027-01-06T17:35:00",
+                "flightCode": "LA4744",
+                "durationMin": 125
+              }
+            ]
+          },
+          {
+            "brl": 6982.61,
+            "taxesBrl": null,
+            "stops": 2,
+            "durationMin": 1630,
+            "firstDep": "2027-01-05T17:25:00",
+            "finalArr": "2027-01-06T17:35:00",
+            "flights": ["LA1584", "LA1572", "LA4744"],
+            "route": "LHR→MAD · MAD→GRU · GRU→PET",
+            "connects": [
+              {
+                "hub": "MAD",
+                "min": 185,
+                "label": "3h05"
+              },
+              {
+                "hub": "GRU",
+                "min": 505,
+                "label": "8h25"
+              }
+            ],
+            "segments": [
+              {
+                "origin": "LHR",
+                "destination": "MAD",
+                "departure": "2027-01-05T17:25:00",
+                "arrival": "2027-01-05T20:50:00",
+                "flightCode": "LA1584",
+                "durationMin": 145
+              },
+              {
+                "origin": "MAD",
+                "destination": "GRU",
+                "departure": "2027-01-05T23:55:00",
+                "arrival": "2027-01-06T07:05:00",
+                "flightCode": "LA1572",
+                "durationMin": 670
+              },
+              {
+                "origin": "GRU",
+                "destination": "PET",
+                "departure": "2027-01-06T15:30:00",
+                "arrival": "2027-01-06T17:35:00",
+                "flightCode": "LA4744",
+                "durationMin": 125
+              }
+            ]
+          }
+        ],
+        "arrivesPetJan6": 6,
+        "bestPetJan6": {
+          "brl": 5887.53,
+          "taxesBrl": null,
+          "stops": 1,
+          "durationMin": 1460,
+          "firstDep": "2027-01-05T20:15:00",
+          "finalArr": "2027-01-06T17:35:00",
+          "flights": ["LA8085", "LA4744"],
+          "route": "LHR→GRU · GRU→PET",
+          "connects": [
+            {
+              "hub": "GRU",
+              "min": 630,
+              "label": "10h30"
+            }
+          ],
+          "segments": [
+            {
+              "origin": "LHR",
+              "destination": "GRU",
+              "departure": "2027-01-05T20:15:00",
+              "arrival": "2027-01-06T05:00:00",
+              "flightCode": "LA8085",
+              "durationMin": 705
+            },
+            {
+              "origin": "GRU",
+              "destination": "PET",
+              "departure": "2027-01-06T15:30:00",
+              "arrival": "2027-01-06T17:35:00",
+              "flightCode": "LA4744",
+              "durationMin": 125
+            }
+          ]
+        }
+      },
+      "owPlusOwBrl": 11694.23
+    },
+    {
+      "dest": {
+        "iata": "FRA",
+        "name": "Frankfurt"
+      },
+      "rt": {
+        "status": "ok",
+        "total": 5,
+        "eveningPet": 5,
+        "best": {
+          "brl": 5439.78,
+          "taxesBrl": null,
+          "stops": 1,
+          "durationMin": 995,
+          "firstDep": "2026-12-25T18:20:00",
+          "finalArr": "2026-12-26T14:55:00",
+          "flights": ["LA4745", "LA8070"],
+          "route": "PET→GRU · GRU→FRA",
+          "connects": [
+            {
+              "hub": "GRU",
+              "min": 165,
+              "label": "2h45"
+            }
+          ],
+          "segments": [
+            {
+              "origin": "PET",
+              "destination": "GRU",
+              "departure": "2026-12-25T18:20:00",
+              "arrival": "2026-12-25T20:25:00",
+              "flightCode": "LA4745",
+              "durationMin": 125
+            },
+            {
+              "origin": "GRU",
+              "destination": "FRA",
+              "departure": "2026-12-25T23:10:00",
+              "arrival": "2026-12-26T14:55:00",
+              "flightCode": "LA8070",
+              "durationMin": 705
+            }
+          ]
+        },
+        "top": [
+          {
+            "brl": 5439.78,
+            "taxesBrl": null,
+            "stops": 1,
+            "durationMin": 995,
+            "firstDep": "2026-12-25T18:20:00",
+            "finalArr": "2026-12-26T14:55:00",
+            "flights": ["LA4745", "LA8070"],
+            "route": "PET→GRU · GRU→FRA",
+            "connects": [
+              {
+                "hub": "GRU",
+                "min": 165,
+                "label": "2h45"
+              }
+            ],
+            "segments": [
+              {
+                "origin": "PET",
+                "destination": "GRU",
+                "departure": "2026-12-25T18:20:00",
+                "arrival": "2026-12-25T20:25:00",
+                "flightCode": "LA4745",
+                "durationMin": 125
+              },
+              {
+                "origin": "GRU",
+                "destination": "FRA",
+                "departure": "2026-12-25T23:10:00",
+                "arrival": "2026-12-26T14:55:00",
+                "flightCode": "LA8070",
+                "durationMin": 705
+              }
+            ]
+          },
+          {
+            "brl": 5512.73,
+            "taxesBrl": null,
+            "stops": 2,
+            "durationMin": 1455,
+            "firstDep": "2026-12-25T18:20:00",
+            "finalArr": "2026-12-26T22:35:00",
+            "flights": ["LA4745", "LA8066", "LA1646"],
+            "route": "PET→GRU · GRU→MAD · MAD→FRA",
+            "connects": [
+              {
+                "hub": "GRU",
+                "min": 190,
+                "label": "3h10"
+              },
+              {
+                "hub": "MAD",
+                "min": 370,
+                "label": "6h10"
+              }
+            ],
+            "segments": [
+              {
+                "origin": "PET",
+                "destination": "GRU",
+                "departure": "2026-12-25T18:20:00",
+                "arrival": "2026-12-25T20:25:00",
+                "flightCode": "LA4745",
+                "durationMin": 125
+              },
+              {
+                "origin": "GRU",
+                "destination": "MAD",
+                "departure": "2026-12-25T23:35:00",
+                "arrival": "2026-12-26T13:40:00",
+                "flightCode": "LA8066",
+                "durationMin": 605
+              },
+              {
+                "origin": "MAD",
+                "destination": "FRA",
+                "departure": "2026-12-26T19:50:00",
+                "arrival": "2026-12-26T22:35:00",
+                "flightCode": "LA1646",
+                "durationMin": 165
+              }
+            ]
+          },
+          {
+            "brl": 5512.73,
+            "taxesBrl": null,
+            "stops": 2,
+            "durationMin": 1285,
+            "firstDep": "2026-12-25T18:20:00",
+            "finalArr": "2026-12-26T19:45:00",
+            "flights": ["LA4745", "LA8066", "LH1115"],
+            "route": "PET→GRU · GRU→MAD · MAD→FRA",
+            "connects": [
+              {
+                "hub": "GRU",
+                "min": 190,
+                "label": "3h10"
+              },
+              {
+                "hub": "MAD",
+                "min": 215,
+                "label": "3h35"
+              }
+            ],
+            "segments": [
+              {
+                "origin": "PET",
+                "destination": "GRU",
+                "departure": "2026-12-25T18:20:00",
+                "arrival": "2026-12-25T20:25:00",
+                "flightCode": "LA4745",
+                "durationMin": 125
+              },
+              {
+                "origin": "GRU",
+                "destination": "MAD",
+                "departure": "2026-12-25T23:35:00",
+                "arrival": "2026-12-26T13:40:00",
+                "flightCode": "LA8066",
+                "durationMin": 605
+              },
+              {
+                "origin": "MAD",
+                "destination": "FRA",
+                "departure": "2026-12-26T17:15:00",
+                "arrival": "2026-12-26T19:45:00",
+                "flightCode": "LH1115",
+                "durationMin": 150
+              }
+            ]
+          },
+          {
+            "brl": 6437.14,
+            "taxesBrl": null,
+            "stops": 2,
+            "durationMin": 1305,
+            "firstDep": "2026-12-25T18:20:00",
+            "finalArr": "2026-12-26T20:05:00",
+            "flights": ["LA4745", "LA8084", "LH915"],
+            "route": "PET→GRU · GRU→LHR · LHR→FRA",
+            "connects": [
+              {
+                "hub": "GRU",
+                "min": 195,
+                "label": "3h15"
+              },
+              {
+                "hub": "LHR",
+                "min": 205,
+                "label": "3h25"
+              }
+            ],
+            "segments": [
+              {
+                "origin": "PET",
+                "destination": "GRU",
+                "departure": "2026-12-25T18:20:00",
+                "arrival": "2026-12-25T20:25:00",
+                "flightCode": "LA4745",
+                "durationMin": 125
+              },
+              {
+                "origin": "GRU",
+                "destination": "LHR",
+                "departure": "2026-12-25T23:40:00",
+                "arrival": "2026-12-26T14:05:00",
+                "flightCode": "LA8084",
+                "durationMin": 685
+              },
+              {
+                "origin": "LHR",
+                "destination": "FRA",
+                "departure": "2026-12-26T17:30:00",
+                "arrival": "2026-12-26T20:05:00",
+                "flightCode": "LH915",
+                "durationMin": 95
+              }
+            ]
+          },
+          {
+            "brl": 9520.1,
+            "taxesBrl": null,
+            "stops": 2,
+            "durationMin": 1230,
+            "firstDep": "2026-12-25T18:20:00",
+            "finalArr": "2026-12-26T18:50:00",
+            "flights": ["LA4745", "LA8066", "IB1333"],
+            "route": "PET→GRU · GRU→MAD · MAD→FRA",
+            "connects": [
+              {
+                "hub": "GRU",
+                "min": 190,
+                "label": "3h10"
+              },
+              {
+                "hub": "MAD",
+                "min": 145,
+                "label": "2h25"
+              }
+            ],
+            "segments": [
+              {
+                "origin": "PET",
+                "destination": "GRU",
+                "departure": "2026-12-25T18:20:00",
+                "arrival": "2026-12-25T20:25:00",
+                "flightCode": "LA4745",
+                "durationMin": 125
+              },
+              {
+                "origin": "GRU",
+                "destination": "MAD",
+                "departure": "2026-12-25T23:35:00",
+                "arrival": "2026-12-26T13:40:00",
+                "flightCode": "LA8066",
+                "durationMin": 605
+              },
+              {
+                "origin": "MAD",
+                "destination": "FRA",
+                "departure": "2026-12-26T16:05:00",
+                "arrival": "2026-12-26T18:50:00",
+                "flightCode": "IB1333",
+                "durationMin": 165
+              }
+            ]
+          }
+        ]
+      },
+      "owOut": {
+        "status": "ok",
+        "total": 5,
+        "eveningPet": 5,
+        "best": {
+          "brl": 5439.78,
+          "taxesBrl": null,
+          "stops": 1,
+          "durationMin": 995,
+          "firstDep": "2026-12-25T18:20:00",
+          "finalArr": "2026-12-26T14:55:00",
+          "flights": ["LA4745", "LA8070"],
+          "route": "PET→GRU · GRU→FRA",
+          "connects": [
+            {
+              "hub": "GRU",
+              "min": 165,
+              "label": "2h45"
+            }
+          ],
+          "segments": [
+            {
+              "origin": "PET",
+              "destination": "GRU",
+              "departure": "2026-12-25T18:20:00",
+              "arrival": "2026-12-25T20:25:00",
+              "flightCode": "LA4745",
+              "durationMin": 125
+            },
+            {
+              "origin": "GRU",
+              "destination": "FRA",
+              "departure": "2026-12-25T23:10:00",
+              "arrival": "2026-12-26T14:55:00",
+              "flightCode": "LA8070",
+              "durationMin": 705
+            }
+          ]
+        },
+        "top": [
+          {
+            "brl": 5439.78,
+            "taxesBrl": null,
+            "stops": 1,
+            "durationMin": 995,
+            "firstDep": "2026-12-25T18:20:00",
+            "finalArr": "2026-12-26T14:55:00",
+            "flights": ["LA4745", "LA8070"],
+            "route": "PET→GRU · GRU→FRA",
+            "connects": [
+              {
+                "hub": "GRU",
+                "min": 165,
+                "label": "2h45"
+              }
+            ],
+            "segments": [
+              {
+                "origin": "PET",
+                "destination": "GRU",
+                "departure": "2026-12-25T18:20:00",
+                "arrival": "2026-12-25T20:25:00",
+                "flightCode": "LA4745",
+                "durationMin": 125
+              },
+              {
+                "origin": "GRU",
+                "destination": "FRA",
+                "departure": "2026-12-25T23:10:00",
+                "arrival": "2026-12-26T14:55:00",
+                "flightCode": "LA8070",
+                "durationMin": 705
+              }
+            ]
+          },
+          {
+            "brl": 5512.73,
+            "taxesBrl": null,
+            "stops": 2,
+            "durationMin": 1455,
+            "firstDep": "2026-12-25T18:20:00",
+            "finalArr": "2026-12-26T22:35:00",
+            "flights": ["LA4745", "LA8066", "LA1646"],
+            "route": "PET→GRU · GRU→MAD · MAD→FRA",
+            "connects": [
+              {
+                "hub": "GRU",
+                "min": 190,
+                "label": "3h10"
+              },
+              {
+                "hub": "MAD",
+                "min": 370,
+                "label": "6h10"
+              }
+            ],
+            "segments": [
+              {
+                "origin": "PET",
+                "destination": "GRU",
+                "departure": "2026-12-25T18:20:00",
+                "arrival": "2026-12-25T20:25:00",
+                "flightCode": "LA4745",
+                "durationMin": 125
+              },
+              {
+                "origin": "GRU",
+                "destination": "MAD",
+                "departure": "2026-12-25T23:35:00",
+                "arrival": "2026-12-26T13:40:00",
+                "flightCode": "LA8066",
+                "durationMin": 605
+              },
+              {
+                "origin": "MAD",
+                "destination": "FRA",
+                "departure": "2026-12-26T19:50:00",
+                "arrival": "2026-12-26T22:35:00",
+                "flightCode": "LA1646",
+                "durationMin": 165
+              }
+            ]
+          },
+          {
+            "brl": 5512.73,
+            "taxesBrl": null,
+            "stops": 2,
+            "durationMin": 1285,
+            "firstDep": "2026-12-25T18:20:00",
+            "finalArr": "2026-12-26T19:45:00",
+            "flights": ["LA4745", "LA8066", "LH1115"],
+            "route": "PET→GRU · GRU→MAD · MAD→FRA",
+            "connects": [
+              {
+                "hub": "GRU",
+                "min": 190,
+                "label": "3h10"
+              },
+              {
+                "hub": "MAD",
+                "min": 215,
+                "label": "3h35"
+              }
+            ],
+            "segments": [
+              {
+                "origin": "PET",
+                "destination": "GRU",
+                "departure": "2026-12-25T18:20:00",
+                "arrival": "2026-12-25T20:25:00",
+                "flightCode": "LA4745",
+                "durationMin": 125
+              },
+              {
+                "origin": "GRU",
+                "destination": "MAD",
+                "departure": "2026-12-25T23:35:00",
+                "arrival": "2026-12-26T13:40:00",
+                "flightCode": "LA8066",
+                "durationMin": 605
+              },
+              {
+                "origin": "MAD",
+                "destination": "FRA",
+                "departure": "2026-12-26T17:15:00",
+                "arrival": "2026-12-26T19:45:00",
+                "flightCode": "LH1115",
+                "durationMin": 150
+              }
+            ]
+          },
+          {
+            "brl": 6437.14,
+            "taxesBrl": null,
+            "stops": 2,
+            "durationMin": 1305,
+            "firstDep": "2026-12-25T18:20:00",
+            "finalArr": "2026-12-26T20:05:00",
+            "flights": ["LA4745", "LA8084", "LH915"],
+            "route": "PET→GRU · GRU→LHR · LHR→FRA",
+            "connects": [
+              {
+                "hub": "GRU",
+                "min": 195,
+                "label": "3h15"
+              },
+              {
+                "hub": "LHR",
+                "min": 205,
+                "label": "3h25"
+              }
+            ],
+            "segments": [
+              {
+                "origin": "PET",
+                "destination": "GRU",
+                "departure": "2026-12-25T18:20:00",
+                "arrival": "2026-12-25T20:25:00",
+                "flightCode": "LA4745",
+                "durationMin": 125
+              },
+              {
+                "origin": "GRU",
+                "destination": "LHR",
+                "departure": "2026-12-25T23:40:00",
+                "arrival": "2026-12-26T14:05:00",
+                "flightCode": "LA8084",
+                "durationMin": 685
+              },
+              {
+                "origin": "LHR",
+                "destination": "FRA",
+                "departure": "2026-12-26T17:30:00",
+                "arrival": "2026-12-26T20:05:00",
+                "flightCode": "LH915",
+                "durationMin": 95
+              }
+            ]
+          },
+          {
+            "brl": 9520.1,
+            "taxesBrl": null,
+            "stops": 2,
+            "durationMin": 1230,
+            "firstDep": "2026-12-25T18:20:00",
+            "finalArr": "2026-12-26T18:50:00",
+            "flights": ["LA4745", "LA8066", "IB1333"],
+            "route": "PET→GRU · GRU→MAD · MAD→FRA",
+            "connects": [
+              {
+                "hub": "GRU",
+                "min": 190,
+                "label": "3h10"
+              },
+              {
+                "hub": "MAD",
+                "min": 145,
+                "label": "2h25"
+              }
+            ],
+            "segments": [
+              {
+                "origin": "PET",
+                "destination": "GRU",
+                "departure": "2026-12-25T18:20:00",
+                "arrival": "2026-12-25T20:25:00",
+                "flightCode": "LA4745",
+                "durationMin": 125
+              },
+              {
+                "origin": "GRU",
+                "destination": "MAD",
+                "departure": "2026-12-25T23:35:00",
+                "arrival": "2026-12-26T13:40:00",
+                "flightCode": "LA8066",
+                "durationMin": 605
+              },
+              {
+                "origin": "MAD",
+                "destination": "FRA",
+                "departure": "2026-12-26T16:05:00",
+                "arrival": "2026-12-26T18:50:00",
+                "flightCode": "IB1333",
+                "durationMin": 165
+              }
+            ]
+          }
+        ]
+      },
+      "owIn": {
+        "status": "ok",
+        "total": 3,
+        "best": {
+          "brl": 7302,
+          "taxesBrl": null,
+          "stops": 1,
+          "durationMin": 1485,
+          "firstDep": "2027-01-05T20:50:00",
+          "finalArr": "2027-01-06T17:35:00",
+          "flights": ["LA8071", "LA4744"],
+          "route": "FRA→GRU · GRU→PET",
+          "connects": [
+            {
+              "hub": "GRU",
+              "min": 625,
+              "label": "10h25"
+            }
+          ],
+          "segments": [
+            {
+              "origin": "FRA",
+              "destination": "GRU",
+              "departure": "2027-01-05T20:50:00",
+              "arrival": "2027-01-06T05:05:00",
+              "flightCode": "LA8071",
+              "durationMin": 735
+            },
+            {
+              "origin": "GRU",
+              "destination": "PET",
+              "departure": "2027-01-06T15:30:00",
+              "arrival": "2027-01-06T17:35:00",
+              "flightCode": "LA4744",
+              "durationMin": 125
+            }
+          ]
+        },
+        "top": [
+          {
+            "brl": 7302,
+            "taxesBrl": null,
+            "stops": 1,
+            "durationMin": 1485,
+            "firstDep": "2027-01-05T20:50:00",
+            "finalArr": "2027-01-06T17:35:00",
+            "flights": ["LA8071", "LA4744"],
+            "route": "FRA→GRU · GRU→PET",
+            "connects": [
+              {
+                "hub": "GRU",
+                "min": 625,
+                "label": "10h25"
+              }
+            ],
+            "segments": [
+              {
+                "origin": "FRA",
+                "destination": "GRU",
+                "departure": "2027-01-05T20:50:00",
+                "arrival": "2027-01-06T05:05:00",
+                "flightCode": "LA8071",
+                "durationMin": 735
+              },
+              {
+                "origin": "GRU",
+                "destination": "PET",
+                "departure": "2027-01-06T15:30:00",
+                "arrival": "2027-01-06T17:35:00",
+                "flightCode": "LA4744",
+                "durationMin": 125
+              }
+            ]
+          },
+          {
+            "brl": 8406.26,
+            "taxesBrl": null,
+            "stops": 2,
+            "durationMin": 1735,
+            "firstDep": "2027-01-05T16:40:00",
+            "finalArr": "2027-01-06T17:35:00",
+            "flights": ["LA8694", "LA8079", "LA4744"],
+            "route": "FRA→AMS · AMS→GRU · GRU→PET",
+            "connects": [
+              {
+                "hub": "AMS",
+                "min": 160,
+                "label": "2h40"
+              },
+              {
+                "hub": "GRU",
+                "min": 645,
+                "label": "10h45"
+              }
+            ],
+            "segments": [
+              {
+                "origin": "FRA",
+                "destination": "AMS",
+                "departure": "2027-01-05T16:40:00",
+                "arrival": "2027-01-05T17:55:00",
+                "flightCode": "LA8694",
+                "durationMin": 75
+              },
+              {
+                "origin": "AMS",
+                "destination": "GRU",
+                "departure": "2027-01-05T20:35:00",
+                "arrival": "2027-01-06T04:45:00",
+                "flightCode": "LA8079",
+                "durationMin": 730
+              },
+              {
+                "origin": "GRU",
+                "destination": "PET",
+                "departure": "2027-01-06T15:30:00",
+                "arrival": "2027-01-06T17:35:00",
+                "flightCode": "LA4744",
+                "durationMin": 125
+              }
+            ]
+          },
+          {
+            "brl": 9657.39,
+            "taxesBrl": null,
+            "stops": 2,
+            "durationMin": 1560,
+            "firstDep": "2027-01-05T19:35:00",
+            "finalArr": "2027-01-06T17:35:00",
+            "flights": ["LA1609", "LA1572", "LA4744"],
+            "route": "FRA→MAD · MAD→GRU · GRU→PET",
+            "connects": [
+              {
+                "hub": "MAD",
+                "min": 90,
+                "label": "1h30"
+              },
+              {
+                "hub": "GRU",
+                "min": 505,
+                "label": "8h25"
+              }
+            ],
+            "segments": [
+              {
+                "origin": "FRA",
+                "destination": "MAD",
+                "departure": "2027-01-05T19:35:00",
+                "arrival": "2027-01-05T22:25:00",
+                "flightCode": "LA1609",
+                "durationMin": 170
+              },
+              {
+                "origin": "MAD",
+                "destination": "GRU",
+                "departure": "2027-01-05T23:55:00",
+                "arrival": "2027-01-06T07:05:00",
+                "flightCode": "LA1572",
+                "durationMin": 670
+              },
+              {
+                "origin": "GRU",
+                "destination": "PET",
+                "departure": "2027-01-06T15:30:00",
+                "arrival": "2027-01-06T17:35:00",
+                "flightCode": "LA4744",
+                "durationMin": 125
+              }
+            ]
+          }
+        ],
+        "arrivesPetJan6": 3,
+        "bestPetJan6": {
+          "brl": 7302,
+          "taxesBrl": null,
+          "stops": 1,
+          "durationMin": 1485,
+          "firstDep": "2027-01-05T20:50:00",
+          "finalArr": "2027-01-06T17:35:00",
+          "flights": ["LA8071", "LA4744"],
+          "route": "FRA→GRU · GRU→PET",
+          "connects": [
+            {
+              "hub": "GRU",
+              "min": 625,
+              "label": "10h25"
+            }
+          ],
+          "segments": [
+            {
+              "origin": "FRA",
+              "destination": "GRU",
+              "departure": "2027-01-05T20:50:00",
+              "arrival": "2027-01-06T05:05:00",
+              "flightCode": "LA8071",
+              "durationMin": 735
+            },
+            {
+              "origin": "GRU",
+              "destination": "PET",
+              "departure": "2027-01-06T15:30:00",
+              "arrival": "2027-01-06T17:35:00",
+              "flightCode": "LA4744",
+              "durationMin": 125
+            }
+          ]
+        }
+      },
+      "owPlusOwBrl": 12741.779999999999
+    },
+    {
+      "dest": {
+        "iata": "LIS",
+        "name": "Lisboa"
+      },
+      "rt": {
+        "status": "ok",
+        "total": 5,
+        "eveningPet": 5,
+        "best": {
+          "brl": 5749.23,
+          "taxesBrl": null,
+          "stops": 1,
+          "durationMin": 840,
+          "firstDep": "2026-12-25T18:20:00",
+          "finalArr": "2026-12-26T11:20:00",
+          "flights": ["LA4745", "LA8148"],
+          "route": "PET→GRU · GRU→LIS",
+          "connects": [
+            {
+              "hub": "GRU",
+              "min": 135,
+              "label": "2h15"
+            }
+          ],
+          "segments": [
+            {
+              "origin": "PET",
+              "destination": "GRU",
+              "departure": "2026-12-25T18:20:00",
+              "arrival": "2026-12-25T20:25:00",
+              "flightCode": "LA4745",
+              "durationMin": 125
+            },
+            {
+              "origin": "GRU",
+              "destination": "LIS",
+              "departure": "2026-12-25T22:40:00",
+              "arrival": "2026-12-26T11:20:00",
+              "flightCode": "LA8148",
+              "durationMin": 580
+            }
+          ]
+        },
+        "top": [
+          {
+            "brl": 5749.23,
+            "taxesBrl": null,
+            "stops": 1,
+            "durationMin": 840,
+            "firstDep": "2026-12-25T18:20:00",
+            "finalArr": "2026-12-26T11:20:00",
+            "flights": ["LA4745", "LA8148"],
+            "route": "PET→GRU · GRU→LIS",
+            "connects": [
+              {
+                "hub": "GRU",
+                "min": 135,
+                "label": "2h15"
+              }
+            ],
+            "segments": [
+              {
+                "origin": "PET",
+                "destination": "GRU",
+                "departure": "2026-12-25T18:20:00",
+                "arrival": "2026-12-25T20:25:00",
+                "flightCode": "LA4745",
+                "durationMin": 125
+              },
+              {
+                "origin": "GRU",
+                "destination": "LIS",
+                "departure": "2026-12-25T22:40:00",
+                "arrival": "2026-12-26T11:20:00",
+                "flightCode": "LA8148",
+                "durationMin": 580
+              }
+            ]
+          },
+          {
+            "brl": 8567.09,
+            "taxesBrl": null,
+            "stops": 2,
+            "durationMin": 1195,
+            "firstDep": "2026-12-25T18:20:00",
+            "finalArr": "2026-12-26T17:15:00",
+            "flights": ["LA4745", "LA4776", "LA8150"],
+            "route": "PET→GRU · GRU→FOR · FOR→LIS",
+            "connects": [
+              {
+                "hub": "GRU",
+                "min": 220,
+                "label": "3h40"
+              },
+              {
+                "hub": "FOR",
+                "min": 195,
+                "label": "3h15"
+              }
+            ],
+            "segments": [
+              {
+                "origin": "PET",
+                "destination": "GRU",
+                "departure": "2026-12-25T18:20:00",
+                "arrival": "2026-12-25T20:25:00",
+                "flightCode": "LA4745",
+                "durationMin": 125
+              },
+              {
+                "origin": "GRU",
+                "destination": "FOR",
+                "departure": "2026-12-26T00:05:00",
+                "arrival": "2026-12-26T03:35:00",
+                "flightCode": "LA4776",
+                "durationMin": 210
+              },
+              {
+                "origin": "FOR",
+                "destination": "LIS",
+                "departure": "2026-12-26T06:50:00",
+                "arrival": "2026-12-26T17:15:00",
+                "flightCode": "LA8150",
+                "durationMin": 445
+              }
+            ]
+          },
+          {
+            "brl": 13687.36,
+            "taxesBrl": null,
+            "stops": 2,
+            "durationMin": 1125,
+            "firstDep": "2026-12-25T18:20:00",
+            "finalArr": "2026-12-26T16:05:00",
+            "flights": ["LA4745", "LA8066", "LA1587"],
+            "route": "PET→GRU · GRU→MAD · MAD→LIS",
+            "connects": [
+              {
+                "hub": "GRU",
+                "min": 190,
+                "label": "3h10"
+              },
+              {
+                "hub": "MAD",
+                "min": 120,
+                "label": "2h00"
+              }
+            ],
+            "segments": [
+              {
+                "origin": "PET",
+                "destination": "GRU",
+                "departure": "2026-12-25T18:20:00",
+                "arrival": "2026-12-25T20:25:00",
+                "flightCode": "LA4745",
+                "durationMin": 125
+              },
+              {
+                "origin": "GRU",
+                "destination": "MAD",
+                "departure": "2026-12-25T23:35:00",
+                "arrival": "2026-12-26T13:40:00",
+                "flightCode": "LA8066",
+                "durationMin": 605
+              },
+              {
+                "origin": "MAD",
+                "destination": "LIS",
+                "departure": "2026-12-26T15:40:00",
+                "arrival": "2026-12-26T16:05:00",
+                "flightCode": "LA1587",
+                "durationMin": 85
+              }
+            ]
+          },
+          {
+            "brl": 13687.36,
+            "taxesBrl": null,
+            "stops": 2,
+            "durationMin": 1245,
+            "firstDep": "2026-12-25T18:20:00",
+            "finalArr": "2026-12-26T18:05:00",
+            "flights": ["LA4745", "LA8066", "LA1535"],
+            "route": "PET→GRU · GRU→MAD · MAD→LIS",
+            "connects": [
+              {
+                "hub": "GRU",
+                "min": 190,
+                "label": "3h10"
+              },
+              {
+                "hub": "MAD",
+                "min": 240,
+                "label": "4h00"
+              }
+            ],
+            "segments": [
+              {
+                "origin": "PET",
+                "destination": "GRU",
+                "departure": "2026-12-25T18:20:00",
+                "arrival": "2026-12-25T20:25:00",
+                "flightCode": "LA4745",
+                "durationMin": 125
+              },
+              {
+                "origin": "GRU",
+                "destination": "MAD",
+                "departure": "2026-12-25T23:35:00",
+                "arrival": "2026-12-26T13:40:00",
+                "flightCode": "LA8066",
+                "durationMin": 605
+              },
+              {
+                "origin": "MAD",
+                "destination": "LIS",
+                "departure": "2026-12-26T17:40:00",
+                "arrival": "2026-12-26T18:05:00",
+                "flightCode": "LA1535",
+                "durationMin": 85
+              }
+            ]
+          },
+          {
+            "brl": 13687.36,
+            "taxesBrl": null,
+            "stops": 2,
+            "durationMin": 1365,
+            "firstDep": "2026-12-25T18:20:00",
+            "finalArr": "2026-12-26T20:05:00",
+            "flights": ["LA4745", "LA8066", "LA1590"],
+            "route": "PET→GRU · GRU→MAD · MAD→LIS",
+            "connects": [
+              {
+                "hub": "GRU",
+                "min": 190,
+                "label": "3h10"
+              },
+              {
+                "hub": "MAD",
+                "min": 360,
+                "label": "6h00"
+              }
+            ],
+            "segments": [
+              {
+                "origin": "PET",
+                "destination": "GRU",
+                "departure": "2026-12-25T18:20:00",
+                "arrival": "2026-12-25T20:25:00",
+                "flightCode": "LA4745",
+                "durationMin": 125
+              },
+              {
+                "origin": "GRU",
+                "destination": "MAD",
+                "departure": "2026-12-25T23:35:00",
+                "arrival": "2026-12-26T13:40:00",
+                "flightCode": "LA8066",
+                "durationMin": 605
+              },
+              {
+                "origin": "MAD",
+                "destination": "LIS",
+                "departure": "2026-12-26T19:40:00",
+                "arrival": "2026-12-26T20:05:00",
+                "flightCode": "LA1590",
+                "durationMin": 85
+              }
+            ]
+          }
+        ]
+      },
+      "owOut": {
+        "status": "ok",
+        "total": 5,
+        "eveningPet": 5,
+        "best": {
+          "brl": 7538.88,
+          "taxesBrl": null,
+          "stops": 1,
+          "durationMin": 840,
+          "firstDep": "2026-12-25T18:20:00",
+          "finalArr": "2026-12-26T11:20:00",
+          "flights": ["LA4745", "LA8148"],
+          "route": "PET→GRU · GRU→LIS",
+          "connects": [
+            {
+              "hub": "GRU",
+              "min": 135,
+              "label": "2h15"
+            }
+          ],
+          "segments": [
+            {
+              "origin": "PET",
+              "destination": "GRU",
+              "departure": "2026-12-25T18:20:00",
+              "arrival": "2026-12-25T20:25:00",
+              "flightCode": "LA4745",
+              "durationMin": 125
+            },
+            {
+              "origin": "GRU",
+              "destination": "LIS",
+              "departure": "2026-12-25T22:40:00",
+              "arrival": "2026-12-26T11:20:00",
+              "flightCode": "LA8148",
+              "durationMin": 580
+            }
+          ]
+        },
+        "top": [
+          {
+            "brl": 7538.88,
+            "taxesBrl": null,
+            "stops": 1,
+            "durationMin": 840,
+            "firstDep": "2026-12-25T18:20:00",
+            "finalArr": "2026-12-26T11:20:00",
+            "flights": ["LA4745", "LA8148"],
+            "route": "PET→GRU · GRU→LIS",
+            "connects": [
+              {
+                "hub": "GRU",
+                "min": 135,
+                "label": "2h15"
+              }
+            ],
+            "segments": [
+              {
+                "origin": "PET",
+                "destination": "GRU",
+                "departure": "2026-12-25T18:20:00",
+                "arrival": "2026-12-25T20:25:00",
+                "flightCode": "LA4745",
+                "durationMin": 125
+              },
+              {
+                "origin": "GRU",
+                "destination": "LIS",
+                "departure": "2026-12-25T22:40:00",
+                "arrival": "2026-12-26T11:20:00",
+                "flightCode": "LA8148",
+                "durationMin": 580
+              }
+            ]
+          },
+          {
+            "brl": 10202.02,
+            "taxesBrl": null,
+            "stops": 2,
+            "durationMin": 1195,
+            "firstDep": "2026-12-25T18:20:00",
+            "finalArr": "2026-12-26T17:15:00",
+            "flights": ["LA4745", "LA4776", "LA8150"],
+            "route": "PET→GRU · GRU→FOR · FOR→LIS",
+            "connects": [
+              {
+                "hub": "GRU",
+                "min": 220,
+                "label": "3h40"
+              },
+              {
+                "hub": "FOR",
+                "min": 195,
+                "label": "3h15"
+              }
+            ],
+            "segments": [
+              {
+                "origin": "PET",
+                "destination": "GRU",
+                "departure": "2026-12-25T18:20:00",
+                "arrival": "2026-12-25T20:25:00",
+                "flightCode": "LA4745",
+                "durationMin": 125
+              },
+              {
+                "origin": "GRU",
+                "destination": "FOR",
+                "departure": "2026-12-26T00:05:00",
+                "arrival": "2026-12-26T03:35:00",
+                "flightCode": "LA4776",
+                "durationMin": 210
+              },
+              {
+                "origin": "FOR",
+                "destination": "LIS",
+                "departure": "2026-12-26T06:50:00",
+                "arrival": "2026-12-26T17:15:00",
+                "flightCode": "LA8150",
+                "durationMin": 445
+              }
+            ]
+          },
+          {
+            "brl": 16338.32,
+            "taxesBrl": null,
+            "stops": 2,
+            "durationMin": 1125,
+            "firstDep": "2026-12-25T18:20:00",
+            "finalArr": "2026-12-26T16:05:00",
+            "flights": ["LA4745", "LA8066", "LA1587"],
+            "route": "PET→GRU · GRU→MAD · MAD→LIS",
+            "connects": [
+              {
+                "hub": "GRU",
+                "min": 190,
+                "label": "3h10"
+              },
+              {
+                "hub": "MAD",
+                "min": 120,
+                "label": "2h00"
+              }
+            ],
+            "segments": [
+              {
+                "origin": "PET",
+                "destination": "GRU",
+                "departure": "2026-12-25T18:20:00",
+                "arrival": "2026-12-25T20:25:00",
+                "flightCode": "LA4745",
+                "durationMin": 125
+              },
+              {
+                "origin": "GRU",
+                "destination": "MAD",
+                "departure": "2026-12-25T23:35:00",
+                "arrival": "2026-12-26T13:40:00",
+                "flightCode": "LA8066",
+                "durationMin": 605
+              },
+              {
+                "origin": "MAD",
+                "destination": "LIS",
+                "departure": "2026-12-26T15:40:00",
+                "arrival": "2026-12-26T16:05:00",
+                "flightCode": "LA1587",
+                "durationMin": 85
+              }
+            ]
+          },
+          {
+            "brl": 16338.32,
+            "taxesBrl": null,
+            "stops": 2,
+            "durationMin": 1245,
+            "firstDep": "2026-12-25T18:20:00",
+            "finalArr": "2026-12-26T18:05:00",
+            "flights": ["LA4745", "LA8066", "LA1535"],
+            "route": "PET→GRU · GRU→MAD · MAD→LIS",
+            "connects": [
+              {
+                "hub": "GRU",
+                "min": 190,
+                "label": "3h10"
+              },
+              {
+                "hub": "MAD",
+                "min": 240,
+                "label": "4h00"
+              }
+            ],
+            "segments": [
+              {
+                "origin": "PET",
+                "destination": "GRU",
+                "departure": "2026-12-25T18:20:00",
+                "arrival": "2026-12-25T20:25:00",
+                "flightCode": "LA4745",
+                "durationMin": 125
+              },
+              {
+                "origin": "GRU",
+                "destination": "MAD",
+                "departure": "2026-12-25T23:35:00",
+                "arrival": "2026-12-26T13:40:00",
+                "flightCode": "LA8066",
+                "durationMin": 605
+              },
+              {
+                "origin": "MAD",
+                "destination": "LIS",
+                "departure": "2026-12-26T17:40:00",
+                "arrival": "2026-12-26T18:05:00",
+                "flightCode": "LA1535",
+                "durationMin": 85
+              }
+            ]
+          },
+          {
+            "brl": 16338.32,
+            "taxesBrl": null,
+            "stops": 2,
+            "durationMin": 1365,
+            "firstDep": "2026-12-25T18:20:00",
+            "finalArr": "2026-12-26T20:05:00",
+            "flights": ["LA4745", "LA8066", "LA1590"],
+            "route": "PET→GRU · GRU→MAD · MAD→LIS",
+            "connects": [
+              {
+                "hub": "GRU",
+                "min": 190,
+                "label": "3h10"
+              },
+              {
+                "hub": "MAD",
+                "min": 360,
+                "label": "6h00"
+              }
+            ],
+            "segments": [
+              {
+                "origin": "PET",
+                "destination": "GRU",
+                "departure": "2026-12-25T18:20:00",
+                "arrival": "2026-12-25T20:25:00",
+                "flightCode": "LA4745",
+                "durationMin": 125
+              },
+              {
+                "origin": "GRU",
+                "destination": "MAD",
+                "departure": "2026-12-25T23:35:00",
+                "arrival": "2026-12-26T13:40:00",
+                "flightCode": "LA8066",
+                "durationMin": 605
+              },
+              {
+                "origin": "MAD",
+                "destination": "LIS",
+                "departure": "2026-12-26T19:40:00",
+                "arrival": "2026-12-26T20:05:00",
+                "flightCode": "LA1590",
+                "durationMin": 85
+              }
+            ]
+          }
+        ]
+      },
+      "owIn": {
+        "status": "ok",
+        "total": 6,
+        "best": {
+          "brl": 6174.34,
+          "taxesBrl": null,
+          "stops": 2,
+          "durationMin": 1560,
+          "firstDep": "2027-01-05T18:35:00",
+          "finalArr": "2027-01-06T17:35:00",
+          "flights": ["LA8151", "LA3325", "LA4744"],
+          "route": "LIS→FOR · FOR→GRU · GRU→PET",
+          "connects": [
+            {
+              "hub": "FOR",
+              "min": 255,
+              "label": "4h15"
+            },
+            {
+              "hub": "GRU",
+              "min": 515,
+              "label": "8h35"
+            }
+          ],
+          "segments": [
+            {
+              "origin": "LIS",
+              "destination": "FOR",
+              "departure": "2027-01-05T18:35:00",
+              "arrival": "2027-01-05T23:05:00",
+              "flightCode": "LA8151",
+              "durationMin": 450
+            },
+            {
+              "origin": "FOR",
+              "destination": "GRU",
+              "departure": "2027-01-06T03:20:00",
+              "arrival": "2027-01-06T06:55:00",
+              "flightCode": "LA3325",
+              "durationMin": 215
+            },
+            {
+              "origin": "GRU",
+              "destination": "PET",
+              "departure": "2027-01-06T15:30:00",
+              "arrival": "2027-01-06T17:35:00",
+              "flightCode": "LA4744",
+              "durationMin": 125
+            }
+          ]
+        },
+        "top": [
+          {
+            "brl": 6174.34,
+            "taxesBrl": null,
+            "stops": 2,
+            "durationMin": 1560,
+            "firstDep": "2027-01-05T18:35:00",
+            "finalArr": "2027-01-06T17:35:00",
+            "flights": ["LA8151", "LA3325", "LA4744"],
+            "route": "LIS→FOR · FOR→GRU · GRU→PET",
+            "connects": [
+              {
+                "hub": "FOR",
+                "min": 255,
+                "label": "4h15"
+              },
+              {
+                "hub": "GRU",
+                "min": 515,
+                "label": "8h35"
+              }
+            ],
+            "segments": [
+              {
+                "origin": "LIS",
+                "destination": "FOR",
+                "departure": "2027-01-05T18:35:00",
+                "arrival": "2027-01-05T23:05:00",
+                "flightCode": "LA8151",
+                "durationMin": 450
+              },
+              {
+                "origin": "FOR",
+                "destination": "GRU",
+                "departure": "2027-01-06T03:20:00",
+                "arrival": "2027-01-06T06:55:00",
+                "flightCode": "LA3325",
+                "durationMin": 215
+              },
+              {
+                "origin": "GRU",
+                "destination": "PET",
+                "departure": "2027-01-06T15:30:00",
+                "arrival": "2027-01-06T17:35:00",
+                "flightCode": "LA4744",
+                "durationMin": 125
+              }
+            ]
+          },
+          {
+            "brl": 6174.34,
+            "taxesBrl": null,
+            "stops": 2,
+            "durationMin": 1560,
+            "firstDep": "2027-01-05T18:35:00",
+            "finalArr": "2027-01-06T17:35:00",
+            "flights": ["LA8151", "LA3683", "LA4744"],
+            "route": "LIS→FOR · FOR→GRU · GRU→PET",
+            "connects": [
+              {
+                "hub": "FOR",
+                "min": 730,
+                "label": "12h10"
+              },
+              {
+                "hub": "GRU",
+                "min": 45,
+                "label": "0h45"
+              }
+            ],
+            "segments": [
+              {
+                "origin": "LIS",
+                "destination": "FOR",
+                "departure": "2027-01-05T18:35:00",
+                "arrival": "2027-01-05T23:05:00",
+                "flightCode": "LA8151",
+                "durationMin": 450
+              },
+              {
+                "origin": "FOR",
+                "destination": "GRU",
+                "departure": "2027-01-06T11:15:00",
+                "arrival": "2027-01-06T14:45:00",
+                "flightCode": "LA3683",
+                "durationMin": 210
+              },
+              {
+                "origin": "GRU",
+                "destination": "PET",
+                "departure": "2027-01-06T15:30:00",
+                "arrival": "2027-01-06T17:35:00",
+                "flightCode": "LA4744",
+                "durationMin": 125
+              }
+            ]
+          },
+          {
+            "brl": 6174.34,
+            "taxesBrl": null,
+            "stops": 2,
+            "durationMin": 1560,
+            "firstDep": "2027-01-05T18:35:00",
+            "finalArr": "2027-01-06T17:35:00",
+            "flights": ["LA8151", "LA4777", "LA4744"],
+            "route": "LIS→FOR · FOR→GRU · GRU→PET",
+            "connects": [
+              {
+                "hub": "FOR",
+                "min": 185,
+                "label": "3h05"
+              },
+              {
+                "hub": "GRU",
+                "min": 600,
+                "label": "10h00"
+              }
+            ],
+            "segments": [
+              {
+                "origin": "LIS",
+                "destination": "FOR",
+                "departure": "2027-01-05T18:35:00",
+                "arrival": "2027-01-05T23:05:00",
+                "flightCode": "LA8151",
+                "durationMin": 450
+              },
+              {
+                "origin": "FOR",
+                "destination": "GRU",
+                "departure": "2027-01-06T02:10:00",
+                "arrival": "2027-01-06T05:30:00",
+                "flightCode": "LA4777",
+                "durationMin": 200
+              },
+              {
+                "origin": "GRU",
+                "destination": "PET",
+                "departure": "2027-01-06T15:30:00",
+                "arrival": "2027-01-06T17:35:00",
+                "flightCode": "LA4744",
+                "durationMin": 125
+              }
+            ]
+          },
+          {
+            "brl": 6210.09,
+            "taxesBrl": null,
+            "stops": 2,
+            "durationMin": 1560,
+            "firstDep": "2027-01-05T18:35:00",
+            "finalArr": "2027-01-06T17:35:00",
+            "flights": ["LA8151", "LA9053", "LA4744"],
+            "route": "LIS→FOR · FOR→CGH · GRU→PET",
+            "connects": [
+              {
+                "hub": "FOR",
+                "min": 305,
+                "label": "5h05"
+              },
+              {
+                "hub": "CGH",
+                "min": 460,
+                "label": "7h40"
+              }
+            ],
+            "segments": [
+              {
+                "origin": "LIS",
+                "destination": "FOR",
+                "departure": "2027-01-05T18:35:00",
+                "arrival": "2027-01-05T23:05:00",
+                "flightCode": "LA8151",
+                "durationMin": 450
+              },
+              {
+                "origin": "FOR",
+                "destination": "CGH",
+                "departure": "2027-01-06T04:10:00",
+                "arrival": "2027-01-06T07:50:00",
+                "flightCode": "LA9053",
+                "durationMin": 220
+              },
+              {
+                "origin": "GRU",
+                "destination": "PET",
+                "departure": "2027-01-06T15:30:00",
+                "arrival": "2027-01-06T17:35:00",
+                "flightCode": "LA4744",
+                "durationMin": 125
+              }
+            ]
+          },
+          {
+            "brl": 6848.61,
+            "taxesBrl": null,
+            "stops": 2,
+            "durationMin": 1560,
+            "firstDep": "2027-01-05T18:35:00",
+            "finalArr": "2027-01-06T17:35:00",
+            "flights": ["LA8151", "LA3187", "LA4744"],
+            "route": "LIS→FOR · FOR→CGH · GRU→PET",
+            "connects": [
+              {
+                "hub": "FOR",
+                "min": 285,
+                "label": "4h45"
+              },
+              {
+                "hub": "CGH",
+                "min": 480,
+                "label": "8h00"
+              }
+            ],
+            "segments": [
+              {
+                "origin": "LIS",
+                "destination": "FOR",
+                "departure": "2027-01-05T18:35:00",
+                "arrival": "2027-01-05T23:05:00",
+                "flightCode": "LA8151",
+                "durationMin": 450
+              },
+              {
+                "origin": "FOR",
+                "destination": "CGH",
+                "departure": "2027-01-06T03:50:00",
+                "arrival": "2027-01-06T07:30:00",
+                "flightCode": "LA3187",
+                "durationMin": 220
+              },
+              {
+                "origin": "GRU",
+                "destination": "PET",
+                "departure": "2027-01-06T15:30:00",
+                "arrival": "2027-01-06T17:35:00",
+                "flightCode": "LA4744",
+                "durationMin": 125
+              }
+            ]
+          }
+        ],
+        "arrivesPetJan6": 6,
+        "bestPetJan6": {
+          "brl": 6174.34,
+          "taxesBrl": null,
+          "stops": 2,
+          "durationMin": 1560,
+          "firstDep": "2027-01-05T18:35:00",
+          "finalArr": "2027-01-06T17:35:00",
+          "flights": ["LA8151", "LA3325", "LA4744"],
+          "route": "LIS→FOR · FOR→GRU · GRU→PET",
+          "connects": [
+            {
+              "hub": "FOR",
+              "min": 255,
+              "label": "4h15"
+            },
+            {
+              "hub": "GRU",
+              "min": 515,
+              "label": "8h35"
+            }
+          ],
+          "segments": [
+            {
+              "origin": "LIS",
+              "destination": "FOR",
+              "departure": "2027-01-05T18:35:00",
+              "arrival": "2027-01-05T23:05:00",
+              "flightCode": "LA8151",
+              "durationMin": 450
+            },
+            {
+              "origin": "FOR",
+              "destination": "GRU",
+              "departure": "2027-01-06T03:20:00",
+              "arrival": "2027-01-06T06:55:00",
+              "flightCode": "LA3325",
+              "durationMin": 215
+            },
+            {
+              "origin": "GRU",
+              "destination": "PET",
+              "departure": "2027-01-06T15:30:00",
+              "arrival": "2027-01-06T17:35:00",
+              "flightCode": "LA4744",
+              "durationMin": 125
+            }
+          ]
+        }
+      },
+      "owPlusOwBrl": 13713.220000000001
+    },
+    {
+      "dest": {
+        "iata": "MAD",
+        "name": "Madrid"
+      },
+      "rt": {
+        "status": "ok",
+        "total": 7,
+        "eveningPet": 7,
+        "best": {
+          "brl": 5470.72,
+          "taxesBrl": null,
+          "stops": 1,
+          "durationMin": 920,
+          "firstDep": "2026-12-25T18:20:00",
+          "finalArr": "2026-12-26T13:40:00",
+          "flights": ["LA4745", "LA8066"],
+          "route": "PET→GRU · GRU→MAD",
+          "connects": [
+            {
+              "hub": "GRU",
+              "min": 190,
+              "label": "3h10"
+            }
+          ],
+          "segments": [
+            {
+              "origin": "PET",
+              "destination": "GRU",
+              "departure": "2026-12-25T18:20:00",
+              "arrival": "2026-12-25T20:25:00",
+              "flightCode": "LA4745",
+              "durationMin": 125
+            },
+            {
+              "origin": "GRU",
+              "destination": "MAD",
+              "departure": "2026-12-25T23:35:00",
+              "arrival": "2026-12-26T13:40:00",
+              "flightCode": "LA8066",
+              "durationMin": 605
+            }
+          ]
+        },
+        "top": [
+          {
+            "brl": 5470.72,
+            "taxesBrl": null,
+            "stops": 1,
+            "durationMin": 920,
+            "firstDep": "2026-12-25T18:20:00",
+            "finalArr": "2026-12-26T13:40:00",
+            "flights": ["LA4745", "LA8066"],
+            "route": "PET→GRU · GRU→MAD",
+            "connects": [
+              {
+                "hub": "GRU",
+                "min": 190,
+                "label": "3h10"
+              }
+            ],
+            "segments": [
+              {
+                "origin": "PET",
+                "destination": "GRU",
+                "departure": "2026-12-25T18:20:00",
+                "arrival": "2026-12-25T20:25:00",
+                "flightCode": "LA4745",
+                "durationMin": 125
+              },
+              {
+                "origin": "GRU",
+                "destination": "MAD",
+                "departure": "2026-12-25T23:35:00",
+                "arrival": "2026-12-26T13:40:00",
+                "flightCode": "LA8066",
+                "durationMin": 605
+              }
+            ]
+          },
+          {
+            "brl": 7853.49,
+            "taxesBrl": null,
+            "stops": 2,
+            "durationMin": 2385,
+            "firstDep": "2026-12-25T18:20:00",
+            "finalArr": "2026-12-27T14:05:00",
+            "flights": ["LA4745", "LA715", "LA706"],
+            "route": "PET→GRU · GRU→SCL · SCL→MAD",
+            "connects": [
+              {
+                "hub": "GRU",
+                "min": 645,
+                "label": "10h45"
+              },
+              {
+                "hub": "SCL",
+                "min": 590,
+                "label": "9h50"
+              }
+            ],
+            "segments": [
+              {
+                "origin": "PET",
+                "destination": "GRU",
+                "departure": "2026-12-25T18:20:00",
+                "arrival": "2026-12-25T20:25:00",
+                "flightCode": "LA4745",
+                "durationMin": 125
+              },
+              {
+                "origin": "GRU",
+                "destination": "SCL",
+                "departure": "2026-12-26T07:10:00",
+                "arrival": "2026-12-26T11:15:00",
+                "flightCode": "LA715",
+                "durationMin": 245
+              },
+              {
+                "origin": "SCL",
+                "destination": "MAD",
+                "departure": "2026-12-26T21:05:00",
+                "arrival": "2026-12-27T14:05:00",
+                "flightCode": "LA706",
+                "durationMin": 780
+              }
+            ]
+          },
+          {
+            "brl": 7953.45,
+            "taxesBrl": null,
+            "stops": 2,
+            "durationMin": 1350,
+            "firstDep": "2026-12-25T18:20:00",
+            "finalArr": "2026-12-26T20:50:00",
+            "flights": ["LA4745", "LA8084", "LA1584"],
+            "route": "PET→GRU · GRU→LHR · LHR→MAD",
+            "connects": [
+              {
+                "hub": "GRU",
+                "min": 195,
+                "label": "3h15"
+              },
+              {
+                "hub": "LHR",
+                "min": 200,
+                "label": "3h20"
+              }
+            ],
+            "segments": [
+              {
+                "origin": "PET",
+                "destination": "GRU",
+                "departure": "2026-12-25T18:20:00",
+                "arrival": "2026-12-25T20:25:00",
+                "flightCode": "LA4745",
+                "durationMin": 125
+              },
+              {
+                "origin": "GRU",
+                "destination": "LHR",
+                "departure": "2026-12-25T23:40:00",
+                "arrival": "2026-12-26T14:05:00",
+                "flightCode": "LA8084",
+                "durationMin": 685
+              },
+              {
+                "origin": "LHR",
+                "destination": "MAD",
+                "departure": "2026-12-26T17:25:00",
+                "arrival": "2026-12-26T20:50:00",
+                "flightCode": "LA1584",
+                "durationMin": 145
+              }
+            ]
+          },
+          {
+            "brl": 7953.45,
+            "taxesBrl": null,
+            "stops": 2,
+            "durationMin": 1430,
+            "firstDep": "2026-12-25T18:20:00",
+            "finalArr": "2026-12-26T22:10:00",
+            "flights": ["LA4745", "LA8084", "LA1541"],
+            "route": "PET→GRU · GRU→LHR · LHR→MAD",
+            "connects": [
+              {
+                "hub": "GRU",
+                "min": 195,
+                "label": "3h15"
+              },
+              {
+                "hub": "LHR",
+                "min": 280,
+                "label": "4h40"
+              }
+            ],
+            "segments": [
+              {
+                "origin": "PET",
+                "destination": "GRU",
+                "departure": "2026-12-25T18:20:00",
+                "arrival": "2026-12-25T20:25:00",
+                "flightCode": "LA4745",
+                "durationMin": 125
+              },
+              {
+                "origin": "GRU",
+                "destination": "LHR",
+                "departure": "2026-12-25T23:40:00",
+                "arrival": "2026-12-26T14:05:00",
+                "flightCode": "LA8084",
+                "durationMin": 685
+              },
+              {
+                "origin": "LHR",
+                "destination": "MAD",
+                "departure": "2026-12-26T18:45:00",
+                "arrival": "2026-12-26T22:10:00",
+                "flightCode": "LA1541",
+                "durationMin": 145
+              }
+            ]
+          },
+          {
+            "brl": 17147.1,
+            "taxesBrl": null,
+            "stops": 2,
+            "durationMin": 1250,
+            "firstDep": "2026-12-25T18:20:00",
+            "finalArr": "2026-12-26T19:10:00",
+            "flights": ["LA4745", "LA8148", "LA1531"],
+            "route": "PET→GRU · GRU→LIS · LIS→MAD",
+            "connects": [
+              {
+                "hub": "GRU",
+                "min": 135,
+                "label": "2h15"
+              },
+              {
+                "hub": "LIS",
+                "min": 325,
+                "label": "5h25"
+              }
+            ],
+            "segments": [
+              {
+                "origin": "PET",
+                "destination": "GRU",
+                "departure": "2026-12-25T18:20:00",
+                "arrival": "2026-12-25T20:25:00",
+                "flightCode": "LA4745",
+                "durationMin": 125
+              },
+              {
+                "origin": "GRU",
+                "destination": "LIS",
+                "departure": "2026-12-25T22:40:00",
+                "arrival": "2026-12-26T11:20:00",
+                "flightCode": "LA8148",
+                "durationMin": 580
+              },
+              {
+                "origin": "LIS",
+                "destination": "MAD",
+                "departure": "2026-12-26T16:45:00",
+                "arrival": "2026-12-26T19:10:00",
+                "flightCode": "LA1531",
+                "durationMin": 85
+              }
+            ]
+          }
+        ]
+      },
+      "owOut": {
+        "status": "ok",
+        "total": 7,
+        "eveningPet": 7,
+        "best": {
+          "brl": 6718.84,
+          "taxesBrl": null,
+          "stops": 1,
+          "durationMin": 920,
+          "firstDep": "2026-12-25T18:20:00",
+          "finalArr": "2026-12-26T13:40:00",
+          "flights": ["LA4745", "LA8066"],
+          "route": "PET→GRU · GRU→MAD",
+          "connects": [
+            {
+              "hub": "GRU",
+              "min": 190,
+              "label": "3h10"
+            }
+          ],
+          "segments": [
+            {
+              "origin": "PET",
+              "destination": "GRU",
+              "departure": "2026-12-25T18:20:00",
+              "arrival": "2026-12-25T20:25:00",
+              "flightCode": "LA4745",
+              "durationMin": 125
+            },
+            {
+              "origin": "GRU",
+              "destination": "MAD",
+              "departure": "2026-12-25T23:35:00",
+              "arrival": "2026-12-26T13:40:00",
+              "flightCode": "LA8066",
+              "durationMin": 605
+            }
+          ]
+        },
+        "top": [
+          {
+            "brl": 6718.84,
+            "taxesBrl": null,
+            "stops": 1,
+            "durationMin": 920,
+            "firstDep": "2026-12-25T18:20:00",
+            "finalArr": "2026-12-26T13:40:00",
+            "flights": ["LA4745", "LA8066"],
+            "route": "PET→GRU · GRU→MAD",
+            "connects": [
+              {
+                "hub": "GRU",
+                "min": 190,
+                "label": "3h10"
+              }
+            ],
+            "segments": [
+              {
+                "origin": "PET",
+                "destination": "GRU",
+                "departure": "2026-12-25T18:20:00",
+                "arrival": "2026-12-25T20:25:00",
+                "flightCode": "LA4745",
+                "durationMin": 125
+              },
+              {
+                "origin": "GRU",
+                "destination": "MAD",
+                "departure": "2026-12-25T23:35:00",
+                "arrival": "2026-12-26T13:40:00",
+                "flightCode": "LA8066",
+                "durationMin": 605
+              }
+            ]
+          },
+          {
+            "brl": 7853.49,
+            "taxesBrl": null,
+            "stops": 2,
+            "durationMin": 2385,
+            "firstDep": "2026-12-25T18:20:00",
+            "finalArr": "2026-12-27T14:05:00",
+            "flights": ["LA4745", "LA715", "LA706"],
+            "route": "PET→GRU · GRU→SCL · SCL→MAD",
+            "connects": [
+              {
+                "hub": "GRU",
+                "min": 645,
+                "label": "10h45"
+              },
+              {
+                "hub": "SCL",
+                "min": 590,
+                "label": "9h50"
+              }
+            ],
+            "segments": [
+              {
+                "origin": "PET",
+                "destination": "GRU",
+                "departure": "2026-12-25T18:20:00",
+                "arrival": "2026-12-25T20:25:00",
+                "flightCode": "LA4745",
+                "durationMin": 125
+              },
+              {
+                "origin": "GRU",
+                "destination": "SCL",
+                "departure": "2026-12-26T07:10:00",
+                "arrival": "2026-12-26T11:15:00",
+                "flightCode": "LA715",
+                "durationMin": 245
+              },
+              {
+                "origin": "SCL",
+                "destination": "MAD",
+                "departure": "2026-12-26T21:05:00",
+                "arrival": "2026-12-27T14:05:00",
+                "flightCode": "LA706",
+                "durationMin": 780
+              }
+            ]
+          },
+          {
+            "brl": 7953.45,
+            "taxesBrl": null,
+            "stops": 2,
+            "durationMin": 1350,
+            "firstDep": "2026-12-25T18:20:00",
+            "finalArr": "2026-12-26T20:50:00",
+            "flights": ["LA4745", "LA8084", "LA1584"],
+            "route": "PET→GRU · GRU→LHR · LHR→MAD",
+            "connects": [
+              {
+                "hub": "GRU",
+                "min": 195,
+                "label": "3h15"
+              },
+              {
+                "hub": "LHR",
+                "min": 200,
+                "label": "3h20"
+              }
+            ],
+            "segments": [
+              {
+                "origin": "PET",
+                "destination": "GRU",
+                "departure": "2026-12-25T18:20:00",
+                "arrival": "2026-12-25T20:25:00",
+                "flightCode": "LA4745",
+                "durationMin": 125
+              },
+              {
+                "origin": "GRU",
+                "destination": "LHR",
+                "departure": "2026-12-25T23:40:00",
+                "arrival": "2026-12-26T14:05:00",
+                "flightCode": "LA8084",
+                "durationMin": 685
+              },
+              {
+                "origin": "LHR",
+                "destination": "MAD",
+                "departure": "2026-12-26T17:25:00",
+                "arrival": "2026-12-26T20:50:00",
+                "flightCode": "LA1584",
+                "durationMin": 145
+              }
+            ]
+          },
+          {
+            "brl": 7953.45,
+            "taxesBrl": null,
+            "stops": 2,
+            "durationMin": 1430,
+            "firstDep": "2026-12-25T18:20:00",
+            "finalArr": "2026-12-26T22:10:00",
+            "flights": ["LA4745", "LA8084", "LA1541"],
+            "route": "PET→GRU · GRU→LHR · LHR→MAD",
+            "connects": [
+              {
+                "hub": "GRU",
+                "min": 195,
+                "label": "3h15"
+              },
+              {
+                "hub": "LHR",
+                "min": 280,
+                "label": "4h40"
+              }
+            ],
+            "segments": [
+              {
+                "origin": "PET",
+                "destination": "GRU",
+                "departure": "2026-12-25T18:20:00",
+                "arrival": "2026-12-25T20:25:00",
+                "flightCode": "LA4745",
+                "durationMin": 125
+              },
+              {
+                "origin": "GRU",
+                "destination": "LHR",
+                "departure": "2026-12-25T23:40:00",
+                "arrival": "2026-12-26T14:05:00",
+                "flightCode": "LA8084",
+                "durationMin": 685
+              },
+              {
+                "origin": "LHR",
+                "destination": "MAD",
+                "departure": "2026-12-26T18:45:00",
+                "arrival": "2026-12-26T22:10:00",
+                "flightCode": "LA1541",
+                "durationMin": 145
+              }
+            ]
+          },
+          {
+            "brl": 17147.1,
+            "taxesBrl": null,
+            "stops": 2,
+            "durationMin": 1250,
+            "firstDep": "2026-12-25T18:20:00",
+            "finalArr": "2026-12-26T19:10:00",
+            "flights": ["LA4745", "LA8148", "LA1531"],
+            "route": "PET→GRU · GRU→LIS · LIS→MAD",
+            "connects": [
+              {
+                "hub": "GRU",
+                "min": 135,
+                "label": "2h15"
+              },
+              {
+                "hub": "LIS",
+                "min": 325,
+                "label": "5h25"
+              }
+            ],
+            "segments": [
+              {
+                "origin": "PET",
+                "destination": "GRU",
+                "departure": "2026-12-25T18:20:00",
+                "arrival": "2026-12-25T20:25:00",
+                "flightCode": "LA4745",
+                "durationMin": 125
+              },
+              {
+                "origin": "GRU",
+                "destination": "LIS",
+                "departure": "2026-12-25T22:40:00",
+                "arrival": "2026-12-26T11:20:00",
+                "flightCode": "LA8148",
+                "durationMin": 580
+              },
+              {
+                "origin": "LIS",
+                "destination": "MAD",
+                "departure": "2026-12-26T16:45:00",
+                "arrival": "2026-12-26T19:10:00",
+                "flightCode": "LA1531",
+                "durationMin": 85
+              }
+            ]
+          }
+        ]
+      },
+      "owIn": {
+        "status": "ok",
+        "total": 2,
+        "best": {
+          "brl": 8386.17,
+          "taxesBrl": null,
+          "stops": 1,
+          "durationMin": 1370,
+          "firstDep": "2027-01-05T22:45:00",
+          "finalArr": "2027-01-06T17:35:00",
+          "flights": ["LA8065", "LA4744"],
+          "route": "MAD→GRU · GRU→PET",
+          "connects": [
+            {
+              "hub": "GRU",
+              "min": 610,
+              "label": "10h10"
+            }
+          ],
+          "segments": [
+            {
+              "origin": "MAD",
+              "destination": "GRU",
+              "departure": "2027-01-05T22:45:00",
+              "arrival": "2027-01-06T05:20:00",
+              "flightCode": "LA8065",
+              "durationMin": 635
+            },
+            {
+              "origin": "GRU",
+              "destination": "PET",
+              "departure": "2027-01-06T15:30:00",
+              "arrival": "2027-01-06T17:35:00",
+              "flightCode": "LA4744",
+              "durationMin": 125
+            }
+          ]
+        },
+        "top": [
+          {
+            "brl": 8386.17,
+            "taxesBrl": null,
+            "stops": 1,
+            "durationMin": 1370,
+            "firstDep": "2027-01-05T22:45:00",
+            "finalArr": "2027-01-06T17:35:00",
+            "flights": ["LA8065", "LA4744"],
+            "route": "MAD→GRU · GRU→PET",
+            "connects": [
+              {
+                "hub": "GRU",
+                "min": 610,
+                "label": "10h10"
+              }
+            ],
+            "segments": [
+              {
+                "origin": "MAD",
+                "destination": "GRU",
+                "departure": "2027-01-05T22:45:00",
+                "arrival": "2027-01-06T05:20:00",
+                "flightCode": "LA8065",
+                "durationMin": 635
+              },
+              {
+                "origin": "GRU",
+                "destination": "PET",
+                "departure": "2027-01-06T15:30:00",
+                "arrival": "2027-01-06T17:35:00",
+                "flightCode": "LA4744",
+                "durationMin": 125
+              }
+            ]
+          },
+          {
+            "brl": 8386.17,
+            "taxesBrl": null,
+            "stops": 1,
+            "durationMin": 1300,
+            "firstDep": "2027-01-05T23:55:00",
+            "finalArr": "2027-01-06T17:35:00",
+            "flights": ["LA1572", "LA4744"],
+            "route": "MAD→GRU · GRU→PET",
+            "connects": [
+              {
+                "hub": "GRU",
+                "min": 505,
+                "label": "8h25"
+              }
+            ],
+            "segments": [
+              {
+                "origin": "MAD",
+                "destination": "GRU",
+                "departure": "2027-01-05T23:55:00",
+                "arrival": "2027-01-06T07:05:00",
+                "flightCode": "LA1572",
+                "durationMin": 670
+              },
+              {
+                "origin": "GRU",
+                "destination": "PET",
+                "departure": "2027-01-06T15:30:00",
+                "arrival": "2027-01-06T17:35:00",
+                "flightCode": "LA4744",
+                "durationMin": 125
+              }
+            ]
+          }
+        ],
+        "arrivesPetJan6": 2,
+        "bestPetJan6": {
+          "brl": 8386.17,
+          "taxesBrl": null,
+          "stops": 1,
+          "durationMin": 1370,
+          "firstDep": "2027-01-05T22:45:00",
+          "finalArr": "2027-01-06T17:35:00",
+          "flights": ["LA8065", "LA4744"],
+          "route": "MAD→GRU · GRU→PET",
+          "connects": [
+            {
+              "hub": "GRU",
+              "min": 610,
+              "label": "10h10"
+            }
+          ],
+          "segments": [
+            {
+              "origin": "MAD",
+              "destination": "GRU",
+              "departure": "2027-01-05T22:45:00",
+              "arrival": "2027-01-06T05:20:00",
+              "flightCode": "LA8065",
+              "durationMin": 635
+            },
+            {
+              "origin": "GRU",
+              "destination": "PET",
+              "departure": "2027-01-06T15:30:00",
+              "arrival": "2027-01-06T17:35:00",
+              "flightCode": "LA4744",
+              "durationMin": 125
+            }
+          ]
+        }
+      },
+      "owPlusOwBrl": 15105.01
+    }
+  ]
+}

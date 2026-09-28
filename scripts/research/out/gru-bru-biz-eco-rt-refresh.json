@@ -1,0 +1,115 @@
+{
+  "fetchedAt": "2026-09-24T12:53:17.994Z",
+  "ui": "Escolha um voo de volta",
+  "outbound": {
+    "flights": "LA8156",
+    "dep": "2026-12-26T18:00:00",
+    "arr": "2026-12-27T09:50:00",
+    "duration": 710,
+    "brands": [
+      {
+        "brand": "LIGHT",
+        "amount": 4517.61,
+        "cabin": "Y"
+      },
+      {
+        "brand": "STANDARD",
+        "amount": 4841.51,
+        "cabin": "Y"
+      },
+      {
+        "brand": "FULL",
+        "amount": 5273.39,
+        "cabin": "Y"
+      },
+      {
+        "brand": "PREMIUM BUSINESS STANDARD",
+        "amount": 9273.4,
+        "cabin": "J"
+      },
+      {
+        "brand": "PREMIUM BUSINESS FULL",
+        "amount": 10815.82,
+        "cabin": "J"
+      }
+    ],
+    "newPrices": [
+      {
+        "fare": 4447.31,
+        "taxes": 70.3,
+        "total": 4517.61
+      },
+      {
+        "fare": 4771.21,
+        "taxes": 70.3,
+        "total": 4841.51
+      },
+      {
+        "fare": 5203.09,
+        "taxes": 70.3,
+        "total": 5273.39
+      },
+      {
+        "fare": 9203.1,
+        "taxes": 70.3,
+        "total": 9273.4
+      },
+      {
+        "fare": 10745.52,
+        "taxes": 70.3,
+        "total": 10815.82
+      }
+    ]
+  },
+  "inbound": {
+    "flights": "LA8157",
+    "dep": "2027-01-03T12:05:00",
+    "arr": "2027-01-03T20:15:00",
+    "duration": 730,
+    "brands": [
+      {
+        "brand": "LIGHT",
+        "amount": 3968.47,
+        "cabin": "Y"
+      },
+      {
+        "brand": "STANDARD",
+        "amount": 4251.25,
+        "cabin": "Y"
+      },
+      {
+        "brand": "FULL",
+        "amount": 4611.15,
+        "cabin": "Y"
+      },
+      {
+        "brand": "PREMIUM BUSINESS FULL",
+        "amount": 12240.98,
+        "cabin": "J"
+      }
+    ],
+    "newPrices": [
+      {
+        "fare": 3706.95,
+        "taxes": 261.52,
+        "total": 3968.47
+      },
+      {
+        "fare": 3989.73,
+        "taxes": 261.52,
+        "total": 4251.25
+      },
+      {
+        "fare": 4349.63,
+        "taxes": 261.52,
+        "total": 4611.15
+      },
+      {
+        "fare": 11979.46,
+        "taxes": 261.52,
+        "total": 12240.98
+      }
+    ]
+  },
+  "inboundCount": 42
+}

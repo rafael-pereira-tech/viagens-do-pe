@@ -1,0 +1,459 @@
+{
+  "out": "2026-12-26",
+  "in": "2027-01-03",
+  "pax": "1 adt + 1 chd",
+  "results": [
+    {
+      "dest": "AMS",
+      "error": "no_biz_standard"
+    },
+    {
+      "dest": "CDG",
+      "error": "no_biz_standard"
+    },
+    {
+      "dest": "BRU",
+      "outboundChosen": {
+        "stops": 0,
+        "durationMin": 710,
+        "flights": "LA8156",
+        "route": "GRU→BRU",
+        "dep": "2026-12-26T18:00:00",
+        "arr": "2026-12-27T09:50:00",
+        "connects": [],
+        "brands": {
+          "LIGHT": {
+            "amount": 4072.54,
+            "offerId": "6054ab58f4d1d274d0deb06d9ad7f5d741c68eaa31752dcbbb4212a544b6e660",
+            "cabin": "Y",
+            "taxes": null
+          },
+          "STANDARD": {
+            "amount": 4361.36,
+            "offerId": "076c49ec42238f533655faaf81a227dd5e2bd89bf1789998d529d88e165bc958",
+            "cabin": "Y",
+            "taxes": null
+          },
+          "FULL": {
+            "amount": 4748.17,
+            "offerId": "cb4c03b50a2e8c13f8a7e7c5827c090014d7af8ebd5e8ea19c3f78b279ca875c",
+            "cabin": "Y",
+            "taxes": null
+          },
+          "PREMIUM BUSINESS STANDARD": {
+            "amount": 9302.24,
+            "offerId": "36a2e94d0a88064b2854945f4ce41dde06fe5f1cdf555ceab20efc28fc89030d",
+            "cabin": "J",
+            "taxes": null
+          },
+          "PREMIUM BUSINESS FULL": {
+            "amount": 10849.49,
+            "offerId": "485fb656e2c21e65f299148a8394e381d3dd882aaf7c37114ba58d918d6a6ff2",
+            "cabin": "J",
+            "taxes": null
+          }
+        },
+        "newPrices": [
+          {
+            "fare": 4002.22,
+            "taxes": 70.32,
+            "total": 4072.54
+          },
+          {
+            "fare": 4291.04,
+            "taxes": 70.32,
+            "total": 4361.36
+          },
+          {
+            "fare": 4677.85,
+            "taxes": 70.32,
+            "total": 4748.17
+          },
+          {
+            "fare": 9231.92,
+            "taxes": 70.32,
+            "total": 9302.24
+          },
+          {
+            "fare": 10779.17,
+            "taxes": 70.32,
+            "total": 10849.49
+          }
+        ]
+      },
+      "outboundOptions": [
+        {
+          "flights": "LA8156",
+          "route": "GRU→BRU",
+          "dep": "2026-12-26T18:00:00",
+          "arr": "2026-12-27T09:50:00",
+          "stops": 0,
+          "durationMin": 710,
+          "connects": [],
+          "bizStandard": 9302.24
+        }
+      ],
+      "inbound": [
+        {
+          "flights": "LA8157",
+          "route": "BRU→GRU",
+          "dep": "2027-01-03T12:05:00",
+          "arr": "2027-01-03T20:15:00",
+          "stops": 0,
+          "durationMin": 730,
+          "connects": [],
+          "ecoStandard": 4260.85,
+          "newPrices": [
+            {
+              "fare": 3713.4,
+              "taxes": 263.79,
+              "total": 3977.19
+            },
+            {
+              "fare": 3997.06,
+              "taxes": 263.79,
+              "total": 4260.85
+            },
+            {
+              "fare": 4358.09,
+              "taxes": 263.79,
+              "total": 4621.88
+            },
+            {
+              "fare": 12016.98,
+              "taxes": 263.79,
+              "total": 12280.77
+            }
+          ]
+        },
+        {
+          "flights": "LA5804+LA8115",
+          "route": "BRU→BCN · BCN→GRU",
+          "dep": "2027-01-03T21:55:00",
+          "arr": "2027-01-04T19:05:00",
+          "stops": 1,
+          "durationMin": 1510,
+          "connects": [
+            {
+              "hub": "BCN",
+              "min": 711
+            }
+          ],
+          "ecoStandard": 4650.16,
+          "newPrices": [
+            {
+              "fare": 3997.06,
+              "taxes": 343.65,
+              "total": 4340.71
+            },
+            {
+              "fare": 4306.51,
+              "taxes": 343.65,
+              "total": 4650.16
+            },
+            {
+              "fare": 4693.33,
+              "taxes": 343.65,
+              "total": 5036.98
+            },
+            {
+              "fare": 17226.05,
+              "taxes": 343.65,
+              "total": 17569.7
+            }
+          ]
+        },
+        {
+          "flights": "VY1083+LA8115",
+          "route": "BRU→BCN · BCN→GRU",
+          "dep": "2027-01-03T21:55:00",
+          "arr": "2027-01-04T19:05:00",
+          "stops": 1,
+          "durationMin": 1510,
+          "connects": [
+            {
+              "hub": "BCN",
+              "min": 711
+            }
+          ],
+          "ecoStandard": 4650.16,
+          "newPrices": [
+            {
+              "fare": 3997.06,
+              "taxes": 343.65,
+              "total": 4340.71
+            },
+            {
+              "fare": 4306.51,
+              "taxes": 343.65,
+              "total": 4650.16
+            },
+            {
+              "fare": 4693.33,
+              "taxes": 343.65,
+              "total": 5036.98
+            },
+            {
+              "fare": 17226.05,
+              "taxes": 343.65,
+              "total": 17569.7
+            }
+          ]
+        },
+        {
+          "flights": "SN2615+LA8071",
+          "route": "BRU→FRA · FRA→GRU",
+          "dep": "2027-01-03T17:05:00",
+          "arr": "2027-01-04T05:05:00",
+          "stops": 1,
+          "durationMin": 960,
+          "connects": [
+            {
+              "hub": "FRA",
+              "min": 150
+            }
+          ],
+          "ecoStandard": 4737.14,
+          "newPrices": [
+            {
+              "fare": 3997.06,
+              "taxes": 430.63,
+              "total": 4427.69
+            },
+            {
+              "fare": 4306.51,
+              "taxes": 430.63,
+              "total": 4737.14
+            },
+            {
+              "fare": 4693.33,
+              "taxes": 430.63,
+              "total": 5123.96
+            },
+            {
+              "fare": 14131.55,
+              "taxes": 430.63,
+              "total": 14562.18
+            }
+          ]
+        },
+        {
+          "flights": "SN2613+LA8071",
+          "route": "BRU→FRA · FRA→GRU",
+          "dep": "2027-01-03T14:25:00",
+          "arr": "2027-01-04T05:05:00",
+          "stops": 1,
+          "durationMin": 1120,
+          "connects": [
+            {
+              "hub": "FRA",
+              "min": 315
+            }
+          ],
+          "ecoStandard": 4737.14,
+          "newPrices": [
+            {
+              "fare": 3997.06,
+              "taxes": 430.63,
+              "total": 4427.69
+            },
+            {
+              "fare": 4306.51,
+              "taxes": 430.63,
+              "total": 4737.14
+            },
+            {
+              "fare": 4693.33,
+              "taxes": 430.63,
+              "total": 5123.96
+            },
+            {
+              "fare": 14131.55,
+              "taxes": 430.63,
+              "total": 14562.18
+            }
+          ]
+        },
+        {
+          "flights": "IB604+LA8075",
+          "route": "BRU→MAD · MAD→GRU",
+          "dep": "2027-01-03T07:00:00",
+          "arr": "2027-01-03T20:35:00",
+          "stops": 1,
+          "durationMin": 1055,
+          "connects": [
+            {
+              "hub": "MAD",
+              "min": 265
+            }
+          ],
+          "ecoStandard": 5143.65,
+          "newPrices": [
+            {
+              "fare": 4461.24,
+              "taxes": 357.49,
+              "total": 4818.73
+            },
+            {
+              "fare": 4786.16,
+              "taxes": 357.49,
+              "total": 5143.65
+            },
+            {
+              "fare": 5219.39,
+              "taxes": 357.49,
+              "total": 5576.88
+            },
+            {
+              "fare": 14131.55,
+              "taxes": 357.49,
+              "total": 14489.04
+            }
+          ]
+        },
+        {
+          "flights": "IB600+LA8065",
+          "route": "BRU→MAD · MAD→GRU",
+          "dep": "2027-01-03T15:30:00",
+          "arr": "2027-01-04T05:20:00",
+          "stops": 1,
+          "durationMin": 1070,
+          "connects": [
+            {
+              "hub": "MAD",
+              "min": 290
+            }
+          ],
+          "ecoStandard": 5143.65,
+          "newPrices": [
+            {
+              "fare": 4461.24,
+              "taxes": 357.49,
+              "total": 4818.73
+            },
+            {
+              "fare": 4786.16,
+              "taxes": 357.49,
+              "total": 5143.65
+            },
+            {
+              "fare": 5219.39,
+              "taxes": 357.49,
+              "total": 5576.88
+            }
+          ]
+        },
+        {
+          "flights": "SN3727+LA8065",
+          "route": "BRU→MAD · MAD→GRU",
+          "dep": "2027-01-03T14:15:00",
+          "arr": "2027-01-04T05:20:00",
+          "stops": 1,
+          "durationMin": 1145,
+          "connects": [
+            {
+              "hub": "MAD",
+              "min": 365
+            }
+          ],
+          "ecoStandard": 5143.65,
+          "newPrices": [
+            {
+              "fare": 4461.24,
+              "taxes": 357.49,
+              "total": 4818.73
+            },
+            {
+              "fare": 4786.16,
+              "taxes": 357.49,
+              "total": 5143.65
+            },
+            {
+              "fare": 5219.39,
+              "taxes": 357.49,
+              "total": 5576.88
+            }
+          ]
+        }
+      ],
+      "altInbound": []
+    },
+    {
+      "dest": "FRA",
+      "error": "no_inbound",
+      "outbound": {
+        "stops": 1,
+        "durationMin": 1220,
+        "flights": "LA8156+SN2615",
+        "route": "GRU→BRU · BRU→FRA",
+        "dep": "2026-12-26T18:00:00",
+        "arr": "2026-12-27T18:20:00",
+        "connects": [
+          {
+            "hub": "BRU",
+            "min": 435
+          }
+        ],
+        "brands": {
+          "LIGHT": {
+            "amount": 4590.7,
+            "offerId": "2e68d352915089f29c3fed50beca41516b3e34e65726d45ac5a59711ef1729c4",
+            "cabin": "Y",
+            "taxes": null
+          },
+          "STANDARD": {
+            "amount": 5029.09,
+            "offerId": "956089112fb254ec359a14ac4a9960ad271970bd8faaa1b90c34b6a027abe5e5",
+            "cabin": "Y",
+            "taxes": null
+          },
+          "FULL": {
+            "amount": 6566.02,
+            "offerId": "b62ce5ee630cad59c9422375be1f276b59572e449185842ebc0b2caf222704a5",
+            "cabin": "Y",
+            "taxes": null
+          },
+          "PREMIUM BUSINESS STANDARD": {
+            "amount": 9877.14,
+            "offerId": "bdf0f606e7e9d799e44a439efcba33236c1a55ed982ab056ab43c2d637476404",
+            "cabin": "J",
+            "taxes": null
+          },
+          "PREMIUM BUSINESS FULL": {
+            "amount": 11424.39,
+            "offerId": "52fa6acb750b7924f3d43109a0dff9ec2b5124d2a0aa7a6d32bdf226e4506188",
+            "cabin": "J",
+            "taxes": null
+          }
+        },
+        "newPrices": [
+          {
+            "fare": 4383.87,
+            "taxes": 206.83,
+            "total": 4590.7
+          },
+          {
+            "fare": 4822.26,
+            "taxes": 206.83,
+            "total": 5029.09
+          },
+          {
+            "fare": 6359.19,
+            "taxes": 206.83,
+            "total": 6566.02
+          },
+          {
+            "fare": 9670.31,
+            "taxes": 206.83,
+            "total": 9877.14
+          },
+          {
+            "fare": 11217.56,
+            "taxes": 206.83,
+            "total": 11424.39
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,94 @@
+{
+  "outDate": "2026-12-25",
+  "inDate": "2027-01-05",
+  "results": [
+    {
+      "dest": "FRA",
+      "modality": "cash",
+      "status": "ok",
+      "outbound": {
+        "flights": "LA4745+LA8070",
+        "route": "PET→GRU · GRU→FRA",
+        "connectMin": 165,
+        "brl": 5439.78,
+        "miles": null,
+        "taxesBrl": null,
+        "brand": "LIGHT",
+        "dep": "2026-12-25T18:20:00",
+        "arr": "2026-12-26T14:55:00"
+      },
+      "inbound": {
+        "flights": "LA8071+LA4744",
+        "route": "FRA→GRU · GRU→PET",
+        "connects": [
+          {
+            "hub": "GRU",
+            "min": 625
+          }
+        ],
+        "brl": 4651.79,
+        "miles": null,
+        "taxesBrl": null,
+        "brand": "LIGHT",
+        "dep": "2027-01-05T20:50:00",
+        "arr": "2027-01-06T17:35:00",
+        "rtBrl": 4651.79,
+        "rtMiles": null
+      },
+      "inboundMatched": 1,
+      "inboundTotal": 3,
+      "note": "strict PET 06/01"
+    },
+    {
+      "dest": "FRA",
+      "modality": "miles",
+      "status": "outbound_failed",
+      "outbound": null,
+      "inbound": null
+    },
+    {
+      "dest": "LHR",
+      "modality": "cash",
+      "status": "ok",
+      "outbound": {
+        "flights": "LA4745+LA8084",
+        "route": "PET→GRU · GRU→LHR",
+        "connectMin": 195,
+        "brl": 5615.13,
+        "miles": null,
+        "taxesBrl": null,
+        "brand": "LIGHT",
+        "dep": "2026-12-25T18:20:00",
+        "arr": "2026-12-26T14:05:00"
+      },
+      "inbound": {
+        "flights": "LA8085+LA4744",
+        "route": "LHR→GRU · GRU→PET",
+        "connects": [
+          {
+            "hub": "GRU",
+            "min": 630
+          }
+        ],
+        "brl": 4759.58,
+        "miles": null,
+        "taxesBrl": null,
+        "brand": "LIGHT",
+        "dep": "2027-01-05T20:15:00",
+        "arr": "2027-01-06T17:35:00",
+        "rtBrl": 4759.58,
+        "rtMiles": null
+      },
+      "inboundMatched": 1,
+      "inboundTotal": 6,
+      "note": "strict PET 06/01"
+    },
+    {
+      "dest": "LHR",
+      "modality": "miles",
+      "status": "outbound_failed",
+      "outbound": null,
+      "inbound": null
+    }
+  ]
+}

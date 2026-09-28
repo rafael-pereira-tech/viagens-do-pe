@@ -33,6 +33,15 @@ scripts/discover/out/
 # Batch collector output (generated snapshot data + SQL to load into prod)
 scripts/collect/out/
 
+# Research run logs (JSON results next to them are versioned)
+scripts/research/out/*.log
+
+# Supabase CLI local state
+supabase/.temp/
+
+# Claude Design exports (the unzipped handoff lives in docs/design/)
+handoff/*.zip
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

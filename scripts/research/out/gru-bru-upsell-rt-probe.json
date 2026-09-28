@@ -1,0 +1,182 @@
+{
+  "pathContinueFull": {
+    "pathName": "continuar-full",
+    "upsell": {
+      "has": true,
+      "current": "Escolher a tarifa Full e passa para o voo seguinte Continuar com a Full",
+      "next": "Escolher a tarifa Full e passa para o voo seguinte Fazer upgrade a Premium",
+      "close": "premium-upsell-LLESL00E--dialog"
+    },
+    "ui": {
+      "line": "Escolha um voo de volta",
+      "stillUpsell": false
+    },
+    "events": [
+      {
+        "status": 200,
+        "out": "5a9dd17e854b5cc162ab1f83e34181005fb10dc51fd46d1c2fcff48d5f0cd8c7",
+        "n": 44
+      }
+    ],
+    "inbound": {
+      "status": 200,
+      "outOfferId": "5a9dd17e854b5cc162ab1f83e34181005fb10dc51fd46d1c2fcff48d5f0cd8c7",
+      "n": 44
+    },
+    "ecoTop": [
+      {
+        "brand": "LIGHT",
+        "amount": 3977.19,
+        "stops": 0,
+        "duration": 730,
+        "flights": "LA8157",
+        "route": "BRU→GRU",
+        "dep": "2027-01-03T12:05:00",
+        "arr": "2027-01-03T20:15:00"
+      },
+      {
+        "brand": "STANDARD",
+        "amount": 4266.01,
+        "stops": 0,
+        "duration": 730,
+        "flights": "LA8157",
+        "route": "BRU→GRU",
+        "dep": "2027-01-03T12:05:00",
+        "arr": "2027-01-03T20:15:00"
+      },
+      {
+        "brand": "FULL",
+        "amount": 4627.03,
+        "stops": 0,
+        "duration": 730,
+        "flights": "LA8157",
+        "route": "BRU→GRU",
+        "dep": "2027-01-03T12:05:00",
+        "arr": "2027-01-03T20:15:00"
+      },
+      {
+        "brand": "LIGHT",
+        "amount": 4340.71,
+        "stops": 1,
+        "duration": 1510,
+        "flights": "LA5804+LA8115",
+        "route": "BRU→BCN · BCN→GRU",
+        "dep": "2027-01-03T21:55:00",
+        "arr": "2027-01-04T19:05:00"
+      },
+      {
+        "brand": "STANDARD",
+        "amount": 4650.16,
+        "stops": 1,
+        "duration": 1510,
+        "flights": "LA5804+LA8115",
+        "route": "BRU→BCN · BCN→GRU",
+        "dep": "2027-01-03T21:55:00",
+        "arr": "2027-01-04T19:05:00"
+      }
+    ],
+    "pick": {
+      "brand": "LIGHT",
+      "amount": 3977.19,
+      "stops": 0,
+      "duration": 730,
+      "flights": "LA8157",
+      "route": "BRU→GRU",
+      "dep": "2027-01-03T12:05:00",
+      "arr": "2027-01-03T20:15:00"
+    }
+  },
+  "pathUpgradePremium": {
+    "pathName": "upgrade-premium",
+    "upsell": {
+      "has": true,
+      "current": "Escolher a tarifa Full e passa para o voo seguinte Continuar com a Full",
+      "next": "Escolher a tarifa Full e passa para o voo seguinte Fazer upgrade a Premium",
+      "close": "premium-upsell-LLESL00E--dialog"
+    },
+    "ui": {
+      "line": "Escolha um voo de volta",
+      "stillUpsell": false
+    },
+    "events": [],
+    "inbound": null,
+    "ecoTop": [],
+    "pick": null
+  },
+  "pathContinueStandard": {
+    "pathName": "continuar-standard",
+    "upsell": {
+      "has": false
+    },
+    "ui": {
+      "line": "Escolha um voo de volta"
+    },
+    "inbound": {
+      "status": 200,
+      "outOfferId": "2badef94120f3afdedb1a36102daab862cb45f777d93f7e8be3bfd060f599662",
+      "n": 44
+    },
+    "ecoTop": [
+      {
+        "brand": "LIGHT",
+        "amount": 3977.19,
+        "stops": 0,
+        "duration": 730,
+        "flights": "LA8157",
+        "route": "BRU→GRU",
+        "dep": "2027-01-03T12:05:00",
+        "arr": "2027-01-03T20:15:00"
+      },
+      {
+        "brand": "STANDARD",
+        "amount": 4266.01,
+        "stops": 0,
+        "duration": 730,
+        "flights": "LA8157",
+        "route": "BRU→GRU",
+        "dep": "2027-01-03T12:05:00",
+        "arr": "2027-01-03T20:15:00"
+      },
+      {
+        "brand": "FULL",
+        "amount": 4627.03,
+        "stops": 0,
+        "duration": 730,
+        "flights": "LA8157",
+        "route": "BRU→GRU",
+        "dep": "2027-01-03T12:05:00",
+        "arr": "2027-01-03T20:15:00"
+      },
+      {
+        "brand": "LIGHT",
+        "amount": 4340.71,
+        "stops": 1,
+        "duration": 1510,
+        "flights": "LA5804+LA8115",
+        "route": "BRU→BCN · BCN→GRU",
+        "dep": "2027-01-03T21:55:00",
+        "arr": "2027-01-04T19:05:00"
+      },
+      {
+        "brand": "STANDARD",
+        "amount": 4650.16,
+        "stops": 1,
+        "duration": 1510,
+        "flights": "LA5804+LA8115",
+        "route": "BRU→BCN · BCN→GRU",
+        "dep": "2027-01-03T21:55:00",
+        "arr": "2027-01-04T19:05:00"
+      }
+    ],
+    "pick": {
+      "brand": "LIGHT",
+      "amount": 3977.19,
+      "stops": 0,
+      "duration": 730,
+      "flights": "LA8157",
+      "route": "BRU→GRU",
+      "dep": "2027-01-03T12:05:00",
+      "arr": "2027-01-03T20:15:00"
+    }
+  }
+}

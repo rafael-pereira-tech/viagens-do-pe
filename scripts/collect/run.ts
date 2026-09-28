@@ -26,6 +26,8 @@ import { mkdir, readFile, appendFile, writeFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import { iproyalProxy, scrub } from './iproyal.ts';
+import { TrafficMeter } from './traffic.ts';
 import {
   parseLatamCash,
   parseLatamMiles,
@@ -123,8 +125,13 @@ function parseArgs() {
     : 'outbound') as 'outbound' | 'reverse' | 'both';
   // --cdp=URL tries connectOverCDP first; omit (or --no-cdp) to launch Chrome directly.
   const cdpRaw = get('cdp', '');
+  // Skip LATAM Pass / TudoAzul searches. Smiles cash and miles share one response.
+  const cashOnly = argv.includes('--cash-only');
+  const profile = get('profile');
   return {
     cdpUrl: argv.includes('--no-cdp') ? '' : cdpRaw,
+    cashOnly,
+    profile,
     origin,
     from,
     to,
@@ -333,7 +340,7 @@ interface OpenedBrowser {
  * Browser.setDownloadBehavior on connectOverCDP. Fall back to launching the
  * installed Chrome channel with automation flags stripped (navigator.webdriver=false).
  */
-async function openBrowser(cdpUrl: string, log: (m: string) => void): Promise<OpenedBrowser> {
+async function openBrowser(cdpUrl: string, profile: string, log: (m: string) => void): Promise<OpenedBrowser> {
   if (cdpUrl) {
     let lastErr: unknown;
     for (let attempt = 1; attempt <= 2; attempt++) {
@@ -352,26 +359,36 @@ async function openBrowser(cdpUrl: string, log: (m: string) => void): Promise<Op
     log(`browser: CDP unavailable (${(lastErr as Error).message?.split('\n')[0] ?? 'error'}) — falling back to persistent Chrome`);
   }
 
-  const userDataDir = path.join(os.homedir(), '.cache', 'chrome-pw-vdp');
+  const userDataDir = profile || path.join(os.homedir(), '.cache', 'chrome-pw-vdp');
+  const proxy = iproyalProxy();
   const context = await chromium.launchPersistentContext(userDataDir, {
     channel: 'chrome',
     headless: false,
     ignoreDefaultArgs: ['--enable-automation'],
-    args: ['--disable-blink-features=AutomationControlled'],
+    args: ['--disable-blink-features=AutomationControlled', ...(proxy ? ['--disable-http2'] : [])],
     locale: 'pt-BR',
     timezoneId: 'America/Sao_Paulo',
     viewport: { width: 1280, height: 900 },
+    ...(proxy ? { proxy } : {}),
   });
   const page = context.pages()[0] ?? (await context.newPage());
   const wd = await page.evaluate(() => (navigator as { webdriver?: boolean }).webdriver);
-  log(`browser: persistent Chrome (webdriver=${wd ?? false})`);
+  log(`browser: persistent Chrome (webdriver=${wd ?? false}${proxy ? ', iproyal' : ''})`);
   return { context, page, owned: true };
 }
 
 async function main(): Promise<void> {
   const args = parseArgs();
   const label = args.from === args.to ? args.from : `${args.from}_to_${args.to}`;
-  const outDir = path.join('scripts', 'collect', 'out', label);
+  // One source per process gets its own folder so parallel sweeps don't share progress.json.
+  const outDir = path.join(
+    'scripts',
+    'collect',
+    'out',
+    label,
+    ...(args.sources.length === 1 ? [args.sources[0]] : []),
+    ...(process.env.IPROYAL_USER ? ['iproyal'] : []),
+  );
   await mkdir(outDir, { recursive: true });
   const jsonlPath = path.join(outDir, 'snapshots.jsonl');
   const sqlPath = path.join(outDir, 'snapshots.sql');
@@ -426,7 +443,9 @@ async function main(): Promise<void> {
         if (source === 'azul' || source === 'latam') {
           // Cash + miles/points as separate searches (LATAM needs login for points).
           tasks.push({ source, modality: 'cash', origin, destination, date });
-          tasks.push({ source, modality: 'points', origin, destination, date });
+          if (!args.cashOnly) {
+            tasks.push({ source, modality: 'points', origin, destination, date });
+          }
         } else {
           tasks.push({
             source,
@@ -441,7 +460,18 @@ async function main(): Promise<void> {
   }
   log(`queue: ${tasks.length} searches`);
 
-  const { context, page, owned } = await openBrowser(args.cdpUrl, log);
+  const { context, page, owned } = await openBrowser(args.cdpUrl, args.profile, log);
+  const traffic = new TrafficMeter();
+  traffic.attach(page);
+  let exitIp = '';
+  if (process.env.IPROYAL_USER) {
+    exitIp = await page
+      .goto('https://api.ipify.org', { waitUntil: 'domcontentloaded', timeout: 30000 })
+      .then(() => page.locator('body').innerText())
+      .catch((e) => scrub(String(e)));
+    log(`exitIp=${exitIp.trim().slice(0, 64)}`);
+    traffic.take();
+  }
 
   // Single response listener; `active` is swapped per search.
   const active: { match: RegExp | null; body: unknown } = { match: null, body: null };
@@ -469,7 +499,10 @@ async function main(): Promise<void> {
   };
 
   let warmed: string | null = null;
-  const totals = { searches: 0, rows: 0, empty: 0, failed: 0 };
+  const t0 = Date.now();
+  const totals = { searches: 0, rows: 0, empty: 0, failed: 0, blocked: 0, bytesIn: 0, bytesOut: 0 };
+  const runs: Array<Record<string, unknown>> = [];
+  let stopped = '';
 
   for (const task of tasks) {
     // Route is part of the key so both directions are tracked independently.
@@ -491,22 +524,42 @@ async function main(): Promise<void> {
     active.match = cfg.match;
     active.body = null;
     log(`search ${key} -> ${task.origin}->${task.destination}`);
+    traffic.take();
+    const started = Date.now();
 
     const attempts = cfg.needsReloadRetry ? 3 : 1;
     let ok = false;
+    let navNote = '';
     for (let attempt = 1; attempt <= attempts && !ok; attempt++) {
       if (attempt === 1) {
-        await page.goto(deep, { waitUntil: 'domcontentloaded', timeout: 60000 }).catch(() => {});
+        await page.goto(deep, { waitUntil: 'domcontentloaded', timeout: 60000 }).catch((e) => {
+          navNote = scrub(String(e));
+        });
       } else {
         await sleep(2000);
-        await page.reload({ waitUntil: 'domcontentloaded', timeout: 60000 }).catch(() => {});
+        await page.reload({ waitUntil: 'domcontentloaded', timeout: 60000 }).catch((e) => {
+          navNote = scrub(String(e));
+        });
+      }
+      const title = await page.title().catch(() => '');
+      if (/access denied/i.test(title) || /ERR_HTTP2_PROTOCOL_ERROR|Access Denied/i.test(navNote)) {
+        navNote = navNote || 'Access Denied';
+        break;
       }
       await acceptCookies(page);
       ok = await waitForBody(args.captureMs);
     }
 
+    const bytes = traffic.take();
+    totals.bytesIn += bytes.bytesIn;
+    totals.bytesOut += bytes.bytesOut;
     totals.searches++;
-    if (!ok || !active.body) {
+    const blocked = /access denied/i.test(navNote) || /ERR_HTTP2_PROTOCOL_ERROR/i.test(navNote);
+    let rowCount = 0;
+    if (blocked) {
+      totals.blocked++;
+      log(`  stop ${key}: ${navNote}`);
+    } else if (!ok || !active.body) {
       // Do NOT mark done: a future resume run should re-attempt captures that failed.
       totals.failed++;
       log(`  no data captured for ${key} (will retry on resume)`);
@@ -536,6 +589,7 @@ async function main(): Promise<void> {
           await appendFile(sqlPath, rowsToSql(group, sid, collectedAt));
         }
         totals.rows += rows.length;
+        rowCount = rows.length;
         const sample = rows[0];
         log(
           `  ${rows.length} rows (e.g. ${sample.airline}/${sample.program} ${sample.flightCode ?? ''} ` +
@@ -547,12 +601,40 @@ async function main(): Promise<void> {
       await writeFile(progressPath, JSON.stringify([...done], null, 0));
     }
 
+    runs.push({
+      key,
+      date: task.date,
+      ms: Date.now() - started,
+      bytesIn: bytes.bytesIn,
+      bytesOut: bytes.bytesOut,
+      ok: ok && !blocked,
+      blocked,
+      rows: rowCount,
+      note: navNote || null,
+    });
+    if (blocked) {
+      stopped = key;
+      break;
+    }
+
     // Behave like a human before the next search. Per-source think-time wins,
     // unless the CLI passed --min/max-wait explicitly.
     const minW = args.waitExplicit ? args.minWaitMs : cfg.minWaitMs ?? args.minWaitMs;
     const maxW = args.waitExplicit ? args.maxWaitMs : cfg.maxWaitMs ?? args.maxWaitMs;
     await humanPause(page, minW, maxW);
   }
+
+  const searches = totals.searches;
+  const stats = {
+    exitIp: exitIp.trim(),
+    stopped: stopped || null,
+    totalMs: Date.now() - t0,
+    ...totals,
+    successRate: searches ? Math.round(((searches - totals.failed - totals.blocked) / searches) * 10000) / 10000 : null,
+    errorRate: searches ? Math.round(((totals.failed + totals.blocked) / searches) * 10000) / 10000 : null,
+    runs,
+  };
+  await writeFile(path.join(outDir, 'stats.json'), JSON.stringify(stats, null, 2));
 
   if (owned) {
     await context.close().catch(() => {});
@@ -566,6 +648,6 @@ async function main(): Promise<void> {
 }
 
 main().catch((err) => {
-  console.error('[collect] fatal', err);
+  console.error('[collect] fatal', scrub(String(err)));
   process.exit(1);
 });

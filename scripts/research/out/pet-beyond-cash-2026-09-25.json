@@ -1,0 +1,307 @@
+{
+  "date": "2026-09-25",
+  "origin": "PET",
+  "petDepWindow": ["18:00", "20:30"],
+  "results": [
+    {
+      "iata": "SCL",
+      "name": "Santiago",
+      "kind": "intl",
+      "status": "ok",
+      "offersTotal": 6,
+      "eveningConnecting": 6,
+      "bestEvening": {
+        "dep": "19:10:00",
+        "flight": "LA3251",
+        "stops": 2,
+        "brl": 1908.95
+      },
+      "bestAny": {
+        "dep": "19:10:00",
+        "flight": "LA3251",
+        "stops": 2,
+        "brl": 1908.95
+      }
+    },
+    {
+      "iata": "MIA",
+      "name": "Miami",
+      "kind": "intl",
+      "status": "ok",
+      "offersTotal": 7,
+      "eveningConnecting": 7,
+      "bestEvening": {
+        "dep": "19:10:00",
+        "flight": "LA3251",
+        "stops": 1,
+        "brl": 5840.14
+      },
+      "bestAny": {
+        "dep": "19:10:00",
+        "flight": "LA3251",
+        "stops": 1,
+        "brl": 5840.14
+      }
+    },
+    {
+      "iata": "FRA",
+      "name": "Frankfurt",
+      "kind": "intl",
+      "status": "ok",
+      "offersTotal": 5,
+      "eveningConnecting": 5,
+      "bestEvening": {
+        "dep": "19:10:00",
+        "flight": "LA3251",
+        "stops": 1,
+        "brl": 5439.78
+      },
+      "bestAny": {
+        "dep": "19:10:00",
+        "flight": "LA3251",
+        "stops": 1,
+        "brl": 5439.78
+      }
+    },
+    {
+      "iata": "BOG",
+      "name": "Bogotá",
+      "kind": "intl",
+      "status": "ok",
+      "offersTotal": 7,
+      "eveningConnecting": 7,
+      "bestEvening": {
+        "dep": "19:10:00",
+        "flight": "LA3251",
+        "stops": 1,
+        "brl": 1994.56
+      },
+      "bestAny": {
+        "dep": "19:10:00",
+        "flight": "LA3251",
+        "stops": 1,
+        "brl": 1994.56
+      }
+    },
+    {
+      "iata": "LHR",
+      "name": "London Heathrow",
+      "kind": "intl",
+      "status": "ok",
+      "offersTotal": 6,
+      "eveningConnecting": 6,
+      "bestEvening": {
+        "dep": "19:10:00",
+        "flight": "LA3251",
+        "stops": 1,
+        "brl": 4279.34
+      },
+      "bestAny": {
+        "dep": "19:10:00",
+        "flight": "LA3251",
+        "stops": 1,
+        "brl": 4279.34
+      }
+    },
+    {
+      "iata": "GIG",
+      "name": "Rio de Janeiro",
+      "kind": "domestic",
+      "status": "ok",
+      "offersTotal": 7,
+      "eveningConnecting": 7,
+      "bestEvening": {
+        "dep": "19:10:00",
+        "flight": "LA3251",
+        "stops": 2,
+        "brl": 3151.53
+      },
+      "bestAny": {
+        "dep": "19:10:00",
+        "flight": "LA3251",
+        "stops": 2,
+        "brl": 3151.53
+      }
+    },
+    {
+      "iata": "BSB",
+      "name": "Brasília",
+      "kind": "domestic",
+      "status": "ok",
+      "offersTotal": 7,
+      "eveningConnecting": 7,
+      "bestEvening": {
+        "dep": "19:10:00",
+        "flight": "LA3251",
+        "stops": 1,
+        "brl": 1785.53
+      },
+      "bestAny": {
+        "dep": "19:10:00",
+        "flight": "LA3251",
+        "stops": 1,
+        "brl": 1785.53
+      }
+    },
+    {
+      "iata": "CNF",
+      "name": "Belo Horizonte",
+      "kind": "domestic",
+      "status": "ok",
+      "offersTotal": 7,
+      "eveningConnecting": 7,
+      "bestEvening": {
+        "dep": "19:10:00",
+        "flight": "LA3251",
+        "stops": 2,
+        "brl": 1797.53
+      },
+      "bestAny": {
+        "dep": "19:10:00",
+        "flight": "LA3251",
+        "stops": 2,
+        "brl": 1797.53
+      }
+    },
+    {
+      "iata": "FOR",
+      "name": "Fortaleza",
+      "kind": "domestic",
+      "status": "ok",
+      "offersTotal": 7,
+      "eveningConnecting": 7,
+      "bestEvening": {
+        "dep": "19:10:00",
+        "flight": "LA3251",
+        "stops": 1,
+        "brl": 1963.53
+      },
+      "bestAny": {
+        "dep": "19:10:00",
+        "flight": "LA3251",
+        "stops": 1,
+        "brl": 1963.53
+      }
+    },
+    {
+      "iata": "SSA",
+      "name": "Salvador",
+      "kind": "domestic",
+      "status": "ok",
+      "offersTotal": 5,
+      "eveningConnecting": 5,
+      "bestEvening": {
+        "dep": "19:10:00",
+        "flight": "LA3251",
+        "stops": 1,
+        "brl": 3084.53
+      },
+      "bestAny": {
+        "dep": "19:10:00",
+        "flight": "LA3251",
+        "stops": 1,
+        "brl": 3084.53
+      }
+    },
+    {
+      "iata": "MAO",
+      "name": "Manaus",
+      "kind": "domestic",
+      "status": "ok",
+      "offersTotal": 7,
+      "eveningConnecting": 7,
+      "bestEvening": {
+        "dep": "19:10:00",
+        "flight": "LA3251",
+        "stops": 1,
+        "brl": 2791.53
+      },
+      "bestAny": {
+        "dep": "19:10:00",
+        "flight": "LA3251",
+        "stops": 1,
+        "brl": 2791.53
+      }
+    },
+    {
+      "iata": "BEL",
+      "name": "Belém",
+      "kind": "domestic",
+      "status": "ok",
+      "offersTotal": 7,
+      "eveningConnecting": 7,
+      "bestEvening": {
+        "dep": "19:10:00",
+        "flight": "LA3251",
+        "stops": 1,
+        "brl": 1863.53
+      },
+      "bestAny": {
+        "dep": "19:10:00",
+        "flight": "LA3251",
+        "stops": 1,
+        "brl": 1863.53
+      }
+    },
+    {
+      "iata": "POA",
+      "name": "Porto Alegre",
+      "kind": "domestic",
+      "status": "ok",
+      "offersTotal": 7,
+      "eveningConnecting": 7,
+      "bestEvening": {
+        "dep": "19:10:00",
+        "flight": "LA3251",
+        "stops": 1,
+        "brl": 2093.53
+      },
+      "bestAny": {
+        "dep": "19:10:00",
+        "flight": "LA3251",
+        "stops": 1,
+        "brl": 2093.53
+      }
+    },
+    {
+      "iata": "CWB",
+      "name": "Curitiba",
+      "kind": "domestic",
+      "status": "ok",
+      "offersTotal": 7,
+      "eveningConnecting": 7,
+      "bestEvening": {
+        "dep": "19:10:00",
+        "flight": "LA3251",
+        "stops": 1,
+        "brl": 1797.53
+      },
+      "bestAny": {
+        "dep": "19:10:00",
+        "flight": "LA3251",
+        "stops": 1,
+        "brl": 1797.53
+      }
+    },
+    {
+      "iata": "GYN",
+      "name": "Goiânia",
+      "kind": "domestic",
+      "status": "ok",
+      "offersTotal": 7,
+      "eveningConnecting": 7,
+      "bestEvening": {
+        "dep": "19:10:00",
+        "flight": "LA3251",
+        "stops": 1,
+        "brl": 2978.53
+      },
+      "bestAny": {
+        "dep": "19:10:00",
+        "flight": "LA3251",
+        "stops": 1,
+        "brl": 2978.53
+      }
+    }
+  ]
+}

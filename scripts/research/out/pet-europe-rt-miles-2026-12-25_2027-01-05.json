@@ -1,0 +1,46 @@
+{
+  "outDate": "2026-12-25",
+  "inDate": "2027-01-05",
+  "modality": "miles",
+  "cashCompanion": "pet-europe-rt-true-2026-12-25_2027-01-05.json",
+  "results": [
+    {
+      "dest": "FRA",
+      "status": "ok",
+      "outbound": {
+        "flights": "LA4745+LA8070",
+        "route": "PET→GRU · GRU→FRA",
+        "connectMin": 165,
+        "miles": 184810,
+        "taxesBrl": 117.24
+      },
+      "inbound": {
+        "flights": "LA8071+LA4744",
+        "route": "FRA→GRU · GRU→PET",
+        "connectMin": 625,
+        "miles": 136459,
+        "taxesBrl": 721.78,
+        "arr": "2027-01-06T17:35:00"
+      }
+    },
+    {
+      "dest": "LHR",
+      "status": "ok",
+      "outbound": {
+        "flights": "LA4745+LA8084",
+        "route": "PET→GRU · GRU→LHR",
+        "connectMin": 195,
+        "miles": 190899,
+        "taxesBrl": 117.24
+      },
+      "inbound": {
+        "flights": "LA8085+LA4744",
+        "route": "LHR→GRU · GRU→PET",
+        "connectMin": 630,
+        "miles": 126609,
+        "taxesBrl": 1113.23,
+        "arr": "2027-01-06T17:35:00"
+      }
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "mode": "RT (not OW+OW)",
+  "dates": {
+    "out": "2026-12-26",
+    "in": "2027-01-03"
+  },
+  "available": false,
+  "outbound": {
+    "brand": "PREMIUM BUSINESS STANDARD",
+    "amount": 9302.24,
+    "offerId": "40acdaed355b92ae43ae1a9ec69caff3080fd9f8f582f2bc2d92b0cfe58e8396",
+    "stops": 0,
+    "duration": 710,
+    "flights": "LA8156",
+    "route": "GRU→BRU",
+    "dep": "2026-12-26T18:00:00",
+    "arr": "2026-12-27T09:50:00"
+  },
+  "inboundProbe": {
+    "status": 200,
+    "n": 0
+  },
+  "inboundEco": [],
+  "pick": null,
+  "note": "LATAM BFF returns 0 inbound offers when outbound is Premium Business — RT Biz+Eco not bookable",
+  "nativeUi": {
+    "ui": {
+      "line": "Escolha um voo de ida"
+    },
+    "nativeInbound": null
+  }
+}

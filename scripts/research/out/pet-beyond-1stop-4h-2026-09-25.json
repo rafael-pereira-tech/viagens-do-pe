@@ -1,0 +1,296 @@
+{
+  "date": "2026-09-25",
+  "filters": {
+    "stops": 1,
+    "hub": "GRU",
+    "maxConnectMin": 240,
+    "petDep": ["18:00", "20:30"]
+  },
+  "results": [
+    {
+      "iata": "SCL",
+      "name": "Santiago",
+      "kind": "intl",
+      "status": "ok",
+      "offersTotal": 6,
+      "matched": 1,
+      "best": {
+        "brl": 1489.13,
+        "durationMin": 520,
+        "connectMin": 140,
+        "petDep": "2026-09-25T19:10:00",
+        "gruArr": "2026-09-25T21:10:00",
+        "gruDep": "2026-09-25T23:30:00",
+        "finalArr": "2026-09-26T03:50:00",
+        "flights": ["LA3251", "LA610"],
+        "route": "PET→GRU · GRU→SCL"
+      }
+    },
+    {
+      "iata": "MIA",
+      "name": "Miami",
+      "kind": "intl",
+      "status": "ok",
+      "offersTotal": 7,
+      "matched": 1,
+      "best": {
+        "brl": 5840.14,
+        "durationMin": 770,
+        "connectMin": 140,
+        "petDep": "2026-09-25T19:10:00",
+        "gruArr": "2026-09-25T21:10:00",
+        "gruDep": "2026-09-25T23:30:00",
+        "finalArr": "2026-09-26T07:00:00",
+        "flights": ["LA3251", "LA8190"],
+        "route": "PET→GRU · GRU→MIA"
+      }
+    },
+    {
+      "iata": "FRA",
+      "name": "Frankfurt",
+      "kind": "intl",
+      "status": "ok",
+      "offersTotal": 5,
+      "matched": 1,
+      "best": {
+        "brl": 5439.78,
+        "durationMin": 975,
+        "connectMin": 150,
+        "petDep": "2026-09-25T19:10:00",
+        "gruArr": "2026-09-25T21:10:00",
+        "gruDep": "2026-09-25T23:40:00",
+        "finalArr": "2026-09-26T16:25:00",
+        "flights": ["LA3251", "LA8070"],
+        "route": "PET→GRU · GRU→FRA"
+      }
+    },
+    {
+      "iata": "BOG",
+      "name": "Bogotá",
+      "kind": "intl",
+      "status": "ok",
+      "offersTotal": 7,
+      "matched": 1,
+      "best": {
+        "brl": 1839.84,
+        "durationMin": 645,
+        "connectMin": 155,
+        "petDep": "2026-09-25T19:10:00",
+        "gruArr": "2026-09-25T21:10:00",
+        "gruDep": "2026-09-25T23:45:00",
+        "finalArr": "2026-09-26T03:55:00",
+        "flights": ["LA3251", "LA4908"],
+        "route": "PET→GRU · GRU→BOG"
+      }
+    },
+    {
+      "iata": "LHR",
+      "name": "London Heathrow",
+      "kind": "intl",
+      "status": "ok",
+      "offersTotal": 6,
+      "matched": 1,
+      "best": {
+        "brl": 4279.34,
+        "durationMin": 955,
+        "connectMin": 160,
+        "petDep": "2026-09-25T19:10:00",
+        "gruArr": "2026-09-25T21:10:00",
+        "gruDep": "2026-09-25T23:50:00",
+        "finalArr": "2026-09-26T15:05:00",
+        "flights": ["LA3251", "LA8084"],
+        "route": "PET→GRU · GRU→LHR"
+      }
+    },
+    {
+      "iata": "GIG",
+      "name": "Rio de Janeiro",
+      "kind": "domestic",
+      "status": "ok",
+      "offersTotal": 7,
+      "matched": 1,
+      "best": {
+        "brl": 3847.63,
+        "durationMin": 270,
+        "connectMin": 90,
+        "petDep": "2026-09-25T19:10:00",
+        "gruArr": "2026-09-25T21:10:00",
+        "gruDep": "2026-09-25T22:40:00",
+        "finalArr": "2026-09-25T23:40:00",
+        "flights": ["LA3251", "LA3352"],
+        "route": "PET→GRU · GRU→GIG"
+      }
+    },
+    {
+      "iata": "BSB",
+      "name": "Brasília",
+      "kind": "domestic",
+      "status": "ok",
+      "offersTotal": 7,
+      "matched": 1,
+      "best": {
+        "brl": 1785.53,
+        "durationMin": 315,
+        "connectMin": 95,
+        "petDep": "2026-09-25T19:10:00",
+        "gruArr": "2026-09-25T21:10:00",
+        "gruDep": "2026-09-25T22:45:00",
+        "finalArr": "2026-09-26T00:25:00",
+        "flights": ["LA3251", "LA3656"],
+        "route": "PET→GRU · GRU→BSB"
+      }
+    },
+    {
+      "iata": "CNF",
+      "name": "Belo Horizonte",
+      "kind": "domestic",
+      "status": "ok",
+      "offersTotal": 7,
+      "matched": 1,
+      "best": {
+        "brl": 2479.53,
+        "durationMin": 300,
+        "connectMin": 110,
+        "petDep": "2026-09-25T19:10:00",
+        "gruArr": "2026-09-25T21:10:00",
+        "gruDep": "2026-09-25T23:00:00",
+        "finalArr": "2026-09-26T00:10:00",
+        "flights": ["LA3251", "LA4544"],
+        "route": "PET→GRU · GRU→CNF"
+      }
+    },
+    {
+      "iata": "FOR",
+      "name": "Fortaleza",
+      "kind": "domestic",
+      "status": "ok",
+      "offersTotal": 7,
+      "matched": 1,
+      "best": {
+        "brl": 1963.53,
+        "durationMin": 455,
+        "connectMin": 130,
+        "petDep": "2026-09-25T19:10:00",
+        "gruArr": "2026-09-25T21:10:00",
+        "gruDep": "2026-09-25T23:20:00",
+        "finalArr": "2026-09-26T02:45:00",
+        "flights": ["LA3251", "LA3324"],
+        "route": "PET→GRU · GRU→FOR"
+      }
+    },
+    {
+      "iata": "SSA",
+      "name": "Salvador",
+      "kind": "domestic",
+      "status": "ok",
+      "offersTotal": 5,
+      "matched": 1,
+      "best": {
+        "brl": 3084.53,
+        "durationMin": 405,
+        "connectMin": 145,
+        "petDep": "2026-09-25T19:10:00",
+        "gruArr": "2026-09-25T21:10:00",
+        "gruDep": "2026-09-25T23:35:00",
+        "finalArr": "2026-09-26T01:55:00",
+        "flights": ["LA3251", "LA4674"],
+        "route": "PET→GRU · GRU→SSA"
+      }
+    },
+    {
+      "iata": "MAO",
+      "name": "Manaus",
+      "kind": "domestic",
+      "status": "ok",
+      "offersTotal": 7,
+      "matched": 1,
+      "best": {
+        "brl": 2791.53,
+        "durationMin": 460,
+        "connectMin": 105,
+        "petDep": "2026-09-25T19:10:00",
+        "gruArr": "2026-09-25T21:10:00",
+        "gruDep": "2026-09-25T22:55:00",
+        "finalArr": "2026-09-26T01:50:00",
+        "flights": ["LA3251", "LA4545"],
+        "route": "PET→GRU · GRU→MAO"
+      }
+    },
+    {
+      "iata": "BEL",
+      "name": "Belém",
+      "kind": "domestic",
+      "status": "ok",
+      "offersTotal": 7,
+      "matched": 1,
+      "best": {
+        "brl": 1863.53,
+        "durationMin": 405,
+        "connectMin": 70,
+        "petDep": "2026-09-25T19:10:00",
+        "gruArr": "2026-09-25T21:10:00",
+        "gruDep": "2026-09-25T22:20:00",
+        "finalArr": "2026-09-26T01:55:00",
+        "flights": ["LA3251", "LA3872"],
+        "route": "PET→GRU · GRU→BEL"
+      }
+    },
+    {
+      "iata": "POA",
+      "name": "Porto Alegre",
+      "kind": "domestic",
+      "status": "ok",
+      "offersTotal": 7,
+      "matched": 1,
+      "best": {
+        "brl": 2093.53,
+        "durationMin": 365,
+        "connectMin": 140,
+        "petDep": "2026-09-25T19:10:00",
+        "gruArr": "2026-09-25T21:10:00",
+        "gruDep": "2026-09-25T23:30:00",
+        "finalArr": "2026-09-26T01:15:00",
+        "flights": ["LA3251", "LA3426"],
+        "route": "PET→GRU · GRU→POA"
+      }
+    },
+    {
+      "iata": "CWB",
+      "name": "Curitiba",
+      "kind": "domestic",
+      "status": "ok",
+      "offersTotal": 7,
+      "matched": 1,
+      "best": {
+        "brl": 1797.53,
+        "durationMin": 295,
+        "connectMin": 110,
+        "petDep": "2026-09-25T19:10:00",
+        "gruArr": "2026-09-25T21:10:00",
+        "gruDep": "2026-09-25T23:00:00",
+        "finalArr": "2026-09-26T00:05:00",
+        "flights": ["LA3251", "LA4708"],
+        "route": "PET→GRU · GRU→CWB"
+      }
+    },
+    {
+      "iata": "GYN",
+      "name": "Goiânia",
+      "kind": "domestic",
+      "status": "ok",
+      "offersTotal": 7,
+      "matched": 1,
+      "best": {
+        "brl": 2978.53,
+        "durationMin": 295,
+        "connectMin": 75,
+        "petDep": "2026-09-25T19:10:00",
+        "gruArr": "2026-09-25T21:10:00",
+        "gruDep": "2026-09-25T22:25:00",
+        "finalArr": "2026-09-26T00:05:00",
+        "flights": ["LA3251", "LA3546"],
+        "route": "PET→GRU · GRU→GYN"
+      }
+    }
+  ]
+}
