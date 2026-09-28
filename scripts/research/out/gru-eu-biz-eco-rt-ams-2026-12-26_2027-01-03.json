@@ -1,0 +1,311 @@
+{
+  "out": "2026-12-26",
+  "in": "2027-01-03",
+  "pax": "1 adt + 1 chd",
+  "results": [
+    {
+      "dest": "AMS",
+      "job": {
+        "dest": "AMS",
+        "dep": "22:55",
+        "brand": "PREMIUM BUSINESS FULL",
+        "note": "direto sem Biz Standard"
+      },
+      "cabinLine": "cabine PREMIUM BUSINESS FULL",
+      "outboundChosen": {
+        "stops": 0,
+        "durationMin": 720,
+        "flights": "LA8078",
+        "route": "GRU→AMS",
+        "dep": "2026-12-26T22:55:00",
+        "arr": "2026-12-27T14:55:00",
+        "connects": [],
+        "brands": {
+          "LIGHT": {
+            "amount": 3789.92,
+            "offerId": "c2175dca0e767abd200813e91e7a0b5818085b1b54f6fab5f2cc49aa69f82383",
+            "cabin": "Y",
+            "taxes": null
+          },
+          "STANDARD": {
+            "amount": 4086.4,
+            "offerId": "d288f797c1dd5425bb8745095e72c5e8eb6c4c09dc72a4e60998dd9e349e81ec",
+            "cabin": "Y",
+            "taxes": null
+          },
+          "FULL": {
+            "amount": 4490.23,
+            "offerId": "7e5b30a058ec796485aa10075eec15528460cfe967740c1f4a7f5078d275f200",
+            "cabin": "Y",
+            "taxes": null
+          },
+          "PREMIUM BUSINESS FULL": {
+            "amount": 14534.72,
+            "offerId": "30d519ce28001bcb4520f475576fbde841958a139defca2985dff3b855f6db39",
+            "cabin": "J",
+            "taxes": null
+          }
+        },
+        "newPrices": [
+          {
+            "fare": 3721.31,
+            "taxes": 68.61,
+            "total": 3789.92
+          },
+          {
+            "fare": 4017.79,
+            "taxes": 68.61,
+            "total": 4086.4
+          },
+          {
+            "fare": 4421.62,
+            "taxes": 68.61,
+            "total": 4490.23
+          },
+          {
+            "fare": 14466.11,
+            "taxes": 68.61,
+            "total": 14534.72
+          }
+        ]
+      },
+      "outboundOptions": [
+        {
+          "flights": "LA8078",
+          "route": "GRU→AMS",
+          "dep": "2026-12-26T22:55:00",
+          "arr": "2026-12-27T14:55:00",
+          "stops": 0,
+          "durationMin": 720,
+          "connects": [],
+          "brand": "PREMIUM BUSINESS FULL",
+          "amount": 14534.72
+        }
+      ],
+      "inbound": [
+        {
+          "flights": "LA8079",
+          "route": "AMS→GRU",
+          "dep": "2027-01-03T20:35:00",
+          "arr": "2027-01-04T04:45:00",
+          "stops": 0,
+          "durationMin": 730,
+          "connects": [],
+          "ecoStandard": 4453.24,
+          "newPrices": [
+            {
+              "fare": 3450.39,
+              "taxes": 726.81,
+              "total": 4177.2
+            },
+            {
+              "fare": 3726.43,
+              "taxes": 726.81,
+              "total": 4453.24
+            },
+            {
+              "fare": 4099.58,
+              "taxes": 726.81,
+              "total": 4826.39
+            },
+            {
+              "fare": 11143.5,
+              "taxes": 726.81,
+              "total": 11870.31
+            },
+            {
+              "fare": 12677.01,
+              "taxes": 726.81,
+              "total": 13403.82
+            }
+          ]
+        },
+        {
+          "flights": "LH997+LA8071",
+          "route": "AMS→FRA · FRA→GRU",
+          "dep": "2027-01-03T14:45:00",
+          "arr": "2027-01-04T05:05:00",
+          "stops": 1,
+          "durationMin": 1100,
+          "connects": [
+            {
+              "hub": "FRA",
+              "min": 300
+            }
+          ],
+          "ecoStandard": 4620.41,
+          "newPrices": [
+            {
+              "fare": 3450.39,
+              "taxes": 893.98,
+              "total": 4344.37
+            },
+            {
+              "fare": 3726.43,
+              "taxes": 893.98,
+              "total": 4620.41
+            },
+            {
+              "fare": 4099.58,
+              "taxes": 893.98,
+              "total": 4993.56
+            },
+            {
+              "fare": 17916.5,
+              "taxes": 893.98,
+              "total": 18810.48
+            }
+          ]
+        },
+        {
+          "flights": "LH995+LA8071",
+          "route": "AMS→FRA · FRA→GRU",
+          "dep": "2027-01-03T10:55:00",
+          "arr": "2027-01-04T05:05:00",
+          "stops": 1,
+          "durationMin": 1330,
+          "connects": [
+            {
+              "hub": "FRA",
+              "min": 530
+            }
+          ],
+          "ecoStandard": 4620.41,
+          "newPrices": [
+            {
+              "fare": 3450.39,
+              "taxes": 893.98,
+              "total": 4344.37
+            },
+            {
+              "fare": 3726.43,
+              "taxes": 893.98,
+              "total": 4620.41
+            },
+            {
+              "fare": 4099.58,
+              "taxes": 893.98,
+              "total": 4993.56
+            },
+            {
+              "fare": 17916.5,
+              "taxes": 893.98,
+              "total": 18810.48
+            }
+          ]
+        },
+        {
+          "flights": "KL1821+LA8071",
+          "route": "AMS→FRA · FRA→GRU",
+          "dep": "2027-01-03T16:50:00",
+          "arr": "2027-01-04T05:05:00",
+          "stops": 1,
+          "durationMin": 975,
+          "connects": [
+            {
+              "hub": "FRA",
+              "min": 175
+            }
+          ],
+          "ecoStandard": 4778.04,
+          "newPrices": [
+            {
+              "fare": 3450.39,
+              "taxes": 1051.61,
+              "total": 4502
+            },
+            {
+              "fare": 3726.43,
+              "taxes": 1051.61,
+              "total": 4778.04
+            },
+            {
+              "fare": 4099.58,
+              "taxes": 1051.61,
+              "total": 5151.19
+            },
+            {
+              "fare": 17916.5,
+              "taxes": 1051.61,
+              "total": 18968.11
+            }
+          ]
+        },
+        {
+          "flights": "KL1819+LA8071",
+          "route": "AMS→FRA · FRA→GRU",
+          "dep": "2027-01-03T12:35:00",
+          "arr": "2027-01-04T05:05:00",
+          "stops": 1,
+          "durationMin": 1230,
+          "connects": [
+            {
+              "hub": "FRA",
+              "min": 430
+            }
+          ],
+          "ecoStandard": 4778.04,
+          "newPrices": [
+            {
+              "fare": 3450.39,
+              "taxes": 1051.61,
+              "total": 4502
+            },
+            {
+              "fare": 3726.43,
+              "taxes": 1051.61,
+              "total": 4778.04
+            },
+            {
+              "fare": 4099.58,
+              "taxes": 1051.61,
+              "total": 5151.19
+            },
+            {
+              "fare": 17916.5,
+              "taxes": 1051.61,
+              "total": 18968.11
+            }
+          ]
+        },
+        {
+          "flights": "KL1703+LA8157",
+          "route": "AMS→BRU · BRU→GRU",
+          "dep": "2027-01-03T09:25:00",
+          "arr": "2027-01-03T20:15:00",
+          "stops": 1,
+          "durationMin": 890,
+          "connects": [
+            {
+              "hub": "BRU",
+              "min": 115
+            }
+          ],
+          "ecoStandard": 5122.52,
+          "newPrices": [
+            {
+              "fare": 3792.88,
+              "taxes": 1022.94,
+              "total": 4815.82
+            },
+            {
+              "fare": 4099.58,
+              "taxes": 1022.94,
+              "total": 5122.52
+            },
+            {
+              "fare": 4508.52,
+              "taxes": 1022.94,
+              "total": 5531.46
+            },
+            {
+              "fare": 17916.5,
+              "taxes": 1022.94,
+              "total": 18939.44
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

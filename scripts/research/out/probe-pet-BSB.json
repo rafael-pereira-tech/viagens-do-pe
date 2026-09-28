@@ -1,0 +1,270 @@
+{
+  "summary": {
+    "tags": ["RECOMMENDED", "CHEAPEST", "FASTEST"],
+    "stopOvers": 1,
+    "duration": 315,
+    "flightCode": "LA3251",
+    "origin": {
+      "departure": "2026-09-25T19:10:00",
+      "departureTime": "19:10",
+      "iataCode": "PET",
+      "airport": "João Simões Lopes Neto",
+      "city": "Pelotas"
+    },
+    "destination": {
+      "arrival": "2026-09-26T00:25:00",
+      "arrivalTime": "0:25",
+      "iataCode": "BSB",
+      "airport": "Brasilia Intl.",
+      "city": "Brasília"
+    },
+    "brands": [
+      {
+        "id": "SL",
+        "offerId": "e2a8b952c20f98fc58eacf7851bdcd8cdfef50eb10a83e0e192bd1c3ce824a32",
+        "brandText": "LIGHT",
+        "brandDescription": "xp_sales_web_brand_economy_light_description",
+        "promotionalText": {
+          "show": false,
+          "label": ""
+        },
+        "cabin": {
+          "id": "Y",
+          "label": "Economy"
+        },
+        "rules": {},
+        "farebasis": "VJQX0G1",
+        "price": {
+          "currency": "BRL",
+          "amount": 1785.53,
+          "displayCurrency": "R$",
+          "displayAmount": " 1.785,53",
+          "display": "BRL 1.785,53"
+        },
+        "lowestPriceDifference": {
+          "currency": "BRL",
+          "amount": 0,
+          "displayCurrency": "R$",
+          "displayAmount": " 0,00",
+          "display": "BRL 0,00"
+        },
+        "lowestPriceBrand": "SL",
+        "priceAfterSelection": {
+          "currency": "BRL",
+          "amount": 1785.53,
+          "displayCurrency": "R$",
+          "displayAmount": " 1.785,53",
+          "display": "BRL 1.785,53"
+        },
+        "attributes": {},
+        "seatsRemaining": {
+          "count": 5,
+          "lowAvailability": false
+        }
+      },
+      {
+        "id": "KM",
+        "offerId": "9a93556ee5bceda228e4efa9e7b8cdc722a449fb601d7aad4ecd08503c192417",
+        "brandText": "STANDARD",
+        "brandDescription": "xp_sales_web_brand_economy_standard_description",
+        "promotionalText": {
+          "show": false,
+          "label": ""
+        },
+        "cabin": {
+          "id": "Y",
+          "label": "Economy"
+        },
+        "rules": {},
+        "farebasis": "VJQX0G4",
+        "price": {
+          "currency": "BRL",
+          "amount": 1886.53,
+          "displayCurrency": "R$",
+          "displayAmount": " 1.886,53",
+          "display": "BRL 1.886,53"
+        },
+        "lowestPriceDifference": {
+          "currency": "BRL",
+          "amount": 101,
+          "displayCurrency": "R$",
+          "displayAmount": " 101,00",
+          "display": "BRL 101,00"
+        },
+        "lowestPriceBrand": "SL",
+        "priceAfterSelection": {
+          "currency": "BRL",
+          "amount": 1886.53,
+          "displayCurrency": "R$",
+          "displayAmount": " 1.886,53",
+          "display": "BRL 1.886,53"
+        },
+        "attributes": {},
+        "seatsRemaining": {
+          "count": 5,
+          "lowAvailability": false
+        }
+      },
+      {
+        "id": "KD",
+        "offerId": "811f1ada463b3f481373aff280dd3b799f0944bac96d80c47897ec8049595ca7",
+        "brandText": "FULL",
+        "brandDescription": "xp_sales_web_brand_economy_full_description",
+        "promotionalText": {
+          "show": false,
+          "label": ""
+        },
+        "cabin": {
+          "id": "Y",
+          "label": "Economy"
+        },
+        "rules": {},
+        "farebasis": "VJQX0G7",
+        "price": {
+          "currency": "BRL",
+          "amount": 1966.53,
+          "displayCurrency": "R$",
+          "displayAmount": " 1.966,53",
+          "display": "BRL 1.966,53"
+        },
+        "lowestPriceDifference": {
+          "currency": "BRL",
+          "amount": 181,
+          "displayCurrency": "R$",
+          "displayAmount": " 181,00",
+          "display": "BRL 181,00"
+        },
+        "lowestPriceBrand": "SL",
+        "priceAfterSelection": {
+          "currency": "BRL",
+          "amount": 1966.53,
+          "displayCurrency": "R$",
+          "displayAmount": " 1.966,53",
+          "display": "BRL 1.966,53"
+        },
+        "attributes": {},
+        "seatsRemaining": {
+          "count": 5,
+          "lowAvailability": false
+        }
+      },
+      {
+        "id": "RY",
+        "offerId": "76d98f223d4001434c93b81a24df6b17caedafeb5003f7d43aafdd13d3123849",
+        "brandText": "PREMIUM ECONOMY",
+        "brandDescription": "xp_sales_web_brand_premiumeconomy_premiumeconomy_description",
+        "promotionalText": {
+          "show": false,
+          "label": ""
+        },
+        "cabin": {
+          "id": "W",
+          "label": "PremiumEconomy"
+        },
+        "rules": {},
+        "farebasis": "VJQX0GA",
+        "price": {
+          "currency": "BRL",
+          "amount": 2100.53,
+          "displayCurrency": "R$",
+          "displayAmount": " 2.100,53",
+          "display": "BRL 2.100,53"
+        },
+        "lowestPriceDifference": {
+          "currency": "BRL",
+          "amount": 315,
+          "displayCurrency": "R$",
+          "displayAmount": " 315,00",
+          "display": "BRL 315,00"
+        },
+        "lowestPriceBrand": "SL",
+        "priceAfterSelection": {
+          "currency": "BRL",
+          "amount": 2100.53,
+          "displayCurrency": "R$",
+          "displayAmount": " 2.100,53",
+          "display": "BRL 2.100,53"
+        },
+        "attributes": {},
+        "seatsRemaining": {
+          "count": 2,
+          "lowAvailability": false
+        }
+      }
+    ],
+    "lowestBrandText": "LIGHT",
+    "lowestPrice": {
+      "currency": "BRL",
+      "amount": 1785.53,
+      "displayCurrency": "R$",
+      "displayAmount": " 1.785,53",
+      "display": "BRL 1.785,53"
+    },
+    "flightOperators": ["LATAM Airlines Brasil"],
+    "changeOfAirport": false,
+    "showAllBrands": false,
+    "isInterlinealFlight": false
+  },
+  "itinerary": [
+    {
+      "codeShare": false,
+      "interLine": false,
+      "subjectToGovernmentApproval": false,
+      "fareComponentBeginAirport": null,
+      "fareComponentEndAirport": null,
+      "fareComponentDirectionality": null,
+      "duration": 120,
+      "flightsMiles": null,
+      "cabinClass": null,
+      "equipment": "319",
+      "aircraftLeaseText": "LATAM AIRLINES BRASIL",
+      "flight": {
+        "flightNumber": 3251,
+        "airlineCode": "LA",
+        "operatingAirlineCode": "LA",
+        "operatingFlightNumber": 3251,
+        "flightOperator": "JJ",
+        "stopAirports": [],
+        "departureTerminal": null,
+        "arrivalTerminal": "2"
+      },
+      "origin": "PET",
+      "destination": "GRU",
+      "departure": "2026-09-25T19:10:00",
+      "arrival": "2026-09-25T21:10:00",
+      "bookingClass": null,
+      "fareBasis": null,
+      "type": null
+    },
+    {
+      "codeShare": false,
+      "interLine": false,
+      "subjectToGovernmentApproval": false,
+      "fareComponentBeginAirport": null,
+      "fareComponentEndAirport": null,
+      "fareComponentDirectionality": null,
+      "duration": 100,
+      "flightsMiles": null,
+      "cabinClass": null,
+      "equipment": "320",
+      "aircraftLeaseText": "LATAM AIRLINES BRASIL",
+      "flight": {
+        "flightNumber": 3656,
+        "airlineCode": "LA",
+        "operatingAirlineCode": "LA",
+        "operatingFlightNumber": 3656,
+        "flightOperator": "JJ",
+        "stopAirports": [],
+        "departureTerminal": "2",
+        "arrivalTerminal": null
+      },
+      "origin": "GRU",
+      "destination": "BSB",
+      "departure": "2026-09-25T22:45:00",
+      "arrival": "2026-09-26T00:25:00",
+      "bookingClass": null,
+      "fareBasis": null,
+      "type": null
+    }
+  ]
+}

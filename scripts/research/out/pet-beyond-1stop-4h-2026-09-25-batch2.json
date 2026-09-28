@@ -1,0 +1,201 @@
+{
+  "date": "2026-09-25",
+  "filters": {
+    "stops": 1,
+    "hub": "GRU",
+    "maxConnectMin": 240,
+    "petDep": ["18:00", "20:30"]
+  },
+  "results": [
+    {
+      "iata": "FLN",
+      "name": "Florianópolis",
+      "kind": "domestic",
+      "status": "ok",
+      "offersTotal": 5,
+      "matched": 1,
+      "best": {
+        "brl": 3389.53,
+        "durationMin": 275,
+        "connectMin": 80,
+        "petDep": "2026-09-25T19:10:00",
+        "gruArr": "2026-09-25T21:10:00",
+        "gruDep": "2026-09-25T22:30:00",
+        "finalArr": "2026-09-25T23:45:00",
+        "flights": ["LA3251", "LA3308"],
+        "route": "PET→GRU · GRU→FLN"
+      }
+    },
+    {
+      "iata": "NAT",
+      "name": "Natal",
+      "kind": "domestic",
+      "status": "ok",
+      "offersTotal": 7,
+      "matched": 1,
+      "best": {
+        "brl": 3088.53,
+        "durationMin": 445,
+        "connectMin": 130,
+        "petDep": "2026-09-25T19:10:00",
+        "gruArr": "2026-09-25T21:10:00",
+        "gruDep": "2026-09-25T23:20:00",
+        "finalArr": "2026-09-26T02:35:00",
+        "flights": ["LA3251", "LA3444"],
+        "route": "PET→GRU · GRU→NAT"
+      }
+    },
+    {
+      "iata": "MCZ",
+      "name": "Maceió",
+      "kind": "domestic",
+      "status": "ok",
+      "offersTotal": 7,
+      "matched": 1,
+      "best": {
+        "brl": 2793.53,
+        "durationMin": 415,
+        "connectMin": 125,
+        "petDep": "2026-09-25T19:10:00",
+        "gruArr": "2026-09-25T21:10:00",
+        "gruDep": "2026-09-25T23:15:00",
+        "finalArr": "2026-09-26T02:05:00",
+        "flights": ["LA3251", "LA3198"],
+        "route": "PET→GRU · GRU→MCZ"
+      }
+    },
+    {
+      "iata": "VIX",
+      "name": "Vitória",
+      "kind": "domestic",
+      "status": "ok",
+      "offersTotal": 7,
+      "matched": 1,
+      "best": {
+        "brl": 3815.53,
+        "durationMin": 315,
+        "connectMin": 110,
+        "petDep": "2026-09-25T19:10:00",
+        "gruArr": "2026-09-25T21:10:00",
+        "gruDep": "2026-09-25T23:00:00",
+        "finalArr": "2026-09-26T00:25:00",
+        "flights": ["LA3251", "LA3336"],
+        "route": "PET→GRU · GRU→VIX"
+      }
+    },
+    {
+      "iata": "IGU",
+      "name": "Foz do Iguaçu",
+      "kind": "domestic",
+      "status": "ok",
+      "offersTotal": 6,
+      "matched": 1,
+      "best": {
+        "brl": 3199.53,
+        "durationMin": 295,
+        "connectMin": 70,
+        "petDep": "2026-09-25T19:10:00",
+        "gruArr": "2026-09-25T21:10:00",
+        "gruDep": "2026-09-25T22:20:00",
+        "finalArr": "2026-09-26T00:05:00",
+        "flights": ["LA3251", "LA3206"],
+        "route": "PET→GRU · GRU→IGU"
+      }
+    },
+    {
+      "iata": "CGR",
+      "name": "Campo Grande",
+      "kind": "domestic",
+      "status": "ok",
+      "offersTotal": 7,
+      "matched": 1,
+      "best": {
+        "brl": 2230.53,
+        "durationMin": 385,
+        "connectMin": 155,
+        "petDep": "2026-09-25T19:10:00",
+        "gruArr": "2026-09-25T21:10:00",
+        "gruDep": "2026-09-25T23:45:00",
+        "finalArr": "2026-09-26T00:35:00",
+        "flights": ["LA3251", "LA3119"],
+        "route": "PET→GRU · GRU→CGR"
+      }
+    },
+    {
+      "iata": "CGB",
+      "name": "Cuiabá",
+      "kind": "domestic",
+      "status": "ok",
+      "offersTotal": 7,
+      "matched": 1,
+      "best": {
+        "brl": 1708.53,
+        "durationMin": 415,
+        "connectMin": 155,
+        "petDep": "2026-09-25T19:10:00",
+        "gruArr": "2026-09-25T21:10:00",
+        "gruDep": "2026-09-25T23:45:00",
+        "finalArr": "2026-09-26T01:05:00",
+        "flights": ["LA3251", "LA3566"],
+        "route": "PET→GRU · GRU→CGB"
+      }
+    },
+    {
+      "iata": "SLZ",
+      "name": "São Luís",
+      "kind": "domestic",
+      "status": "ok",
+      "offersTotal": 7,
+      "matched": 1,
+      "best": {
+        "brl": 2611.53,
+        "durationMin": 450,
+        "connectMin": 130,
+        "petDep": "2026-09-25T19:10:00",
+        "gruArr": "2026-09-25T21:10:00",
+        "gruDep": "2026-09-25T23:20:00",
+        "finalArr": "2026-09-26T02:40:00",
+        "flights": ["LA3251", "LA3294"],
+        "route": "PET→GRU · GRU→SLZ"
+      }
+    },
+    {
+      "iata": "AJU",
+      "name": "Aracaju",
+      "kind": "domestic",
+      "status": "ok",
+      "offersTotal": 7,
+      "matched": 1,
+      "best": {
+        "brl": 3094.53,
+        "durationMin": 415,
+        "connectMin": 140,
+        "petDep": "2026-09-25T19:10:00",
+        "gruArr": "2026-09-25T21:10:00",
+        "gruDep": "2026-09-25T23:30:00",
+        "finalArr": "2026-09-26T02:05:00",
+        "flights": ["LA3251", "LA3224"],
+        "route": "PET→GRU · GRU→AJU"
+      }
+    },
+    {
+      "iata": "JPA",
+      "name": "João Pessoa",
+      "kind": "domestic",
+      "status": "ok",
+      "offersTotal": 7,
+      "matched": 1,
+      "best": {
+        "brl": 3196.53,
+        "durationMin": 400,
+        "connectMin": 90,
+        "petDep": "2026-09-25T19:10:00",
+        "gruArr": "2026-09-25T21:10:00",
+        "gruDep": "2026-09-25T22:40:00",
+        "finalArr": "2026-09-26T01:50:00",
+        "flights": ["LA3251", "LA4726"],
+        "route": "PET→GRU · GRU→JPA"
+      }
+    }
+  ]
+}

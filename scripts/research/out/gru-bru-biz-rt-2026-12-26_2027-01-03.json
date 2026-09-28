@@ -1,0 +1,107 @@
+{
+  "outDate": "2026-12-26",
+  "inDate": "2027-01-03",
+  "cabin": "PremiumBusiness",
+  "results": [
+    {
+      "modality": "cash",
+      "status": "ow_fallback",
+      "trueRt": {
+        "available": false,
+        "status": 200,
+        "n": 0,
+        "note": "BFF returns 0 inbound offers when outOfferId is Premium Business — true Biz+Biz RT unavailable",
+        "inbound": null
+      },
+      "outbound": {
+        "flights": "LA8156",
+        "route": "GRU→BRU",
+        "stops": 0,
+        "brand": "PREMIUM BUSINESS STANDARD",
+        "brl": 9302.24,
+        "miles": null,
+        "taxesBrl": null,
+        "dep": "2026-12-26T18:00:00",
+        "arr": "2026-12-27T09:50:00",
+        "durationMin": 710,
+        "connects": [],
+        "offerId": "40acdaed355b92ae43ae1a9ec69caff3080fd9f8f582f2bc2d92b0cfe58e8396"
+      },
+      "inboundOw": {
+        "flights": "LA8157",
+        "route": "BRU→GRU",
+        "stops": 0,
+        "brand": "PREMIUM BUSINESS FULL",
+        "brl": 14724.91,
+        "miles": null,
+        "taxesBrl": null,
+        "dep": "2027-01-03T12:05:00",
+        "arr": "2027-01-03T20:15:00",
+        "durationMin": 730,
+        "connects": [],
+        "offerId": "bf0d737bf13cc4aa5f7d226cdc3bcb7260e71a9b7ed3a312a86acf1901df8b75"
+      },
+      "owSum": {
+        "brl": 24027.15
+      },
+      "mixedRt": {
+        "flights": "LA8157",
+        "route": "BRU→GRU",
+        "stops": 0,
+        "brand": "PREMIUM BUSINESS FULL",
+        "brl": 12280.76,
+        "miles": null,
+        "taxesBrl": null,
+        "dep": "2027-01-03T12:05:00",
+        "arr": "2027-01-03T20:15:00",
+        "durationMin": 730,
+        "connects": [],
+        "offerId": "f6ba60f08cbf1901881bd2134780594ad4f6b64b34eaea484f9a6fe7fce18479"
+      }
+    },
+    {
+      "modality": "miles",
+      "status": "ow_fallback",
+      "trueRt": {
+        "available": false,
+        "status": 0,
+        "n": 0,
+        "note": "Biz UI select is a no-op; miles true-RT skipped (same empty-inbound behavior expected)",
+        "inbound": null
+      },
+      "outbound": {
+        "flights": "LA8156",
+        "route": "GRU→BRU",
+        "stops": 0,
+        "brand": "PREMIUM BUSINESS STANDARD",
+        "brl": null,
+        "miles": 320553,
+        "taxesBrl": 70.32,
+        "dep": "2026-12-26T18:00:00",
+        "arr": "2026-12-27T09:50:00",
+        "durationMin": 710,
+        "connects": [],
+        "offerId": "40acdaed355b92ae43ae1a9ec69caff3080fd9f8f582f2bc2d92b0cfe58e8396loyalty"
+      },
+      "inboundOw": {
+        "flights": "LA8157",
+        "route": "BRU→GRU",
+        "stops": 0,
+        "brand": "PREMIUM BUSINESS FULL",
+        "brl": null,
+        "miles": 502122,
+        "taxesBrl": 263.79,
+        "dep": "2027-01-03T12:05:00",
+        "arr": "2027-01-03T20:15:00",
+        "durationMin": 730,
+        "connects": [],
+        "offerId": "bf0d737bf13cc4aa5f7d226cdc3bcb7260e71a9b7ed3a312a86acf1901df8b75loyalty"
+      },
+      "owSum": {
+        "miles": 822675,
+        "taxesBrl": 334.11
+      },
+      "mixedRt": null
+    }
+  ]
+}
