@@ -1,0 +1,188 @@
+/* pelotas-trips.app — theme sobre Pereira UI (Zinc + accent Blue; Orange só na marca).
+   Os 31 tokens semânticos vêm do Pereira UI (tokens.json). O bloco "extensão" é o que o app acrescenta. */
+
+:root {
+  --font-sans: "Geist", "Geist Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-heading: var(--font-sans);
+  --font-mono: "Geist Mono", "Geist Mono Variable", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --radius: 0.625rem;
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.625rem;
+  --radius-xl: 0.875rem;
+  --radius-2xl: 1.125rem;
+  --shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  /* Pereira UI — accent overlays (valores iguais em todos os temas base) */
+  --blue-primary-foreground: oklch(0.97 0.014 254.604);
+  --blue-chart-1: oklch(0.809 0.105 251.813);
+  --blue-chart-2: oklch(0.623 0.214 259.815);
+  --blue-chart-3: oklch(0.546 0.245 262.881);
+  --blue-chart-4: oklch(0.488 0.243 264.376);
+  --blue-chart-5: oklch(0.424 0.199 265.638);
+  --orange-primary-foreground: oklch(0.98 0.016 73.684);
+  --orange-chart-1: oklch(0.837 0.128 66.29);
+  --orange-chart-2: oklch(0.705 0.213 47.604);
+  --orange-chart-3: oklch(0.646 0.222 41.116);
+  --orange-chart-4: oklch(0.553 0.195 38.402);
+  --orange-chart-5: oklch(0.47 0.157 37.304);
+}
+
+/* ---------- Pereira UI · Zinc Light ---------- */
+[data-theme="zinc-light"] {
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.141 0.005 285.823);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.141 0.005 285.823);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.141 0.005 285.823);
+  --primary: oklch(0.21 0.006 285.885);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.967 0.001 286.375);
+  --secondary-foreground: oklch(0.21 0.006 285.885);
+  --muted: oklch(0.967 0.001 286.375);
+  --muted-foreground: oklch(0.552 0.016 285.938);
+  --accent: oklch(0.967 0.001 286.375);
+  --accent-foreground: oklch(0.21 0.006 285.885);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.92 0.004 286.32);
+  --input: oklch(0.92 0.004 286.32);
+  --ring: oklch(0.705 0.015 286.067);
+  --chart-1: oklch(0.871 0.006 286.286);
+  --chart-2: oklch(0.552 0.016 285.938);
+  --chart-3: oklch(0.442 0.017 285.786);
+  --chart-4: oklch(0.37 0.013 285.805);
+  --chart-5: oklch(0.274 0.006 286.033);
+  --blue-primary: oklch(0.488 0.243 264.376);
+  --blue-sidebar-primary: oklch(0.546 0.245 262.881);
+  --blue-sidebar-primary-foreground: oklch(0.97 0.014 254.604);
+  --orange-primary: oklch(0.553 0.195 38.402);
+  --orange-sidebar-primary: oklch(0.646 0.222 41.116);
+  --orange-sidebar-primary-foreground: oklch(0.98 0.016 73.684);
+
+  /* ---- extensão pelotas-trips ---- */
+  /* painel de embarque: a única superfície escura do tema claro */
+  --board: oklch(0.21 0.006 285.885);
+  --board-foreground: oklch(0.985 0 0);
+  --board-muted: oklch(0.75 0.012 286);
+  --board-border: oklch(1 0 0 / 14%);
+  --board-accent: oklch(0.809 0.105 251.813);
+  /* escala sequencial de preço (1 = mais barato, 5 = mais caro) — derivada do accent Blue */
+  --price-1: oklch(0.488 0.243 264.376);
+  --price-1-foreground: oklch(0.97 0.014 254.604);
+  --price-2: oklch(0.72 0.13 262);
+  --price-2-foreground: oklch(0.141 0.005 285.823);
+  --price-3: oklch(0.87 0.06 260);
+  --price-3-foreground: oklch(0.141 0.005 285.823);
+  --price-4: oklch(0.95 0.02 260);
+  --price-4-foreground: oklch(0.141 0.005 285.823);
+  --price-5: oklch(1 0 0);
+  --price-5-foreground: oklch(0.552 0.016 285.938);
+  /* marcas das companhias — só em pontos e texto, nunca em preenchimento de célula */
+  --airline-latam: oklch(0.40 0.13 340);
+  --airline-gol: oklch(0.62 0.19 45);
+  --airline-azul: oklch(0.52 0.15 240);
+  /* frescor */
+  --stale-opacity: 0.55;
+  --fresh: oklch(0.55 0.15 160);
+}
+
+/* ---------- Pereira UI · Zinc Dark ---------- */
+[data-theme="zinc-dark"] {
+  --background: oklch(0.141 0.005 285.823);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.21 0.006 285.885);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.21 0.006 285.885);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.92 0.004 286.32);
+  --primary-foreground: oklch(0.21 0.006 285.885);
+  --secondary: oklch(0.274 0.006 286.033);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.274 0.006 286.033);
+  --muted-foreground: oklch(0.705 0.015 286.067);
+  --accent: oklch(0.274 0.006 286.033);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.552 0.016 285.938);
+  --chart-1: oklch(0.871 0.006 286.286);
+  --chart-2: oklch(0.552 0.016 285.938);
+  --chart-3: oklch(0.442 0.017 285.786);
+  --chart-4: oklch(0.37 0.013 285.805);
+  --chart-5: oklch(0.274 0.006 286.033);
+  --blue-primary: oklch(0.424 0.199 265.638);
+  --blue-sidebar-primary: oklch(0.623 0.214 259.815);
+  --blue-sidebar-primary-foreground: oklch(0.97 0.014 254.604);
+  --orange-primary: oklch(0.47 0.157 37.304);
+  --orange-sidebar-primary: oklch(0.705 0.213 47.604);
+  --orange-sidebar-primary-foreground: oklch(0.98 0.016 73.684);
+
+  /* ---- extensão pelotas-trips ---- */
+  --board: oklch(0.17 0.006 285.885);
+  --board-foreground: oklch(0.985 0 0);
+  --board-muted: oklch(0.705 0.015 286.067);
+  --board-border: oklch(1 0 0 / 12%);
+  --board-accent: oklch(0.809 0.105 251.813);
+  --price-1: oklch(0.546 0.245 262.881);
+  --price-1-foreground: oklch(0.985 0 0);
+  --price-2: oklch(0.42 0.16 264);
+  --price-2-foreground: oklch(0.985 0 0);
+  --price-3: oklch(0.31 0.08 264);
+  --price-3-foreground: oklch(0.985 0 0);
+  --price-4: oklch(0.25 0.03 270);
+  --price-4-foreground: oklch(0.985 0 0);
+  --price-5: oklch(0.21 0.006 285.885);
+  --price-5-foreground: oklch(0.705 0.015 286.067);
+  --airline-latam: oklch(0.72 0.12 340);
+  --airline-gol: oklch(0.75 0.17 50);
+  --airline-azul: oklch(0.72 0.13 235);
+  --stale-opacity: 0.5;
+  --fresh: oklch(0.72 0.15 160);
+}
+
+/* painel de embarque: âmbar = orange-chart-1 do Pereira UI; fonte de flap = Doto */
+:root {
+  --font-board: "Doto", "Geist Mono", "Geist Mono Variable", ui-monospace, monospace;
+  --board-amber: oklch(0.837 0.128 66.29);
+  --board-amber-foreground: oklch(0.17 0.006 285.885);
+  --board-row-selected: oklch(1 0 0 / 6%);
+}
+
+/* utilitários do tema (não são componentes) */
+.pt-board {
+  background-image: radial-gradient(oklch(1 0 0 / 6%) 0.8px, transparent 1.2px);
+  background-size: 6px 6px;
+}
+.pt-flap {
+  font-family: var(--font-board);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-variant-numeric: tabular-nums;
+}
+.pt-tabular { font-variant-numeric: tabular-nums lining-nums; }
+.pt-iata {
+  font-family: var(--font-mono);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-variant-numeric: tabular-nums;
+}
+.pt-meta {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  line-height: 16px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.pt-nodata {
+  background-image: repeating-linear-gradient(135deg, var(--border) 0 1px, transparent 1px 6px);
+}
+.pt-perf {
+  border-top: 1px dashed var(--border);
+}

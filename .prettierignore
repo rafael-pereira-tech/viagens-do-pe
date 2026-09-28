@@ -11,3 +11,5 @@ supabase
 *.svg
 public
 src/components/ui
+# Claude Design handoff: kept byte-identical to the export
+docs/design

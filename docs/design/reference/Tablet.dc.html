@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Rota PET GRU — tablet</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/pereira-ui/components/bundle.css">
+<link rel="stylesheet" href="theme.css">
+<script src="ds/pereira-ui/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&amp;family=Geist+Mono:wght@100..900&amp;family=Doto:wght@100..900&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:var(--primary)}a:hover{color:var(--foreground)}
+</style>
+</helmet>
+<div data-theme="{{theme}}" data-accent="blue" style="width: 834px; height: 1260px; box-sizing: border-box; display: flex; flex-direction: column; gap: 0; background: var(--background); color: var(--foreground); font-family: var(--font-sans); font-size: 14px; line-height: 20px; overflow: hidden;">
+
+  <!-- barra superior -->
+  <header style="display: flex; align-items: center; justify-content: space-between; gap: 12px; height: 60px; padding: 0 24px; box-sizing: border-box;">
+    <a href="/" data-accent="orange" style="display: flex; align-items: center; gap: 8px; text-decoration: none; color: var(--foreground);">
+      <span style="display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 9999px; border: 1.5px solid var(--primary); color: var(--primary); font-family: var(--font-mono); font-size: 8px; font-weight: 700; letter-spacing: 0.08em;">PET</span>
+      <span style="font-size: 16px; font-weight: 600; letter-spacing: -0.01em;">pelotas‑trips<span style="color: var(--muted-foreground); font-weight: 500;">.app</span></span>
+    </a>
+    <nav aria-label="Principal" style="display: flex; align-items: center; gap: 4px;">
+      <x-import component-from-global-scope="PereiraUI.Button" variant="ghost" size="sm">Rotas</x-import>
+      <x-import component-from-global-scope="PereiraUI.Button" variant="ghost" size="sm">Como medimos</x-import>
+      <span class="pt-meta" style="display: inline-flex; align-items: center; gap: 6px; margin-left: 12px; color: var(--muted-foreground);"><span style="width: 6px; height: 6px; border-radius: 9999px; background: var(--fresh);"></span>atualizado há 2 h</span>
+    </nav>
+  </header>
+
+  <!-- painel de embarque: título, direção e seleção de rota -->
+  <section data-theme="zinc-dark" data-accent="blue" aria-label="Rotas" class="pt-board" style="display: flex; flex-direction: column; gap: 10px; padding: 16px 24px 14px; background: var(--board); color: var(--board-foreground); border-top: 1px solid var(--board-border); border-bottom: 1px solid var(--board-border);">
+    <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px;">
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <span style="display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 26px; border-radius: 4px; background: var(--board-amber); color: var(--board-amber-foreground);"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z"/></svg></span>
+        <span class="pt-flap" style="font-size: 26px; line-height: 28px; color: var(--board-amber);">{{dirTitle}}</span>
+        <span class="pt-meta" style="color: var(--board-muted); margin-left: 4px;">Pelotas · PET</span>
+      </div>
+      <div role="group" aria-label="Direção" style="display: flex; border: 1px solid var(--board-border); border-radius: var(--radius-sm); overflow: hidden;">
+        <button type="button" onClick="{{setDep}}" aria-pressed="{{isDep}}" class="pt-meta" style="height: 32px; padding: 0 12px; border: 0; background: {{depBg}}; color: {{depFg}}; cursor: pointer;">Saindo de PET</button>
+        <button type="button" onClick="{{setArr}}" aria-pressed="{{isArr}}" class="pt-meta" style="height: 32px; padding: 0 12px; border: 0; border-left: 1px solid var(--board-border); background: {{arrBg}}; color: {{arrFg}}; cursor: pointer;">Chegando em PET</button>
+      </div>
+    </div>
+    <div class="pt-meta" style="display: grid; grid-template-columns: minmax(0, 1fr) 90px 72px 72px 72px 110px; gap: 12px; padding: 0 10px 6px; border-bottom: 1px solid var(--board-border); color: var(--board-muted);">
+      <span>{{colTitle}}</span><span>Cia</span><span style="text-align: right;">Mín</span><span style="text-align: right;">Méd</span><span style="text-align: right;">Máx</span><span style="text-align: right;">Mais barato</span>
+    </div>
+    <div role="radiogroup" aria-label="Rota" style="display: flex; flex-direction: column;">
+      <sc-for list="{{routes}}" as="r" hint-placeholder-count="4">
+        <button type="button" role="radio" aria-checked="{{r.checked}}" onClick="{{r.pick}}" class="pt-flap" style="display: grid; grid-template-columns: minmax(0, 1fr) 90px 72px 72px 72px 110px; gap: 12px; align-items: center; height: 46px; padding: 0 10px; border: 0; border-bottom: 1px solid var(--board-border); border-radius: 4px; background: {{r.bg}}; color: {{r.fg}}; font-size: 18px; line-height: 22px; text-align: left; cursor: pointer;">
+          <span style="display: flex; align-items: baseline; gap: 12px; min-width: 0;"><span>{{r.iata}}</span><span style="font-size: 13px; opacity: 0.8; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{r.city}}</span></span>
+          <span style="font-size: 13px;">{{r.cia}}</span>
+          <span style="text-align: right;">{{r.min}}</span>
+          <span style="text-align: right;">{{r.med}}</span>
+          <span style="text-align: right;">{{r.max}}</span>
+          <span style="text-align: right; font-size: 13px;">{{r.best}}</span>
+        </button>
+      </sc-for>
+    </div>
+    <span style="font-size: 12px; line-height: 16px; color: var(--board-muted);">Outubro · menores preços diários em R$, tarifa + taxas · "mais barato" é o dia com o menor preço do mês.</span>
+  </section>
+
+  <!-- corpo em duas colunas -->
+  <div style="display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 20px; padding: 16px 24px 0;">
+    <div style="display: flex; flex-direction: column; gap: 12px;">
+      <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px;">
+        <span class="pt-iata" style="font-size: 18px; line-height: 24px;">{{sel.routeLabel}}</span>
+        <div style="display: flex; gap: 8px;">
+          <x-import component-from-global-scope="PereiraUI.Button" variant="secondary" size="sm">30 dias</x-import>
+          <x-import component-from-global-scope="PereiraUI.Button" variant="outline" size="sm">Fins de semana</x-import>
+          <x-import component-from-global-scope="PereiraUI.Button" variant="outline" size="sm">Feriados</x-import>
+        </div>
+      </div>
+
+      <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 4px 0;">
+        <h2 style="margin: 0; font-size: 20px; line-height: 28px; font-weight: 600; letter-spacing: -0.025em;">Outubro 2026</h2>
+        <div style="display: flex; gap: 2px;">
+          <x-import component-from-global-scope="PereiraUI.Button" variant="ghost" size="icon" aria-label="Mês anterior"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg></x-import>
+          <x-import component-from-global-scope="PereiraUI.Button" variant="ghost" size="icon" aria-label="Próximo mês"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></x-import>
+        </div>
+      </div>
+
+      <div role="grid" aria-label="Menor preço por dia" style="display: flex; flex-direction: column; gap: 6px;">
+        <div class="pt-meta" style="display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; color: var(--muted-foreground); text-align: center;">
+          <span>Dom</span><span>Seg</span><span>Ter</span><span>Qua</span><span>Qui</span><span>Sex</span><span>Sáb</span>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px;">
+          <sc-for list="{{days}}" as="d" hint-placeholder-count="35">
+            <sc-if value="{{d.isBlank}}" hint-placeholder-val="{{false}}"><span style="height: 58px;"></span></sc-if>
+            <sc-if value="{{d.isDay}}" hint-placeholder-val="{{true}}">
+              <button type="button" onClick="{{d.pick}}" aria-label="{{d.aria}}" class="pt-tabular" style="height: 58px; padding: 0; border: {{d.border}}; border-radius: var(--radius-md); background: {{d.bg}}; color: {{d.fg}}; opacity: {{d.op}}; box-shadow: {{d.ring}}; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; font-family: var(--font-sans); cursor: pointer;">
+                <span style="font-size: 11px; line-height: 12px; opacity: 0.75;">{{d.num}}</span>
+                <span style="font-size: 13px; line-height: 16px; font-weight: 600;">{{d.label}}</span>
+              </button>
+            </sc-if>
+          </sc-for>
+        </div>
+        <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; padding-top: 4px; font-size: 12px; color: var(--muted-foreground);">
+          <span style="display: inline-flex; align-items: center; gap: 5px;"><span style="width: 10px; height: 10px; border-radius: 3px; background: var(--price-1);"></span>barato</span>
+          <span style="display: inline-flex; align-items: center; gap: 5px;"><span style="width: 10px; height: 10px; border-radius: 3px; background: var(--price-3);"></span>normal</span>
+          <span style="display: inline-flex; align-items: center; gap: 5px;"><span style="width: 10px; height: 10px; border-radius: 3px; background: var(--price-5); border: 1px solid var(--border);"></span>caro</span>
+          <span style="display: inline-flex; align-items: center; gap: 5px;">— sem voo</span>
+          <span style="display: inline-flex; align-items: center; gap: 5px;"><span class="pt-nodata" style="width: 10px; height: 10px; border-radius: 3px; border: 1px dashed var(--border);"></span>sem dado</span>
+          <span style="display: inline-flex; align-items: center; gap: 5px; opacity: var(--stale-opacity);">esmaecido = visto há mais de 48 h</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- cartão de embarque + outras opções -->
+    <div style="display: flex; flex-direction: column; gap: 12px; align-self: flex-start;">
+    <section aria-label="Detalhe do dia" style="position: relative; display: flex; flex-direction: column; border: 1px solid var(--border); border-radius: var(--radius-xl); background: var(--card); box-shadow: var(--shadow-sm);">
+      <div data-theme="zinc-dark" style="display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 16px; border-radius: var(--radius-xl) var(--radius-xl) 0 0; background: var(--board); color: var(--board-foreground); box-shadow: inset 0 -1px 0 var(--board-border);">
+        <span class="pt-flap" style="font-size: 13px; line-height: 18px; color: var(--board-amber);">Cartão de embarque</span>
+        <span style="display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 500;"><span style="width: 8px; height: 8px; border-radius: 9999px; background: {{sel.ciaColor}};"></span>{{sel.cia}}</span>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 14px; padding: 16px;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <div style="display: flex; flex-direction: column; gap: 2px;">
+            <span class="pt-iata" style="font-size: 28px; line-height: 30px;">{{sel.from}}</span>
+            <span style="font-size: 11px; color: var(--muted-foreground); white-space: nowrap;">{{sel.fromCity}}</span>
+          </div>
+          <span style="flex-grow: 1; display: flex; align-items: center; gap: 6px; color: var(--muted-foreground); padding-bottom: 14px;">
+            <span style="flex-grow: 1; border-top: 1px dashed var(--border);"></span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z"/></svg>
+            <span style="flex-grow: 1; border-top: 1px dashed var(--border);"></span>
+          </span>
+          <div style="display: flex; flex-direction: column; gap: 2px; align-items: flex-end;">
+            <span class="pt-iata" style="font-size: 28px; line-height: 30px;">{{sel.to}}</span>
+            <span style="font-size: 11px; color: var(--muted-foreground); white-space: nowrap;">{{sel.toCity}}</span>
+          </div>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px 8px;">
+          <div style="display: flex; flex-direction: column; gap: 3px;"><span class="pt-meta" style="font-size: 10px; color: var(--muted-foreground);">Data</span><span class="pt-tabular" style="font-family: var(--font-mono); font-size: 13px; font-weight: 500; text-transform: uppercase;">{{sel.dateLabel}}</span></div>
+          <div style="display: flex; flex-direction: column; gap: 3px;"><span class="pt-meta" style="font-size: 10px; color: var(--muted-foreground);">Partida</span><span class="pt-tabular" style="font-family: var(--font-mono); font-size: 13px; font-weight: 500;">06:15</span></div>
+          <div style="display: flex; flex-direction: column; gap: 3px;"><span class="pt-meta" style="font-size: 10px; color: var(--muted-foreground);">Chegada</span><span class="pt-tabular" style="font-family: var(--font-mono); font-size: 13px; font-weight: 500;">08:05</span></div>
+          <div style="display: flex; flex-direction: column; gap: 3px;"><span class="pt-meta" style="font-size: 10px; color: var(--muted-foreground);">Cia</span><span style="font-size: 13px; font-weight: 500;">{{sel.cia}}</span></div>
+          <div style="display: flex; flex-direction: column; gap: 3px;"><span class="pt-meta" style="font-size: 10px; color: var(--muted-foreground);">Paradas</span><span style="font-size: 13px; font-weight: 500;">Direto</span></div>
+          <div style="display: flex; flex-direction: column; gap: 3px;"><span class="pt-meta" style="font-size: 10px; color: var(--muted-foreground);">Visto</span><span style="font-size: 13px; font-weight: 500;">há 3 h</span></div>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 8px; padding-top: 12px; border-top: 1px solid var(--border);">
+          <span class="pt-meta" style="font-size: 10px; color: var(--muted-foreground);">Menor preço do dia · tarifa + taxas</span>
+          <span class="pt-tabular" style="font-size: 34px; line-height: 38px; font-weight: 800; letter-spacing: -0.025em;">R$ {{sel.price}}</span>
+          <div><x-import component-from-global-scope="PereiraUI.Badge" variant="secondary">{{sel.tag}}</x-import></div>
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <span class="pt-tabular" style="font-family: var(--font-mono); font-size: 11px; color: var(--muted-foreground);">389</span>
+            <span style="position: relative; flex-grow: 1; height: 6px; border-radius: 9999px; background: linear-gradient(90deg, var(--price-1), var(--price-3) 45%, var(--price-4));">
+              <span style="position: absolute; left: {{sel.pos}}; top: -5px; width: 16px; height: 16px; margin-left: -8px; border-radius: 9999px; background: var(--card); border: 2px solid var(--foreground);"></span>
+            </span>
+            <span class="pt-tabular" style="font-family: var(--font-mono); font-size: 11px; color: var(--muted-foreground);">1.290</span>
+          </div>
+          <span style="font-size: 12px; line-height: 16px; color: var(--muted-foreground);">{{sel.note}}</span>
+        </div>
+      </div>
+      <div style="position: relative; height: 0; margin: 0 12px; border-top: 1px dashed var(--border);">
+        <span style="position: absolute; left: -22px; top: -9px; width: 18px; height: 18px; border-radius: 9999px; background: var(--background); border: 1px solid var(--border);"></span>
+        <span style="position: absolute; right: -22px; top: -9px; width: 18px; height: 18px; border-radius: 9999px; background: var(--background); border: 1px solid var(--border);"></span>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 12px; padding: 14px 16px 16px;">
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px;">
+          <span class="pt-iata" style="font-size: 13px; line-height: 18px;">{{sel.from}} → {{sel.to}}</span>
+          <span class="pt-tabular" style="font-family: var(--font-mono); font-size: 11px; font-weight: 500; text-transform: uppercase; color: var(--muted-foreground);">{{sel.dateLabel}}</span>
+          <span class="pt-tabular" style="font-size: 14px; font-weight: 700;">R$ {{sel.price}}</span>
+        </div>
+        <div aria-hidden="true" style="height: 36px; border-radius: 2px; background: repeating-linear-gradient(90deg, var(--foreground) 0 2px, transparent 2px 4px, var(--foreground) 4px 5px, transparent 5px 8px, var(--foreground) 8px 11px, transparent 11px 13px, var(--foreground) 13px 14px, transparent 14px 17px); opacity: 0.85;"></div>
+        <x-import component-from-global-scope="PereiraUI.Button" size="lg">Buscar na {{sel.cia}} <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 3h6v6M10 14 21 3M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg></x-import>
+      </div>
+    </section>
+    <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 12px; border: 1px solid var(--border); border-radius: var(--radius-md);">
+      <div style="display: flex; flex-direction: column; gap: 2px;">
+        <span class="pt-tabular" style="font-family: var(--font-mono); font-size: 13px; font-weight: 500;">07:40 → 12:10</span>
+        <span class="pt-meta" style="color: var(--muted-foreground);">Azul · 1 parada POA · há 5 h</span>
+      </div>
+      <span class="pt-tabular" style="font-size: 15px; font-weight: 600;">R$ {{sel.price2}}</span>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 6px; padding: 10px 12px; border-radius: var(--radius-md); background: var(--muted);">
+      <span class="pt-meta" style="color: var(--muted-foreground);">Variação desde 1 set</span>
+      <svg width="100%" height="40" viewBox="0 0 240 40" preserveAspectRatio="none" fill="none" aria-hidden="true">
+        <polyline points="4,6 30,9 56,14 82,12 108,20 134,23 160,27 186,24 212,34 236,34" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>
+      </svg>
+      <span class="pt-tabular" style="font-size: 12px;">mín visto <strong style="font-weight: 600;">R$ 489</strong> · máx <strong style="font-weight: 600;">R$ 640</strong></span>
+    </div>
+    </div>
+  </div>
+
+  <footer style="display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: auto; padding: 20px 24px; border-top: 1px solid var(--border); font-size: 12px; line-height: 16px; color: var(--muted-foreground);">
+    <span>Feito em Pelotas · preços de LATAM, GOL e Azul · não vendemos passagem.</span>
+    <span class="pt-meta">Coleta 06:04 · LATAM ok · Azul ok · GOL ok</span>
+  </footer>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["zinc-light","zinc-dark"],"default":"zinc-dark","section":"Tema"},"$preview":{"width":834,"height":1260}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { selected: 15, route: 'GRU', dir: 'dep' };
+  }
+  renderVals() {
+    const ROUTES = [
+      { iata: 'GRU', city: 'São Paulo · Guarulhos', cia: 'LATAM', ciaColor: 'var(--airline-latam)', min: '389', med: '612', max: '1.290', best: 'Qua 14' },
+      { iata: 'CGH', city: 'São Paulo · Congonhas', cia: 'GOL', ciaColor: 'var(--airline-gol)', min: '455', med: '690', max: '1.180', best: 'Ter 27' },
+      { iata: 'VCP', city: 'Campinas · Viracopos', cia: 'Azul', ciaColor: 'var(--airline-azul)', min: '412', med: '648', max: '1.090', best: 'Qua 21' },
+      { iata: 'POA', city: 'Porto Alegre', cia: 'Azul', ciaColor: 'var(--airline-azul)', min: '289', med: '398', max: '760', best: 'Ter 6' }
+    ];
+    const dir = this.state.dir;
+    const routes = ROUTES.map((r) => {
+      const on = r.iata === this.state.route;
+      return { ...r, checked: on, bg: on ? 'var(--board-row-selected)' : 'transparent', fg: on ? 'var(--board-amber)' : 'var(--board-foreground)', pick: () => this.setState({ route: r.iata }) };
+    });
+    const cur = ROUTES.find((r) => r.iata === this.state.route) || ROUTES[0];
+    const dirVals = {
+      dirTitle: dir === 'dep' ? 'Partidas' : 'Chegadas',
+      colTitle: dir === 'dep' ? 'Destino' : 'Origem',
+      isDep: dir === 'dep', isArr: dir === 'arr',
+      depBg: dir === 'dep' ? 'var(--board-amber)' : 'transparent', depFg: dir === 'dep' ? 'var(--board-amber-foreground)' : 'var(--board-muted)',
+      arrBg: dir === 'arr' ? 'var(--board-amber)' : 'transparent', arrFg: dir === 'arr' ? 'var(--board-amber-foreground)' : 'var(--board-muted)',
+      setDep: () => this.setState({ dir: 'dep' }), setArr: () => this.setState({ dir: 'arr' })
+    };
+    const RAW = [[1,612],[2,789],[3,845],[4,698],[5,534],[6,'nv'],[7,412],[8,489],[9,1120],[10,1290],[11,1180],[12,960],[13,455],[14,389],[15,489],[16,734],[17,812],[18,690],[19,560],[20,'nv'],[21,398],[22,445],[23,705],[24,880,true],[25,660,true],[26,540],[27,421],[28,409],[29,'nd'],[30,'nd'],[31,'nd']];
+    const WD = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+    const MIN = 389, MAX = 1290;
+    const fmt = (n) => n >= 1000 ? (Math.floor(n / 1000) + '.' + String(n % 1000).padStart(3, '0')) : String(n);
+    const tier = (p) => p <= 450 ? 1 : p <= 560 ? 2 : p <= 700 ? 3 : p <= 900 ? 4 : 5;
+    const sel = this.state.selected;
+    const days = [];
+    for (let i = 0; i < 4; i++) days.push({ isBlank: true, isDay: false });
+    RAW.forEach(([d, p, stale]) => {
+      const wd = WD[(4 + d - 1) % 7];
+      const item = { isBlank: false, isDay: true, num: d, op: stale ? 'var(--stale-opacity)' : '1', ring: d === sel ? '0 0 0 2px var(--foreground)' : 'none', border: '0', pick: () => this.setState({ selected: d }) };
+      if (p === 'nv') { item.label = '—'; item.bg = 'transparent'; item.fg = 'var(--muted-foreground)'; item.border = '1px solid var(--border)'; item.aria = wd + ' ' + d + ', sem voo'; }
+      else if (p === 'nd') { item.label = '·'; item.bg = 'repeating-linear-gradient(135deg, var(--border) 0 1px, transparent 1px 6px)'; item.fg = 'var(--muted-foreground)'; item.border = '1px dashed var(--border)'; item.aria = wd + ' ' + d + ', sem dado'; }
+      else { const t = tier(p); item.label = fmt(p); item.bg = 'var(--price-' + t + ')'; item.fg = 'var(--price-' + t + '-foreground)'; if (t === 5) item.border = '1px solid var(--border)'; item.aria = wd + ' ' + d + ', R$ ' + fmt(p) + (stale ? ', visto há mais de 48 h' : ''); }
+      days.push(item);
+    });
+    const row = RAW.find(([d]) => d === sel) || RAW[14];
+    const price = typeof row[1] === 'number' ? row[1] : 489;
+    const t = tier(price);
+    const selVals = {
+      routeLabel: dir === 'dep' ? 'PET → ' + cur.iata : cur.iata + ' → PET',
+      from: dir === 'dep' ? 'PET' : cur.iata, to: dir === 'dep' ? cur.iata : 'PET',
+      fromCity: dir === 'dep' ? 'Pelotas' : cur.city.split(' · ')[0], toCity: dir === 'dep' ? cur.city.split(' · ')[0] : 'Pelotas',
+      cia: cur.cia, ciaColor: cur.ciaColor,
+      dateLabel: WD[(4 + sel - 1) % 7] + ' · ' + sel + ' out',
+      price: fmt(price),
+      price2: fmt(price + 123),
+      pos: Math.round(((price - MIN) / (MAX - MIN)) * 100) + '%',
+      tag: t <= 2 ? 'Abaixo da mediana' : t === 3 ? 'Perto da mediana' : 'Acima da mediana',
+      note: t <= 2 ? 'Entre os dias mais baratos do mês. Mediana do período: R$ 612.' : 'Mediana do período: R$ 612. Terças e quartas costumam ficar abaixo.'
+    };
+    return { theme: this.props.theme ?? 'zinc-dark', days, sel: selVals, routes, ...dirVals };
+  }
+}
+</script>
+</body>
+</html>

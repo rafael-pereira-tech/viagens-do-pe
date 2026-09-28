@@ -1,0 +1,925 @@
+{
+  "name": "Pereira UI",
+  "version": 1,
+  "color": {
+    "note": "shadcn/ui's semantic variables, one flat set. Six themes = three shadcn base colours (Neutral, Zinc, Stone) × light/dark. Blue and Orange are accent overlays (`blue-*`, `orange-*`) that re-point `primary`, `chart-*` and `sidebar-primary` under `data-accent`.",
+    "themes": [
+      {
+        "id": "neutral-light",
+        "name": "Neutral Light"
+      },
+      {
+        "id": "neutral-dark",
+        "name": "Neutral Dark"
+      },
+      {
+        "id": "zinc-light",
+        "name": "Zinc Light"
+      },
+      {
+        "id": "zinc-dark",
+        "name": "Zinc Dark"
+      },
+      {
+        "id": "stone-light",
+        "name": "Stone Light"
+      },
+      {
+        "id": "stone-dark",
+        "name": "Stone Dark"
+      }
+    ],
+    "tokens": [
+      {
+        "name": "background",
+        "value": {
+          "neutral-light": "oklch(1 0 0)",
+          "neutral-dark": "oklch(0.145 0 0)",
+          "zinc-light": "oklch(1 0 0)",
+          "zinc-dark": "oklch(0.141 0.005 285.823)",
+          "stone-light": "oklch(1 0 0)",
+          "stone-dark": "oklch(0.147 0.004 49.25)"
+        },
+        "usage": "Page background. Carries `foreground` text."
+      },
+      {
+        "name": "foreground",
+        "value": {
+          "neutral-light": "oklch(0.145 0 0)",
+          "neutral-dark": "oklch(0.985 0 0)",
+          "zinc-light": "oklch(0.141 0.005 285.823)",
+          "zinc-dark": "oklch(0.985 0 0)",
+          "stone-light": "oklch(0.147 0.004 49.25)",
+          "stone-dark": "oklch(0.985 0.001 106.423)"
+        },
+        "usage": "Default text and icons on `background`, `card`, `popover`; also the Tooltip fill (with `background` as its text)."
+      },
+      {
+        "name": "card",
+        "value": {
+          "neutral-light": "oklch(1 0 0)",
+          "neutral-dark": "oklch(0.205 0 0)",
+          "zinc-light": "oklch(1 0 0)",
+          "zinc-dark": "oklch(0.21 0.006 285.885)",
+          "stone-light": "oklch(1 0 0)",
+          "stone-dark": "oklch(0.216 0.006 56.043)"
+        },
+        "usage": "Card surface (Card). Carries `card-foreground`."
+      },
+      {
+        "name": "card-foreground",
+        "value": {
+          "neutral-light": "oklch(0.145 0 0)",
+          "neutral-dark": "oklch(0.985 0 0)",
+          "zinc-light": "oklch(0.141 0.005 285.823)",
+          "zinc-dark": "oklch(0.985 0 0)",
+          "stone-light": "oklch(0.147 0.004 49.25)",
+          "stone-dark": "oklch(0.985 0.001 106.423)"
+        },
+        "usage": "Text on `card`."
+      },
+      {
+        "name": "popover",
+        "value": {
+          "neutral-light": "oklch(1 0 0)",
+          "neutral-dark": "oklch(0.205 0 0)",
+          "zinc-light": "oklch(1 0 0)",
+          "zinc-dark": "oklch(0.21 0.006 285.885)",
+          "stone-light": "oklch(1 0 0)",
+          "stone-dark": "oklch(0.216 0.006 56.043)"
+        },
+        "usage": "Floating surfaces: Select content, Dialog, Tooltip-free menus. Carries `popover-foreground`."
+      },
+      {
+        "name": "popover-foreground",
+        "value": {
+          "neutral-light": "oklch(0.145 0 0)",
+          "neutral-dark": "oklch(0.985 0 0)",
+          "zinc-light": "oklch(0.141 0.005 285.823)",
+          "zinc-dark": "oklch(0.985 0 0)",
+          "stone-light": "oklch(0.147 0.004 49.25)",
+          "stone-dark": "oklch(0.985 0.001 106.423)"
+        },
+        "usage": "Text on `popover`."
+      },
+      {
+        "name": "primary",
+        "value": {
+          "neutral-light": "oklch(0.205 0 0)",
+          "neutral-dark": "oklch(0.922 0 0)",
+          "zinc-light": "oklch(0.21 0.006 285.885)",
+          "zinc-dark": "oklch(0.92 0.004 286.32)",
+          "stone-light": "oklch(0.216 0.006 56.043)",
+          "stone-dark": "oklch(0.923 0.003 48.717)"
+        },
+        "usage": "Main action fill (Button default, Switch on, Checkbox checked, Badge default) and link-Button text."
+      },
+      {
+        "name": "primary-foreground",
+        "value": {
+          "neutral-light": "oklch(0.985 0 0)",
+          "neutral-dark": "oklch(0.205 0 0)",
+          "zinc-light": "oklch(0.985 0 0)",
+          "zinc-dark": "oklch(0.21 0.006 285.885)",
+          "stone-light": "oklch(0.985 0.001 106.423)",
+          "stone-dark": "oklch(0.216 0.006 56.043)"
+        },
+        "usage": "Text and icons on `primary`."
+      },
+      {
+        "name": "secondary",
+        "value": {
+          "neutral-light": "oklch(0.97 0 0)",
+          "neutral-dark": "oklch(0.269 0 0)",
+          "zinc-light": "oklch(0.967 0.001 286.375)",
+          "zinc-dark": "oklch(0.274 0.006 286.033)",
+          "stone-light": "oklch(0.97 0.001 106.424)",
+          "stone-dark": "oklch(0.268 0.007 34.298)"
+        },
+        "usage": "Secondary Button and Badge fill."
+      },
+      {
+        "name": "secondary-foreground",
+        "value": {
+          "neutral-light": "oklch(0.205 0 0)",
+          "neutral-dark": "oklch(0.985 0 0)",
+          "zinc-light": "oklch(0.21 0.006 285.885)",
+          "zinc-dark": "oklch(0.985 0 0)",
+          "stone-light": "oklch(0.216 0.006 56.043)",
+          "stone-dark": "oklch(0.985 0.001 106.423)"
+        },
+        "usage": "Text on `secondary`."
+      },
+      {
+        "name": "muted",
+        "value": {
+          "neutral-light": "oklch(0.97 0 0)",
+          "neutral-dark": "oklch(0.269 0 0)",
+          "zinc-light": "oklch(0.967 0.001 286.375)",
+          "zinc-dark": "oklch(0.274 0.006 286.033)",
+          "stone-light": "oklch(0.97 0.001 106.424)",
+          "stone-dark": "oklch(0.268 0.007 34.298)"
+        },
+        "usage": "Quiet fills: TabsList track, Avatar fallback, skeletons."
+      },
+      {
+        "name": "muted-foreground",
+        "value": {
+          "neutral-light": "oklch(0.556 0 0)",
+          "neutral-dark": "oklch(0.708 0 0)",
+          "zinc-light": "oklch(0.552 0.016 285.938)",
+          "zinc-dark": "oklch(0.705 0.015 286.067)",
+          "stone-light": "oklch(0.553 0.013 58.071)",
+          "stone-dark": "oklch(0.709 0.01 56.259)"
+        },
+        "usage": "Secondary text (descriptions, placeholders, helper text) on `background` and `card`. On `muted` it measures 4.3–4.4:1 in the light themes (shadcn source, kept exact): fine for TabsList labels, avoid for small body copy on `muted`."
+      },
+      {
+        "name": "accent",
+        "value": {
+          "neutral-light": "oklch(0.97 0 0)",
+          "neutral-dark": "oklch(0.269 0 0)",
+          "zinc-light": "oklch(0.967 0.001 286.375)",
+          "zinc-dark": "oklch(0.274 0.006 286.033)",
+          "stone-light": "oklch(0.97 0.001 106.424)",
+          "stone-dark": "oklch(0.268 0.007 34.298)"
+        },
+        "usage": "Hover/focus fill for ghost and outline Buttons, Select items."
+      },
+      {
+        "name": "accent-foreground",
+        "value": {
+          "neutral-light": "oklch(0.205 0 0)",
+          "neutral-dark": "oklch(0.985 0 0)",
+          "zinc-light": "oklch(0.21 0.006 285.885)",
+          "zinc-dark": "oklch(0.985 0 0)",
+          "stone-light": "oklch(0.216 0.006 56.043)",
+          "stone-dark": "oklch(0.985 0.001 106.423)"
+        },
+        "usage": "Text on `accent`."
+      },
+      {
+        "name": "destructive",
+        "value": {
+          "neutral-light": "oklch(0.577 0.245 27.325)",
+          "neutral-dark": "oklch(0.704 0.191 22.216)",
+          "zinc-light": "oklch(0.577 0.245 27.325)",
+          "zinc-dark": "oklch(0.704 0.191 22.216)",
+          "stone-light": "oklch(0.577 0.245 27.325)",
+          "stone-dark": "oklch(0.704 0.191 22.216)"
+        },
+        "usage": "Danger: destructive Button fill (with white text), destructive Alert/Badge text, invalid borders and rings."
+      },
+      {
+        "name": "border",
+        "value": {
+          "neutral-light": "oklch(0.922 0 0)",
+          "neutral-dark": "oklch(1 0 0 / 10%)",
+          "zinc-light": "oklch(0.92 0.004 286.32)",
+          "zinc-dark": "oklch(1 0 0 / 10%)",
+          "stone-light": "oklch(0.923 0.003 48.717)",
+          "stone-dark": "oklch(1 0 0 / 10%)"
+        },
+        "usage": "Default hairline for Card, Separator, Tabs, Alert, and all `border` utilities."
+      },
+      {
+        "name": "input",
+        "value": {
+          "neutral-light": "oklch(0.922 0 0)",
+          "neutral-dark": "oklch(1 0 0 / 15%)",
+          "zinc-light": "oklch(0.92 0.004 286.32)",
+          "zinc-dark": "oklch(1 0 0 / 15%)",
+          "stone-light": "oklch(0.923 0.003 48.717)",
+          "stone-dark": "oklch(1 0 0 / 15%)"
+        },
+        "usage": "Border of Input, Textarea, Select trigger, Checkbox, Switch off-track; in dark, also the translucent field fill (`input/30`)."
+      },
+      {
+        "name": "ring",
+        "value": {
+          "neutral-light": "oklch(0.708 0 0)",
+          "neutral-dark": "oklch(0.556 0 0)",
+          "zinc-light": "oklch(0.705 0.015 286.067)",
+          "zinc-dark": "oklch(0.552 0.016 285.938)",
+          "stone-light": "oklch(0.709 0.01 56.259)",
+          "stone-dark": "oklch(0.553 0.013 58.071)"
+        },
+        "usage": "Focus ring (applied at 50% opacity, 3px) and focused field border. Measures ~2.6:1 on `background` in light themes (source value, kept exact): the 3px width carries it; do not rely on it as the only state cue."
+      },
+      {
+        "name": "chart-1",
+        "value": {
+          "neutral-light": "oklch(0.87 0 0)",
+          "neutral-dark": "oklch(0.87 0 0)",
+          "zinc-light": "oklch(0.871 0.006 286.286)",
+          "zinc-dark": "oklch(0.871 0.006 286.286)",
+          "stone-light": "oklch(0.869 0.005 56.366)",
+          "stone-dark": "oklch(0.869 0.005 56.366)"
+        },
+        "usage": "Chart series 1 (lightest)."
+      },
+      {
+        "name": "chart-2",
+        "value": {
+          "neutral-light": "oklch(0.556 0 0)",
+          "neutral-dark": "oklch(0.556 0 0)",
+          "zinc-light": "oklch(0.552 0.016 285.938)",
+          "zinc-dark": "oklch(0.552 0.016 285.938)",
+          "stone-light": "oklch(0.553 0.013 58.071)",
+          "stone-dark": "oklch(0.553 0.013 58.071)"
+        },
+        "usage": "Chart series 2."
+      },
+      {
+        "name": "chart-3",
+        "value": {
+          "neutral-light": "oklch(0.439 0 0)",
+          "neutral-dark": "oklch(0.439 0 0)",
+          "zinc-light": "oklch(0.442 0.017 285.786)",
+          "zinc-dark": "oklch(0.442 0.017 285.786)",
+          "stone-light": "oklch(0.444 0.011 73.639)",
+          "stone-dark": "oklch(0.444 0.011 73.639)"
+        },
+        "usage": "Chart series 3."
+      },
+      {
+        "name": "chart-4",
+        "value": {
+          "neutral-light": "oklch(0.371 0 0)",
+          "neutral-dark": "oklch(0.371 0 0)",
+          "zinc-light": "oklch(0.37 0.013 285.805)",
+          "zinc-dark": "oklch(0.37 0.013 285.805)",
+          "stone-light": "oklch(0.374 0.01 67.558)",
+          "stone-dark": "oklch(0.374 0.01 67.558)"
+        },
+        "usage": "Chart series 4."
+      },
+      {
+        "name": "chart-5",
+        "value": {
+          "neutral-light": "oklch(0.269 0 0)",
+          "neutral-dark": "oklch(0.269 0 0)",
+          "zinc-light": "oklch(0.274 0.006 286.033)",
+          "zinc-dark": "oklch(0.274 0.006 286.033)",
+          "stone-light": "oklch(0.268 0.007 34.298)",
+          "stone-dark": "oklch(0.268 0.007 34.298)"
+        },
+        "usage": "Chart series 5 (darkest)."
+      },
+      {
+        "name": "sidebar",
+        "value": {
+          "neutral-light": "oklch(0.985 0 0)",
+          "neutral-dark": "oklch(0.205 0 0)",
+          "zinc-light": "oklch(0.985 0 0)",
+          "zinc-dark": "oklch(0.21 0.006 285.885)",
+          "stone-light": "oklch(0.985 0.001 106.423)",
+          "stone-dark": "oklch(0.216 0.006 56.043)"
+        },
+        "usage": "Sidebar surface."
+      },
+      {
+        "name": "sidebar-foreground",
+        "value": {
+          "neutral-light": "oklch(0.145 0 0)",
+          "neutral-dark": "oklch(0.985 0 0)",
+          "zinc-light": "oklch(0.141 0.005 285.823)",
+          "zinc-dark": "oklch(0.985 0 0)",
+          "stone-light": "oklch(0.147 0.004 49.25)",
+          "stone-dark": "oklch(0.985 0.001 106.423)"
+        },
+        "usage": "Text on `sidebar`."
+      },
+      {
+        "name": "sidebar-primary",
+        "value": {
+          "neutral-light": "oklch(0.205 0 0)",
+          "neutral-dark": "oklch(0.488 0.243 264.376)",
+          "zinc-light": "oklch(0.21 0.006 285.885)",
+          "zinc-dark": "oklch(0.488 0.243 264.376)",
+          "stone-light": "oklch(0.216 0.006 56.043)",
+          "stone-dark": "oklch(0.488 0.243 264.376)"
+        },
+        "usage": "Active item / brand mark fill in the sidebar."
+      },
+      {
+        "name": "sidebar-primary-foreground",
+        "value": {
+          "neutral-light": "oklch(0.985 0 0)",
+          "neutral-dark": "oklch(0.985 0 0)",
+          "zinc-light": "oklch(0.985 0 0)",
+          "zinc-dark": "oklch(0.985 0 0)",
+          "stone-light": "oklch(0.985 0.001 106.423)",
+          "stone-dark": "oklch(0.985 0.001 106.423)"
+        },
+        "usage": "Text on `sidebar-primary`."
+      },
+      {
+        "name": "sidebar-accent",
+        "value": {
+          "neutral-light": "oklch(0.97 0 0)",
+          "neutral-dark": "oklch(0.269 0 0)",
+          "zinc-light": "oklch(0.967 0.001 286.375)",
+          "zinc-dark": "oklch(0.274 0.006 286.033)",
+          "stone-light": "oklch(0.97 0.001 106.424)",
+          "stone-dark": "oklch(0.268 0.007 34.298)"
+        },
+        "usage": "Sidebar item hover fill."
+      },
+      {
+        "name": "sidebar-accent-foreground",
+        "value": {
+          "neutral-light": "oklch(0.205 0 0)",
+          "neutral-dark": "oklch(0.985 0 0)",
+          "zinc-light": "oklch(0.21 0.006 285.885)",
+          "zinc-dark": "oklch(0.985 0 0)",
+          "stone-light": "oklch(0.216 0.006 56.043)",
+          "stone-dark": "oklch(0.985 0.001 106.423)"
+        },
+        "usage": "Text on `sidebar-accent`."
+      },
+      {
+        "name": "sidebar-border",
+        "value": {
+          "neutral-light": "oklch(0.922 0 0)",
+          "neutral-dark": "oklch(1 0 0 / 10%)",
+          "zinc-light": "oklch(0.92 0.004 286.32)",
+          "zinc-dark": "oklch(1 0 0 / 10%)",
+          "stone-light": "oklch(0.923 0.003 48.717)",
+          "stone-dark": "oklch(1 0 0 / 10%)"
+        },
+        "usage": "Sidebar hairlines."
+      },
+      {
+        "name": "sidebar-ring",
+        "value": {
+          "neutral-light": "oklch(0.708 0 0)",
+          "neutral-dark": "oklch(0.556 0 0)",
+          "zinc-light": "oklch(0.705 0.015 286.067)",
+          "zinc-dark": "oklch(0.552 0.016 285.938)",
+          "stone-light": "oklch(0.709 0.01 56.259)",
+          "stone-dark": "oklch(0.553 0.013 58.071)"
+        },
+        "usage": "Focus ring inside the sidebar."
+      },
+      {
+        "name": "blue-primary",
+        "value": {
+          "neutral-light": "oklch(0.488 0.243 264.376)",
+          "neutral-dark": "oklch(0.424 0.199 265.638)",
+          "zinc-light": "oklch(0.488 0.243 264.376)",
+          "zinc-dark": "oklch(0.424 0.199 265.638)",
+          "stone-light": "oklch(0.488 0.243 264.376)",
+          "stone-dark": "oklch(0.424 0.199 265.638)"
+        },
+        "usage": "Blue accent (shadcn \"blue\" theme). Replaces `primary` when the accent is on. As text (link Buttons) it fails on `background` in the dark themes (≈2.2–2.7:1): keep accent-coloured text to light themes, use fills in dark. Switched on by `data-accent=\"blue\"` on any ancestor."
+      },
+      {
+        "name": "blue-primary-foreground",
+        "value": {
+          "neutral-light": "oklch(0.97 0.014 254.604)",
+          "neutral-dark": "oklch(0.97 0.014 254.604)",
+          "zinc-light": "oklch(0.97 0.014 254.604)",
+          "zinc-dark": "oklch(0.97 0.014 254.604)",
+          "stone-light": "oklch(0.97 0.014 254.604)",
+          "stone-dark": "oklch(0.97 0.014 254.604)"
+        },
+        "usage": "Blue accent (shadcn \"blue\" theme). Replaces `primary-foreground` with the accent on. Switched on by `data-accent=\"blue\"` on any ancestor."
+      },
+      {
+        "name": "blue-chart-1",
+        "value": {
+          "neutral-light": "oklch(0.809 0.105 251.813)",
+          "neutral-dark": "oklch(0.809 0.105 251.813)",
+          "zinc-light": "oklch(0.809 0.105 251.813)",
+          "zinc-dark": "oklch(0.809 0.105 251.813)",
+          "stone-light": "oklch(0.809 0.105 251.813)",
+          "stone-dark": "oklch(0.809 0.105 251.813)"
+        },
+        "usage": "Blue accent (shadcn \"blue\" theme). Replaces `chart-1` with the accent on. Switched on by `data-accent=\"blue\"` on any ancestor."
+      },
+      {
+        "name": "blue-chart-2",
+        "value": {
+          "neutral-light": "oklch(0.623 0.214 259.815)",
+          "neutral-dark": "oklch(0.623 0.214 259.815)",
+          "zinc-light": "oklch(0.623 0.214 259.815)",
+          "zinc-dark": "oklch(0.623 0.214 259.815)",
+          "stone-light": "oklch(0.623 0.214 259.815)",
+          "stone-dark": "oklch(0.623 0.214 259.815)"
+        },
+        "usage": "Blue accent (shadcn \"blue\" theme). Replaces `chart-2` with the accent on. Switched on by `data-accent=\"blue\"` on any ancestor."
+      },
+      {
+        "name": "blue-chart-3",
+        "value": {
+          "neutral-light": "oklch(0.546 0.245 262.881)",
+          "neutral-dark": "oklch(0.546 0.245 262.881)",
+          "zinc-light": "oklch(0.546 0.245 262.881)",
+          "zinc-dark": "oklch(0.546 0.245 262.881)",
+          "stone-light": "oklch(0.546 0.245 262.881)",
+          "stone-dark": "oklch(0.546 0.245 262.881)"
+        },
+        "usage": "Blue accent (shadcn \"blue\" theme). Replaces `chart-3` with the accent on. Switched on by `data-accent=\"blue\"` on any ancestor."
+      },
+      {
+        "name": "blue-chart-4",
+        "value": {
+          "neutral-light": "oklch(0.488 0.243 264.376)",
+          "neutral-dark": "oklch(0.488 0.243 264.376)",
+          "zinc-light": "oklch(0.488 0.243 264.376)",
+          "zinc-dark": "oklch(0.488 0.243 264.376)",
+          "stone-light": "oklch(0.488 0.243 264.376)",
+          "stone-dark": "oklch(0.488 0.243 264.376)"
+        },
+        "usage": "Blue accent (shadcn \"blue\" theme). Replaces `chart-4` with the accent on. Switched on by `data-accent=\"blue\"` on any ancestor."
+      },
+      {
+        "name": "blue-chart-5",
+        "value": {
+          "neutral-light": "oklch(0.424 0.199 265.638)",
+          "neutral-dark": "oklch(0.424 0.199 265.638)",
+          "zinc-light": "oklch(0.424 0.199 265.638)",
+          "zinc-dark": "oklch(0.424 0.199 265.638)",
+          "stone-light": "oklch(0.424 0.199 265.638)",
+          "stone-dark": "oklch(0.424 0.199 265.638)"
+        },
+        "usage": "Blue accent (shadcn \"blue\" theme). Replaces `chart-5` with the accent on. Switched on by `data-accent=\"blue\"` on any ancestor."
+      },
+      {
+        "name": "blue-sidebar-primary",
+        "value": {
+          "neutral-light": "oklch(0.546 0.245 262.881)",
+          "neutral-dark": "oklch(0.623 0.214 259.815)",
+          "zinc-light": "oklch(0.546 0.245 262.881)",
+          "zinc-dark": "oklch(0.623 0.214 259.815)",
+          "stone-light": "oklch(0.546 0.245 262.881)",
+          "stone-dark": "oklch(0.623 0.214 259.815)"
+        },
+        "usage": "Blue accent (shadcn \"blue\" theme). Replaces `sidebar-primary` with the accent on. Switched on by `data-accent=\"blue\"` on any ancestor."
+      },
+      {
+        "name": "blue-sidebar-primary-foreground",
+        "value": {
+          "neutral-light": "oklch(0.97 0.014 254.604)",
+          "neutral-dark": "oklch(0.97 0.014 254.604)",
+          "zinc-light": "oklch(0.97 0.014 254.604)",
+          "zinc-dark": "oklch(0.97 0.014 254.604)",
+          "stone-light": "oklch(0.97 0.014 254.604)",
+          "stone-dark": "oklch(0.97 0.014 254.604)"
+        },
+        "usage": "Blue accent (shadcn \"blue\" theme). Replaces `sidebar-primary-foreground` with the accent on. Switched on by `data-accent=\"blue\"` on any ancestor."
+      },
+      {
+        "name": "orange-primary",
+        "value": {
+          "neutral-light": "oklch(0.553 0.195 38.402)",
+          "neutral-dark": "oklch(0.47 0.157 37.304)",
+          "zinc-light": "oklch(0.553 0.195 38.402)",
+          "zinc-dark": "oklch(0.47 0.157 37.304)",
+          "stone-light": "oklch(0.553 0.195 38.402)",
+          "stone-dark": "oklch(0.47 0.157 37.304)"
+        },
+        "usage": "Orange accent (shadcn \"orange\" theme). Replaces `primary` when the accent is on. As text (link Buttons) it fails on `background` in the dark themes (≈2.2–2.7:1): keep accent-coloured text to light themes, use fills in dark. Switched on by `data-accent=\"orange\"` on any ancestor."
+      },
+      {
+        "name": "orange-primary-foreground",
+        "value": {
+          "neutral-light": "oklch(0.98 0.016 73.684)",
+          "neutral-dark": "oklch(0.98 0.016 73.684)",
+          "zinc-light": "oklch(0.98 0.016 73.684)",
+          "zinc-dark": "oklch(0.98 0.016 73.684)",
+          "stone-light": "oklch(0.98 0.016 73.684)",
+          "stone-dark": "oklch(0.98 0.016 73.684)"
+        },
+        "usage": "Orange accent (shadcn \"orange\" theme). Replaces `primary-foreground` with the accent on. Switched on by `data-accent=\"orange\"` on any ancestor."
+      },
+      {
+        "name": "orange-chart-1",
+        "value": {
+          "neutral-light": "oklch(0.837 0.128 66.29)",
+          "neutral-dark": "oklch(0.837 0.128 66.29)",
+          "zinc-light": "oklch(0.837 0.128 66.29)",
+          "zinc-dark": "oklch(0.837 0.128 66.29)",
+          "stone-light": "oklch(0.837 0.128 66.29)",
+          "stone-dark": "oklch(0.837 0.128 66.29)"
+        },
+        "usage": "Orange accent (shadcn \"orange\" theme). Replaces `chart-1` with the accent on. Switched on by `data-accent=\"orange\"` on any ancestor."
+      },
+      {
+        "name": "orange-chart-2",
+        "value": {
+          "neutral-light": "oklch(0.705 0.213 47.604)",
+          "neutral-dark": "oklch(0.705 0.213 47.604)",
+          "zinc-light": "oklch(0.705 0.213 47.604)",
+          "zinc-dark": "oklch(0.705 0.213 47.604)",
+          "stone-light": "oklch(0.705 0.213 47.604)",
+          "stone-dark": "oklch(0.705 0.213 47.604)"
+        },
+        "usage": "Orange accent (shadcn \"orange\" theme). Replaces `chart-2` with the accent on. Switched on by `data-accent=\"orange\"` on any ancestor."
+      },
+      {
+        "name": "orange-chart-3",
+        "value": {
+          "neutral-light": "oklch(0.646 0.222 41.116)",
+          "neutral-dark": "oklch(0.646 0.222 41.116)",
+          "zinc-light": "oklch(0.646 0.222 41.116)",
+          "zinc-dark": "oklch(0.646 0.222 41.116)",
+          "stone-light": "oklch(0.646 0.222 41.116)",
+          "stone-dark": "oklch(0.646 0.222 41.116)"
+        },
+        "usage": "Orange accent (shadcn \"orange\" theme). Replaces `chart-3` with the accent on. Switched on by `data-accent=\"orange\"` on any ancestor."
+      },
+      {
+        "name": "orange-chart-4",
+        "value": {
+          "neutral-light": "oklch(0.553 0.195 38.402)",
+          "neutral-dark": "oklch(0.553 0.195 38.402)",
+          "zinc-light": "oklch(0.553 0.195 38.402)",
+          "zinc-dark": "oklch(0.553 0.195 38.402)",
+          "stone-light": "oklch(0.553 0.195 38.402)",
+          "stone-dark": "oklch(0.553 0.195 38.402)"
+        },
+        "usage": "Orange accent (shadcn \"orange\" theme). Replaces `chart-4` with the accent on. Switched on by `data-accent=\"orange\"` on any ancestor."
+      },
+      {
+        "name": "orange-chart-5",
+        "value": {
+          "neutral-light": "oklch(0.47 0.157 37.304)",
+          "neutral-dark": "oklch(0.47 0.157 37.304)",
+          "zinc-light": "oklch(0.47 0.157 37.304)",
+          "zinc-dark": "oklch(0.47 0.157 37.304)",
+          "stone-light": "oklch(0.47 0.157 37.304)",
+          "stone-dark": "oklch(0.47 0.157 37.304)"
+        },
+        "usage": "Orange accent (shadcn \"orange\" theme). Replaces `chart-5` with the accent on. Switched on by `data-accent=\"orange\"` on any ancestor."
+      },
+      {
+        "name": "orange-sidebar-primary",
+        "value": {
+          "neutral-light": "oklch(0.646 0.222 41.116)",
+          "neutral-dark": "oklch(0.705 0.213 47.604)",
+          "zinc-light": "oklch(0.646 0.222 41.116)",
+          "zinc-dark": "oklch(0.705 0.213 47.604)",
+          "stone-light": "oklch(0.646 0.222 41.116)",
+          "stone-dark": "oklch(0.705 0.213 47.604)"
+        },
+        "usage": "Orange accent (shadcn \"orange\" theme). Replaces `sidebar-primary` with the accent on. Switched on by `data-accent=\"orange\"` on any ancestor."
+      },
+      {
+        "name": "orange-sidebar-primary-foreground",
+        "value": {
+          "neutral-light": "oklch(0.98 0.016 73.684)",
+          "neutral-dark": "oklch(0.98 0.016 73.684)",
+          "zinc-light": "oklch(0.98 0.016 73.684)",
+          "zinc-dark": "oklch(0.98 0.016 73.684)",
+          "stone-light": "oklch(0.98 0.016 73.684)",
+          "stone-dark": "oklch(0.98 0.016 73.684)"
+        },
+        "usage": "Orange accent (shadcn \"orange\" theme). Replaces `sidebar-primary-foreground` with the accent on. Switched on by `data-accent=\"orange\"` on any ancestor."
+      }
+    ]
+  },
+  "type": {
+    "fonts": [
+      {
+        "family": "Geist Variable",
+        "file": "fonts/geist-latin-wght-normal.woff2",
+        "weight": "100 900",
+        "style": "normal"
+      },
+      {
+        "family": "Geist Variable",
+        "file": "fonts/geist-latin-wght-italic.woff2",
+        "weight": "100 900",
+        "style": "italic"
+      },
+      {
+        "family": "Geist Mono Variable",
+        "file": "fonts/geist-mono-latin-wght-normal.woff2",
+        "weight": "100 900",
+        "style": "normal"
+      }
+    ],
+    "families": {
+      "sans": "\"Geist Variable\", ui-sans-serif, system-ui, sans-serif",
+      "heading": "\"Geist Variable\", ui-sans-serif, system-ui, sans-serif",
+      "mono": "\"Geist Mono Variable\", ui-monospace, SFMono-Regular, Menlo, monospace"
+    },
+    "groups": [
+      {
+        "name": "Headings",
+        "family": "heading",
+        "styles": [
+          {
+            "name": "h1",
+            "fontSize": "2.25rem",
+            "lineHeight": "2.5rem",
+            "fontWeight": 800,
+            "letterSpacing": "-0.025em",
+            "sample": "Taxing Laughter: The Joke Tax Chronicles",
+            "usage": "Page title (text-4xl font-extrabold tracking-tight). One per page."
+          },
+          {
+            "name": "h2",
+            "fontSize": "1.875rem",
+            "lineHeight": "2.25rem",
+            "fontWeight": 600,
+            "letterSpacing": "-0.025em",
+            "sample": "The People of the Kingdom",
+            "usage": "Section title (text-3xl font-semibold tracking-tight), with a `border` rule below and pb-2."
+          },
+          {
+            "name": "h3",
+            "fontSize": "1.5rem",
+            "lineHeight": "2rem",
+            "fontWeight": 600,
+            "letterSpacing": "-0.025em",
+            "sample": "The Joke Tax",
+            "usage": "Subsection (text-2xl font-semibold)."
+          },
+          {
+            "name": "h4",
+            "fontSize": "1.25rem",
+            "lineHeight": "1.75rem",
+            "fontWeight": 600,
+            "letterSpacing": "-0.025em",
+            "sample": "People stopped telling jokes",
+            "usage": "Minor heading (text-xl font-semibold)."
+          }
+        ]
+      },
+      {
+        "name": "Text",
+        "family": "sans",
+        "styles": [
+          {
+            "name": "lead",
+            "fontSize": "1.25rem",
+            "lineHeight": "1.75rem",
+            "fontWeight": 400,
+            "sample": "A modal dialog that interrupts the user with important content.",
+            "usage": "Intro paragraph under a title, in `muted-foreground`."
+          },
+          {
+            "name": "large",
+            "fontSize": "1.125rem",
+            "lineHeight": "1.75rem",
+            "fontWeight": 600,
+            "sample": "Are you absolutely sure?",
+            "usage": "Emphasized one-liners; DialogTitle size."
+          },
+          {
+            "name": "p",
+            "fontSize": "1rem",
+            "lineHeight": "1.75rem",
+            "fontWeight": 400,
+            "sample": "The king, seeing how much happier his subjects were, realized the error of his ways.",
+            "usage": "Long-form body (leading-7), paragraphs spaced mt-6."
+          },
+          {
+            "name": "body",
+            "fontSize": "0.875rem",
+            "lineHeight": "1.25rem",
+            "fontWeight": 400,
+            "sample": "Enter your email address.",
+            "usage": "UI body: controls, Card and Alert copy, descriptions (text-sm)."
+          },
+          {
+            "name": "label",
+            "fontSize": "0.875rem",
+            "lineHeight": "1",
+            "fontWeight": 500,
+            "sample": "Email address",
+            "usage": "Label, Button text, TabsTrigger (text-sm font-medium leading-none)."
+          },
+          {
+            "name": "caption",
+            "fontSize": "0.75rem",
+            "lineHeight": "1rem",
+            "fontWeight": 500,
+            "sample": "Badge",
+            "usage": "Badge and Tooltip text (text-xs)."
+          }
+        ]
+      },
+      {
+        "name": "Code",
+        "family": "mono",
+        "styles": [
+          {
+            "name": "code",
+            "fontSize": "0.875rem",
+            "lineHeight": "1.25rem",
+            "fontWeight": 600,
+            "sample": "@radix-ui/react-alert-dialog",
+            "usage": "Inline code: `muted` fill, radius-sm-ish rounded, px-[0.3rem] py-[0.2rem]."
+          }
+        ]
+      }
+    ]
+  },
+  "spacing": {
+    "note": "Tailwind v4 spacing: every step is a multiple of `spacing` (0.25rem = 4px). Components use p-6/gap-6 for Cards, px-4/h-9 for Buttons, gap-2/gap-3 inside rows.",
+    "tokens": [
+      {
+        "name": "spacing",
+        "value": "0.25rem",
+        "usage": "The Tailwind base unit; `p-N` = N × 0.25rem."
+      },
+      {
+        "name": "space-1",
+        "value": "0.25rem",
+        "usage": "Hairline gaps: Badge gap, icon-to-text in tight chips."
+      },
+      {
+        "name": "space-1-5",
+        "value": "0.375rem",
+        "usage": "Card header internal gap; small Button gap."
+      },
+      {
+        "name": "space-2",
+        "value": "0.5rem",
+        "usage": "Default gap between Button icon and label, Dialog header rows, form label to field."
+      },
+      {
+        "name": "space-3",
+        "value": "0.75rem",
+        "usage": "Field padding-x (Input px-3), Alert gap, rows of controls."
+      },
+      {
+        "name": "space-4",
+        "value": "1rem",
+        "usage": "Button padding-x (px-4), Dialog content gap, Alert padding-x."
+      },
+      {
+        "name": "space-6",
+        "value": "1.5rem",
+        "usage": "Card padding and vertical gap (p-6 / gap-6); Dialog padding."
+      },
+      {
+        "name": "space-8",
+        "value": "2rem",
+        "usage": "Section spacing inside a page."
+      },
+      {
+        "name": "space-12",
+        "value": "3rem",
+        "usage": "Between page sections."
+      }
+    ]
+  },
+  "radius": {
+    "note": "`radius` is the one knob; the steps are the fixed multiples shadcn derives from it (calc(var(--radius) × n)), written here as literal values for radius = 0.625rem.",
+    "tokens": [
+      {
+        "name": "radius",
+        "value": "0.625rem",
+        "usage": "The base radius. Change this one value to re-shape the whole system (shadcn presets: 0, 0.45rem, 0.625rem, 0.875rem)."
+      },
+      {
+        "name": "radius-sm",
+        "value": "0.375rem",
+        "usage": "×0.6 — Select items. (Checkbox uses a fixed 4px.)"
+      },
+      {
+        "name": "radius-md",
+        "value": "0.5rem",
+        "usage": "×0.8 — Button, Input, Textarea, Select trigger and content, TabsTrigger, Tooltip. Badge is a full pill."
+      },
+      {
+        "name": "radius-lg",
+        "value": "0.625rem",
+        "usage": "×1 — Alert, Dialog, TabsList, Select content."
+      },
+      {
+        "name": "radius-xl",
+        "value": "0.875rem",
+        "usage": "×1.4 — Card."
+      },
+      {
+        "name": "radius-2xl",
+        "value": "1.125rem",
+        "usage": "×1.8 — large panels."
+      },
+      {
+        "name": "radius-3xl",
+        "value": "1.375rem",
+        "usage": "×2.2 — hero surfaces."
+      },
+      {
+        "name": "radius-4xl",
+        "value": "1.625rem",
+        "usage": "×2.6 — the largest rounded surfaces."
+      }
+    ]
+  },
+  "shadow": {
+    "note": "Tailwind v4 default shadows; shadcn uses `shadow-xs` on fields and outline Buttons, `shadow-sm` on Cards, `shadow-md` on Select content, `shadow-lg` on Dialog.",
+    "tokens": [
+      {
+        "name": "shadow-2xs",
+        "value": "0 1px rgb(0 0 0 / 0.05)",
+        "usage": "Barely-there lift."
+      },
+      {
+        "name": "shadow-xs",
+        "value": "0 1px 2px 0 rgb(0 0 0 / 0.05)",
+        "usage": "Input, Textarea, Select trigger, Checkbox, Switch, outline Button."
+      },
+      {
+        "name": "shadow-sm",
+        "value": "0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)",
+        "usage": "Card; active TabsTrigger."
+      },
+      {
+        "name": "shadow-md",
+        "value": "0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)",
+        "usage": "Select content, popovers."
+      },
+      {
+        "name": "shadow-lg",
+        "value": "0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)",
+        "usage": "Dialog."
+      }
+    ]
+  },
+  "meta": {
+    "source": "github",
+    "repo": "shadcn-ui/ui",
+    "ref": "main@98a1fe6",
+    "package": "apps/v4",
+    "paths": {
+      "tokens": [
+        "apps/v4/registry/themes.ts",
+        "apps/v4/app/globals.css"
+      ],
+      "fonts": [
+        "apps/v4/lib/font-definitions.ts (Geist, Geist Mono via @fontsource-variable)"
+      ],
+      "assets": [],
+      "docs": [
+        "apps/v4/content/docs/components",
+        "apps/v4/registry/new-york-v4/examples/typography-*.tsx"
+      ]
+    },
+    "components": {
+      "Alert": "apps/v4/registry/new-york-v4/ui/alert.tsx",
+      "Avatar": "apps/v4/registry/new-york-v4/ui/avatar.tsx",
+      "Badge": "apps/v4/registry/new-york-v4/ui/badge.tsx",
+      "Button": "apps/v4/registry/new-york-v4/ui/button.tsx",
+      "Card": "apps/v4/registry/new-york-v4/ui/card.tsx",
+      "Checkbox": "apps/v4/registry/new-york-v4/ui/checkbox.tsx",
+      "Dialog": "apps/v4/registry/new-york-v4/ui/dialog.tsx",
+      "Input": "apps/v4/registry/new-york-v4/ui/input.tsx",
+      "Label": "apps/v4/registry/new-york-v4/ui/label.tsx",
+      "Select": "apps/v4/registry/new-york-v4/ui/select.tsx",
+      "Separator": "apps/v4/registry/new-york-v4/ui/separator.tsx",
+      "Switch": "apps/v4/registry/new-york-v4/ui/switch.tsx",
+      "Tabs": "apps/v4/registry/new-york-v4/ui/tabs.tsx",
+      "Textarea": "apps/v4/registry/new-york-v4/ui/textarea.tsx",
+      "Tooltip": "apps/v4/registry/new-york-v4/ui/tooltip.tsx"
+    },
+    "synced": "2026-09-27"
+  }
+}
