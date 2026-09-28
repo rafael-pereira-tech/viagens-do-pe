@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Theme pelotas-trips</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/pereira-ui/components/bundle.css">
+<link rel="stylesheet" href="theme.css">
+<script src="ds/pereira-ui/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&amp;family=Geist+Mono:wght@100..900&amp;family=Doto:wght@100..900&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:var(--primary)}a:hover{color:var(--foreground)}
+</style>
+</helmet>
+<div data-theme="zinc-light" data-accent="blue" style="width: 1280px; height: 1640px; box-sizing: border-box; padding: 56px; display: flex; flex-direction: column; gap: 40px; background: var(--background); color: var(--foreground); font-family: var(--font-sans); font-size: 14px; line-height: 20px;">
+
+  <!-- cabeçalho -->
+  <div style="display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; padding-bottom: 20px; border-bottom: 1px solid var(--border);">
+    <div style="display: flex; flex-direction: column; gap: 12px;">
+      <div data-accent="orange" style="display: flex; align-items: center; gap: 10px;">
+        <span style="display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 30px; border-radius: 9999px; border: 1.5px solid var(--primary); color: var(--primary); font-family: var(--font-mono); font-size: 9px; font-weight: 700; letter-spacing: 0.08em;">PET</span>
+        <span style="font-size: 18px; font-weight: 600; letter-spacing: -0.01em; color: var(--foreground);">pelotas‑trips<span style="color: var(--muted-foreground); font-weight: 500;">.app</span></span>
+      </div>
+      <h1 style="margin: 0; font-size: 36px; line-height: 40px; font-weight: 800; letter-spacing: -0.025em;">Theme sobre Pereira UI</h1>
+      <p style="margin: 0; font-size: 16px; line-height: 24px; color: var(--muted-foreground); max-width: 720px;">Zinc como base, accent Blue na ação principal, Orange na marca e como âmbar do painel. Geist para tudo, Geist Mono para IATA, horários e metadados, Doto (matriz de pontos) só dentro do painel de embarque.</p>
+    </div>
+    <div class="pt-meta" style="display: flex; gap: 0; border: 1px solid var(--border); border-radius: var(--radius-md); overflow: hidden; color: var(--muted-foreground);">
+      <span style="padding: 8px 12px; border-right: 1px solid var(--border);">Zinc</span>
+      <span style="padding: 8px 12px; border-right: 1px solid var(--border);">Blue</span>
+      <span style="padding: 8px 12px; border-right: 1px solid var(--border);">Radius 0.625</span>
+      <span style="padding: 8px 12px;">Geist · Geist Mono · Doto</span>
+    </div>
+  </div>
+
+  <!-- cores -->
+  <div style="display: flex; flex-direction: column; gap: 16px;">
+    <div style="display: flex; align-items: baseline; gap: 12px;">
+      <h2 style="margin: 0; font-size: 20px; line-height: 28px; font-weight: 600; letter-spacing: -0.025em;">Cores</h2>
+      <span style="color: var(--muted-foreground);">semânticas do Pereira UI + extensão do app</span>
+    </div>
+    <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px;">
+      <!-- light -->
+      <div data-theme="zinc-light" style="display: flex; flex-direction: column; gap: 12px; padding: 20px; border: 1px solid var(--border); border-radius: var(--radius-xl); background: var(--background); color: var(--foreground);">
+        <span class="pt-meta" style="color: var(--muted-foreground);">zinc-light · data-accent=blue</span>
+        <div style="display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px;">
+          <div style="display: flex; flex-direction: column; gap: 6px;"><div style="height: 44px; border-radius: var(--radius-md); background: var(--background); border: 1px solid var(--border);"></div><span style="font-size: 12px; color: var(--muted-foreground);">background</span></div>
+          <div style="display: flex; flex-direction: column; gap: 6px;"><div style="height: 44px; border-radius: var(--radius-md); background: var(--muted); border: 1px solid var(--border);"></div><span style="font-size: 12px; color: var(--muted-foreground);">muted</span></div>
+          <div style="display: flex; flex-direction: column; gap: 6px;"><div style="height: 44px; border-radius: var(--radius-md); background: var(--foreground);"></div><span style="font-size: 12px; color: var(--muted-foreground);">foreground</span></div>
+          <div style="display: flex; flex-direction: column; gap: 6px;"><div style="height: 44px; border-radius: var(--radius-md); background: var(--primary);"></div><span style="font-size: 12px; color: var(--muted-foreground);">primary (blue)</span></div>
+          <div style="display: flex; flex-direction: column; gap: 6px;"><div style="height: 44px; border-radius: var(--radius-md); background: var(--destructive);"></div><span style="font-size: 12px; color: var(--muted-foreground);">destructive</span></div>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px;">
+          <div style="display: flex; flex-direction: column; gap: 6px;"><div style="height: 44px; border-radius: var(--radius-md); background: var(--board);"></div><span style="font-size: 12px; color: var(--muted-foreground);">board</span></div>
+          <div style="display: flex; flex-direction: column; gap: 6px;"><div style="height: 44px; border-radius: var(--radius-md); background: var(--price-1);"></div><span style="font-size: 12px; color: var(--muted-foreground);">price-1 · barato</span></div>
+          <div style="display: flex; flex-direction: column; gap: 6px;"><div style="height: 44px; border-radius: var(--radius-md); background: var(--price-2);"></div><span style="font-size: 12px; color: var(--muted-foreground);">price-2</span></div>
+          <div style="display: flex; flex-direction: column; gap: 6px;"><div style="height: 44px; border-radius: var(--radius-md); background: var(--price-3);"></div><span style="font-size: 12px; color: var(--muted-foreground);">price-3</span></div>
+          <div style="display: flex; flex-direction: column; gap: 6px;"><div style="height: 44px; border-radius: var(--radius-md); background: var(--price-4); border: 1px solid var(--border);"></div><span style="font-size: 12px; color: var(--muted-foreground);">price-4 · caro</span></div>
+        </div>
+        <div style="display: flex; gap: 16px; align-items: center; padding-top: 4px;">
+          <span style="display: inline-flex; align-items: center; gap: 6px; font-size: 12px;"><span style="width: 8px; height: 8px; border-radius: 9999px; background: var(--airline-latam);"></span>LATAM</span>
+          <span style="display: inline-flex; align-items: center; gap: 6px; font-size: 12px;"><span style="width: 8px; height: 8px; border-radius: 9999px; background: var(--airline-gol);"></span>GOL</span>
+          <span style="display: inline-flex; align-items: center; gap: 6px; font-size: 12px;"><span style="width: 8px; height: 8px; border-radius: 9999px; background: var(--airline-azul);"></span>Azul</span>
+          <span style="font-size: 12px; color: var(--muted-foreground);">marca só em ponto e texto, nunca em célula</span>
+        </div>
+      </div>
+      <!-- dark -->
+      <div data-theme="zinc-dark" style="display: flex; flex-direction: column; gap: 12px; padding: 20px; border: 1px solid var(--border); border-radius: var(--radius-xl); background: var(--background); color: var(--foreground);">
+        <span class="pt-meta" style="color: var(--muted-foreground);">zinc-dark · data-accent=blue</span>
+        <div style="display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px;">
+          <div style="display: flex; flex-direction: column; gap: 6px;"><div style="height: 44px; border-radius: var(--radius-md); background: var(--background); border: 1px solid var(--border);"></div><span style="font-size: 12px; color: var(--muted-foreground);">background</span></div>
+          <div style="display: flex; flex-direction: column; gap: 6px;"><div style="height: 44px; border-radius: var(--radius-md); background: var(--card); border: 1px solid var(--border);"></div><span style="font-size: 12px; color: var(--muted-foreground);">card</span></div>
+          <div style="display: flex; flex-direction: column; gap: 6px;"><div style="height: 44px; border-radius: var(--radius-md); background: var(--foreground);"></div><span style="font-size: 12px; color: var(--muted-foreground);">foreground</span></div>
+          <div style="display: flex; flex-direction: column; gap: 6px;"><div style="height: 44px; border-radius: var(--radius-md); background: var(--primary);"></div><span style="font-size: 12px; color: var(--muted-foreground);">primary (blue)</span></div>
+          <div style="display: flex; flex-direction: column; gap: 6px;"><div style="height: 44px; border-radius: var(--radius-md); background: var(--destructive);"></div><span style="font-size: 12px; color: var(--muted-foreground);">destructive</span></div>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px;">
+          <div style="display: flex; flex-direction: column; gap: 6px;"><div style="height: 44px; border-radius: var(--radius-md); background: var(--board); border: 1px solid var(--board-border);"></div><span style="font-size: 12px; color: var(--muted-foreground);">board</span></div>
+          <div style="display: flex; flex-direction: column; gap: 6px;"><div style="height: 44px; border-radius: var(--radius-md); background: var(--price-1);"></div><span style="font-size: 12px; color: var(--muted-foreground);">price-1 · barato</span></div>
+          <div style="display: flex; flex-direction: column; gap: 6px;"><div style="height: 44px; border-radius: var(--radius-md); background: var(--price-2);"></div><span style="font-size: 12px; color: var(--muted-foreground);">price-2</span></div>
+          <div style="display: flex; flex-direction: column; gap: 6px;"><div style="height: 44px; border-radius: var(--radius-md); background: var(--price-3);"></div><span style="font-size: 12px; color: var(--muted-foreground);">price-3</span></div>
+          <div style="display: flex; flex-direction: column; gap: 6px;"><div style="height: 44px; border-radius: var(--radius-md); background: var(--price-4); border: 1px solid var(--border);"></div><span style="font-size: 12px; color: var(--muted-foreground);">price-4 · caro</span></div>
+        </div>
+        <div style="display: flex; gap: 16px; align-items: center; padding-top: 4px;">
+          <span style="display: inline-flex; align-items: center; gap: 6px; font-size: 12px;"><span style="width: 8px; height: 8px; border-radius: 9999px; background: var(--airline-latam);"></span>LATAM</span>
+          <span style="display: inline-flex; align-items: center; gap: 6px; font-size: 12px;"><span style="width: 8px; height: 8px; border-radius: 9999px; background: var(--airline-gol);"></span>GOL</span>
+          <span style="display: inline-flex; align-items: center; gap: 6px; font-size: 12px;"><span style="width: 8px; height: 8px; border-radius: 9999px; background: var(--airline-azul);"></span>Azul</span>
+          <span style="font-size: 12px; color: var(--muted-foreground);">mesmas regras no escuro</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- tipografia + motivos -->
+  <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px;">
+    <div style="display: flex; flex-direction: column; gap: 16px;">
+      <div style="display: flex; align-items: baseline; gap: 12px;">
+        <h2 style="margin: 0; font-size: 20px; line-height: 28px; font-weight: 600; letter-spacing: -0.025em;">Tipografia</h2>
+        <span style="color: var(--muted-foreground);">o preço é o herói</span>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 14px; padding: 20px; border: 1px solid var(--border); border-radius: var(--radius-xl); background: var(--card);">
+        <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px;">
+          <span class="pt-iata" style="font-size: 40px; line-height: 44px;">PET → GRU</span>
+          <span style="font-size: 12px; color: var(--muted-foreground);">IATA · mono 600 · +8% tracking</span>
+        </div>
+        <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding: 6px 10px; border-radius: var(--radius-sm); background: var(--board);">
+          <span class="pt-flap" style="font-size: 24px; line-height: 28px; color: var(--board-amber);">Partidas GRU 389</span>
+          <span style="font-size: 12px; color: var(--board-muted);">painel · Doto 800 · só no painel</span>
+        </div>
+        <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px;">
+          <span class="pt-tabular" style="font-size: 36px; line-height: 40px; font-weight: 800; letter-spacing: -0.025em;">R$ 489</span>
+          <span style="font-size: 12px; color: var(--muted-foreground);">preço herói · h1 · tabular-nums</span>
+        </div>
+        <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px;">
+          <span style="font-size: 20px; line-height: 28px; font-weight: 600; letter-spacing: -0.025em;">Outubro 2026</span>
+          <span style="font-size: 12px; color: var(--muted-foreground);">título de seção · h4</span>
+        </div>
+        <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px;">
+          <span style="font-size: 14px; line-height: 20px;">Menor preço entre todas as fontes na última coleta com sucesso.</span>
+          <span style="font-size: 12px; color: var(--muted-foreground); flex-shrink: 0;">body 14/20</span>
+        </div>
+        <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px;">
+          <span class="pt-meta" style="color: var(--muted-foreground);">Visto há 3 h · LATAM · direto</span>
+          <span style="font-size: 12px; color: var(--muted-foreground);">meta · mono 11 · caixa alta</span>
+        </div>
+        <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px;">
+          <span class="pt-tabular" style="font-family: var(--font-mono); font-size: 14px; font-weight: 500;">06:15 → 08:05</span>
+          <span style="font-size: 12px; color: var(--muted-foreground);">horários · mono 500</span>
+        </div>
+      </div>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 16px;">
+      <div style="display: flex; align-items: baseline; gap: 12px;">
+        <h2 style="margin: 0; font-size: 20px; line-height: 28px; font-weight: 600; letter-spacing: -0.025em;">Motivos</h2>
+        <span style="color: var(--muted-foreground);">painel + cartão de embarque</span>
+      </div>
+      <!-- painel de embarque -->
+      <div class="pt-board" style="display: flex; flex-direction: column; gap: 8px; padding: 14px 16px 12px; border-radius: var(--radius-lg); background: var(--board); color: var(--board-foreground); box-shadow: inset 0 0 0 1px var(--board-border);">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span style="display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 24px; border-radius: 4px; background: var(--board-amber); color: var(--board-amber-foreground);"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z"/></svg></span>
+          <span class="pt-flap" style="font-size: 22px; line-height: 24px; color: var(--board-amber);">Partidas</span>
+          <span class="pt-meta" style="color: var(--board-muted); margin-left: auto;">Pelotas · PET</span>
+        </div>
+        <div class="pt-meta" style="display: grid; grid-template-columns: minmax(0, 1fr) 64px 56px 56px; gap: 8px; padding: 0 8px 6px; border-bottom: 1px solid var(--board-border); color: var(--board-muted);">
+          <span>Destino</span><span>Cia</span><span style="text-align: right;">Mín</span><span style="text-align: right;">Méd</span>
+        </div>
+        <div class="pt-flap" style="display: grid; grid-template-columns: minmax(0, 1fr) 64px 56px 56px; gap: 8px; align-items: center; height: 40px; padding: 0 8px; border-radius: 4px; background: var(--board-row-selected); color: var(--board-amber); font-size: 16px;">
+          <span style="display: flex; align-items: baseline; gap: 10px;"><span>GRU</span><span style="font-size: 12px; opacity: 0.8;">São Paulo</span></span><span style="font-size: 12px;">LATAM</span><span style="text-align: right;">389</span><span style="text-align: right;">612</span>
+        </div>
+        <div class="pt-flap" style="display: grid; grid-template-columns: minmax(0, 1fr) 64px 56px 56px; gap: 8px; align-items: center; height: 40px; padding: 0 8px; border-top: 1px solid var(--board-border); font-size: 16px;">
+          <span style="display: flex; align-items: baseline; gap: 10px;"><span>CGH</span><span style="font-size: 12px; opacity: 0.8;">São Paulo</span></span><span style="font-size: 12px;">GOL</span><span style="text-align: right;">455</span><span style="text-align: right;">690</span>
+        </div>
+      </div>
+      <!-- cartão de embarque -->
+      <div style="position: relative; display: flex; flex-direction: column; border: 1px solid var(--border); border-radius: var(--radius-xl); background: var(--card); box-shadow: var(--shadow-sm);">
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 8px 16px; border-radius: var(--radius-xl) var(--radius-xl) 0 0; background: var(--board); color: var(--board-foreground);">
+          <span class="pt-flap" style="font-size: 13px; line-height: 18px; color: var(--board-amber);">Cartão de embarque</span>
+          <span style="display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 500;"><span style="width: 8px; height: 8px; border-radius: 9999px; background: var(--airline-latam);"></span>LATAM</span>
+        </div>
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 16px;">
+          <span class="pt-iata" style="font-size: 22px; line-height: 26px;">PET → GRU</span>
+          <div style="display: flex; gap: 14px;">
+            <div style="display: flex; flex-direction: column; gap: 2px;"><span class="pt-meta" style="font-size: 10px; color: var(--muted-foreground);">Data</span><span class="pt-tabular" style="font-family: var(--font-mono); font-size: 13px; font-weight: 500;">QUI 15 OUT</span></div>
+            <div style="display: flex; flex-direction: column; gap: 2px;"><span class="pt-meta" style="font-size: 10px; color: var(--muted-foreground);">Partida</span><span class="pt-tabular" style="font-family: var(--font-mono); font-size: 13px; font-weight: 500;">06:15</span></div>
+            <div style="display: flex; flex-direction: column; gap: 2px;"><span class="pt-meta" style="font-size: 10px; color: var(--muted-foreground);">Preço</span><span class="pt-tabular" style="font-size: 13px; font-weight: 700;">R$ 489</span></div>
+          </div>
+        </div>
+        <div style="position: relative; height: 0; margin: 0 12px; border-top: 1px dashed var(--border);">
+          <span style="position: absolute; left: -22px; top: -9px; width: 18px; height: 18px; border-radius: 9999px; background: var(--background); border: 1px solid var(--border);"></span>
+          <span style="position: absolute; right: -22px; top: -9px; width: 18px; height: 18px; border-radius: 9999px; background: var(--background); border: 1px solid var(--border);"></span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 12px; padding: 12px 16px;">
+          <div aria-hidden="true" style="flex-grow: 1; height: 26px; border-radius: 2px; background: repeating-linear-gradient(90deg, var(--foreground) 0 2px, transparent 2px 4px, var(--foreground) 4px 5px, transparent 5px 8px, var(--foreground) 8px 11px, transparent 11px 13px, var(--foreground) 13px 14px, transparent 14px 17px); opacity: 0.85;"></div>
+          <span class="pt-meta" style="color: var(--muted-foreground); flex-shrink: 0;">visto há 3 h</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- estados de célula + componentes -->
+  <div style="display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: 16px;">
+    <div style="display: flex; flex-direction: column; gap: 16px;">
+      <div style="display: flex; align-items: baseline; gap: 12px;">
+        <h2 style="margin: 0; font-size: 20px; line-height: 28px; font-weight: 600; letter-spacing: -0.025em;">Célula do calendário</h2>
+        <span style="color: var(--muted-foreground);">cor sequencial, valor sempre escrito</span>
+      </div>
+      <div style="display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 8px;">
+        <div style="display: flex; flex-direction: column; gap: 6px;"><div class="pt-tabular" style="height: 56px; border-radius: var(--radius-md); background: var(--price-1); color: var(--price-1-foreground); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;"><span style="font-size: 11px; opacity: .8;">14</span><span style="font-size: 13px; font-weight: 600;">389</span></div><span style="font-size: 12px; color: var(--muted-foreground);">price-1</span></div>
+        <div style="display: flex; flex-direction: column; gap: 6px;"><div class="pt-tabular" style="height: 56px; border-radius: var(--radius-md); background: var(--price-2); color: var(--price-2-foreground); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;"><span style="font-size: 11px; opacity: .8;">15</span><span style="font-size: 13px; font-weight: 600;">489</span></div><span style="font-size: 12px; color: var(--muted-foreground);">price-2</span></div>
+        <div style="display: flex; flex-direction: column; gap: 6px;"><div class="pt-tabular" style="height: 56px; border-radius: var(--radius-md); background: var(--price-3); color: var(--price-3-foreground); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;"><span style="font-size: 11px; opacity: .8;">1</span><span style="font-size: 13px; font-weight: 600;">612</span></div><span style="font-size: 12px; color: var(--muted-foreground);">price-3</span></div>
+        <div style="display: flex; flex-direction: column; gap: 6px;"><div class="pt-tabular" style="height: 56px; border-radius: var(--radius-md); background: var(--price-4); color: var(--price-4-foreground); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;"><span style="font-size: 11px; opacity: .8;">2</span><span style="font-size: 13px; font-weight: 600;">789</span></div><span style="font-size: 12px; color: var(--muted-foreground);">price-4</span></div>
+        <div style="display: flex; flex-direction: column; gap: 6px;"><div class="pt-tabular" style="height: 56px; border-radius: var(--radius-md); background: var(--price-5); color: var(--price-5-foreground); border: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;"><span style="font-size: 11px; opacity: .8;">10</span><span style="font-size: 13px; font-weight: 600;">1.290</span></div><span style="font-size: 12px; color: var(--muted-foreground);">price-5</span></div>
+        <div style="display: flex; flex-direction: column; gap: 6px;"><div class="pt-tabular" style="height: 56px; border-radius: var(--radius-md); background: var(--price-2); color: var(--price-2-foreground); opacity: var(--stale-opacity); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;"><span style="font-size: 11px; opacity: .8;">24</span><span style="font-size: 13px; font-weight: 600;">880</span></div><span style="font-size: 12px; color: var(--muted-foreground);">&gt; 48 h</span></div>
+        <div style="display: flex; flex-direction: column; gap: 6px;"><div style="height: 56px; border-radius: var(--radius-md); border: 1px solid var(--border); color: var(--muted-foreground); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;"><span style="font-size: 11px;">6</span><span style="font-size: 13px;">—</span></div><span style="font-size: 12px; color: var(--muted-foreground);">sem voo</span></div>
+        <div style="display: flex; flex-direction: column; gap: 6px;"><div class="pt-nodata" style="height: 56px; border-radius: var(--radius-md); border: 1px dashed var(--border); color: var(--muted-foreground); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;"><span style="font-size: 11px;">29</span><span style="font-size: 13px;">·</span></div><span style="font-size: 12px; color: var(--muted-foreground);">sem dado</span></div>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 8px; padding: 16px 20px; border-radius: var(--radius-lg); background: var(--muted); font-size: 13px; line-height: 20px;">
+        <span><strong style="font-weight: 600;">Faixa</strong> — mín, mediana e máx entre os menores preços diários do período; o dia aberto é marcado dentro dela.</span>
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <span class="pt-tabular" style="font-family: var(--font-mono); font-size: 12px; color: var(--muted-foreground);">389</span>
+          <span style="position: relative; flex-grow: 1; height: 6px; border-radius: 9999px; background: linear-gradient(90deg, var(--price-1), var(--price-3) 45%, var(--price-4));">
+            <span style="position: absolute; left: 11%; top: -5px; width: 16px; height: 16px; border-radius: 9999px; background: var(--card); border: 2px solid var(--foreground);"></span>
+          </span>
+          <span class="pt-tabular" style="font-family: var(--font-mono); font-size: 12px; color: var(--muted-foreground);">1.290</span>
+        </div>
+      </div>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 16px;">
+      <div style="display: flex; align-items: baseline; gap: 12px;">
+        <h2 style="margin: 0; font-size: 20px; line-height: 28px; font-weight: 600; letter-spacing: -0.025em;">Componentes</h2>
+        <span style="color: var(--muted-foreground);">Pereira UI, como vêm</span>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 16px; padding: 20px; border: 1px solid var(--border); border-radius: var(--radius-xl); background: var(--card);">
+        <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px;">
+          <x-import component-from-global-scope="PereiraUI.Button">Buscar na LATAM</x-import>
+          <x-import component-from-global-scope="PereiraUI.Button" variant="outline">Fins de semana</x-import>
+          <x-import component-from-global-scope="PereiraUI.Button" variant="ghost" size="icon" aria-label="Inverter direção"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m16 3 4 4-4 4M20 7H4M8 21l-4-4 4-4M4 17h16"/></svg></x-import>
+        </div>
+        <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px;">
+          <x-import component-from-global-scope="PereiraUI.Badge">Menor do mês</x-import>
+          <x-import component-from-global-scope="PereiraUI.Badge" variant="secondary">Direto</x-import>
+          <x-import component-from-global-scope="PereiraUI.Badge" variant="outline">1 parada</x-import>
+          <x-import component-from-global-scope="PereiraUI.Badge" variant="destructive">Fonte falhou</x-import>
+        </div>
+        <x-import component-from-global-scope="PereiraUI.Tabs" default-value="GRU">
+          <x-import component-from-global-scope="PereiraUI.TabsList" variant="line">
+            <x-import component-from-global-scope="PereiraUI.TabsTrigger" value="GRU">GRU</x-import>
+            <x-import component-from-global-scope="PereiraUI.TabsTrigger" value="CGH">CGH</x-import>
+            <x-import component-from-global-scope="PereiraUI.TabsTrigger" value="VCP">VCP</x-import>
+            <x-import component-from-global-scope="PereiraUI.TabsTrigger" value="POA">POA</x-import>
+          </x-import>
+        </x-import>
+        <div style="display: flex; flex-direction: column; gap: 4px; font-size: 13px; line-height: 20px; color: var(--muted-foreground);">
+          <span>Button default = a única ação azul da tela.</span>
+          <span>Badge carrega a palavra; a cor nunca vai sozinha.</span>
+          <span>Tabs line para destino; direção troca no botão de inverter.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":1640}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>

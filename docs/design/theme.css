@@ -1,0 +1,259 @@
+/* pelotas-trips.app — theme sobre Pereira UI (shadcn/ui v4 · Tailwind v4)
+   Base: Zinc (light/dark). Accent: Blue na ação principal. Orange = marca + âmbar do painel.
+   Fonte: canvas "pelotas-trips.app — theme" (Claude Design), 2026-09-27.
+   Substitui o bloco :root/.dark do src/index.css da v1 (que era HSL). Tudo aqui é OKLCH. */
+
+@import 'tailwindcss';
+@import 'tw-animate-css';
+@import 'shadcn/tailwind.css';
+
+/* dark = tema cujo id termina em -dark (Pereira UI) ou a classe .dark (shadcn) */
+@custom-variant dark (&:is([data-theme$='-dark'] *, [data-theme$='-dark'], .dark *, .dark));
+
+/* ---------- Pereira UI · Zinc Light (padrão) ---------- */
+:root,
+[data-theme='zinc-light'] {
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.141 0.005 285.823);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.141 0.005 285.823);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.141 0.005 285.823);
+  --primary: oklch(0.21 0.006 285.885);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.967 0.001 286.375);
+  --secondary-foreground: oklch(0.21 0.006 285.885);
+  --muted: oklch(0.967 0.001 286.375);
+  --muted-foreground: oklch(0.552 0.016 285.938);
+  --accent: oklch(0.967 0.001 286.375);
+  --accent-foreground: oklch(0.21 0.006 285.885);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.92 0.004 286.32);
+  --input: oklch(0.92 0.004 286.32);
+  --ring: oklch(0.705 0.015 286.067);
+  --chart-1: oklch(0.871 0.006 286.286);
+  --chart-2: oklch(0.552 0.016 285.938);
+  --chart-3: oklch(0.442 0.017 285.786);
+  --chart-4: oklch(0.37 0.013 285.805);
+  --chart-5: oklch(0.274 0.006 286.033);
+  --radius: 0.625rem;
+
+  /* accent overlays do Pereira UI */
+  --blue-primary: oklch(0.488 0.243 264.376);
+  --blue-primary-foreground: oklch(0.97 0.014 254.604);
+  --blue-chart-1: oklch(0.809 0.105 251.813);
+  --blue-chart-2: oklch(0.623 0.214 259.815);
+  --blue-chart-3: oklch(0.546 0.245 262.881);
+  --blue-chart-4: oklch(0.488 0.243 264.376);
+  --blue-chart-5: oklch(0.424 0.199 265.638);
+  --orange-primary: oklch(0.553 0.195 38.402);
+  --orange-primary-foreground: oklch(0.98 0.016 73.684);
+  --orange-chart-1: oklch(0.837 0.128 66.29);
+
+  /* ---- extensão pelotas-trips ---- */
+  /* painel de embarque: a única superfície escura do tema claro */
+  --board: oklch(0.21 0.006 285.885);
+  --board-foreground: oklch(0.985 0 0);
+  --board-muted: oklch(0.75 0.012 286);
+  --board-border: oklch(1 0 0 / 14%);
+  --board-amber: oklch(0.837 0.128 66.29); /* = orange-chart-1 */
+  --board-amber-foreground: oklch(0.17 0.006 285.885);
+  --board-row-selected: oklch(1 0 0 / 6%);
+  /* escala sequencial de preço no calendário: 1 = mais barato (mais saturado), 5 = mais caro */
+  --price-1: oklch(0.488 0.243 264.376);
+  --price-1-foreground: oklch(0.97 0.014 254.604);
+  --price-2: oklch(0.72 0.13 262);
+  --price-2-foreground: oklch(0.141 0.005 285.823);
+  --price-3: oklch(0.87 0.06 260);
+  --price-3-foreground: oklch(0.141 0.005 285.823);
+  --price-4: oklch(0.95 0.02 260);
+  --price-4-foreground: oklch(0.141 0.005 285.823);
+  --price-5: oklch(1 0 0);
+  --price-5-foreground: oklch(0.552 0.016 285.938);
+  /* marca das companhias: só em ponto (8px) e texto, nunca em preenchimento de célula */
+  --airline-latam: oklch(0.4 0.13 340);
+  --airline-gol: oklch(0.62 0.19 45);
+  --airline-azul: oklch(0.52 0.15 240);
+  /* frescor */
+  --fresh: oklch(0.55 0.15 160);
+  --stale-opacity: 0.55;
+}
+
+/* ---------- Pereira UI · Zinc Dark ---------- */
+.dark,
+[data-theme='zinc-dark'] {
+  --background: oklch(0.141 0.005 285.823);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.21 0.006 285.885);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.21 0.006 285.885);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.92 0.004 286.32);
+  --primary-foreground: oklch(0.21 0.006 285.885);
+  --secondary: oklch(0.274 0.006 286.033);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.274 0.006 286.033);
+  --muted-foreground: oklch(0.705 0.015 286.067);
+  --accent: oklch(0.274 0.006 286.033);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.552 0.016 285.938);
+  --blue-primary: oklch(0.424 0.199 265.638);
+  --orange-primary: oklch(0.47 0.157 37.304);
+
+  --board: oklch(0.17 0.006 285.885);
+  --board-foreground: oklch(0.985 0 0);
+  --board-muted: oklch(0.705 0.015 286.067);
+  --board-border: oklch(1 0 0 / 12%);
+  --board-row-selected: oklch(1 0 0 / 6%);
+  --price-1: oklch(0.546 0.245 262.881);
+  --price-1-foreground: oklch(0.985 0 0);
+  --price-2: oklch(0.42 0.16 264);
+  --price-2-foreground: oklch(0.985 0 0);
+  --price-3: oklch(0.31 0.08 264);
+  --price-3-foreground: oklch(0.985 0 0);
+  --price-4: oklch(0.25 0.03 270);
+  --price-4-foreground: oklch(0.985 0 0);
+  --price-5: oklch(0.21 0.006 285.885);
+  --price-5-foreground: oklch(0.705 0.015 286.067);
+  --airline-latam: oklch(0.72 0.12 340);
+  --airline-gol: oklch(0.75 0.17 50);
+  --airline-azul: oklch(0.72 0.13 235);
+  --fresh: oklch(0.72 0.15 160);
+  --stale-opacity: 0.5;
+}
+
+/* accent overlays (mesma regra do Pereira UI): aplicar em <html> ou num container */
+[data-accent='blue'] {
+  --primary: var(--blue-primary);
+  --primary-foreground: var(--blue-primary-foreground);
+  --chart-1: var(--blue-chart-1);
+  --chart-2: var(--blue-chart-2);
+  --chart-3: var(--blue-chart-3);
+  --chart-4: var(--blue-chart-4);
+  --chart-5: var(--blue-chart-5);
+}
+[data-accent='orange'] {
+  --primary: var(--orange-primary);
+  --primary-foreground: var(--orange-primary-foreground);
+}
+
+@theme inline {
+  --font-sans: 'Geist Variable', 'Geist', ui-sans-serif, system-ui, sans-serif;
+  --font-heading: var(--font-sans);
+  --font-mono: 'Geist Mono Variable', 'Geist Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  --font-board: 'Doto Variable', 'Doto', var(--font-mono);
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+
+  --color-board: var(--board);
+  --color-board-foreground: var(--board-foreground);
+  --color-board-muted: var(--board-muted);
+  --color-board-border: var(--board-border);
+  --color-board-amber: var(--board-amber);
+  --color-board-amber-foreground: var(--board-amber-foreground);
+  --color-board-row-selected: var(--board-row-selected);
+  --color-price-1: var(--price-1);
+  --color-price-1-foreground: var(--price-1-foreground);
+  --color-price-2: var(--price-2);
+  --color-price-2-foreground: var(--price-2-foreground);
+  --color-price-3: var(--price-3);
+  --color-price-3-foreground: var(--price-3-foreground);
+  --color-price-4: var(--price-4);
+  --color-price-4-foreground: var(--price-4-foreground);
+  --color-price-5: var(--price-5);
+  --color-price-5-foreground: var(--price-5-foreground);
+  --color-airline-latam: var(--airline-latam);
+  --color-airline-gol: var(--airline-gol);
+  --color-airline-azul: var(--airline-azul);
+  --color-fresh: var(--fresh);
+
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    font-variant-numeric: tabular-nums lining-nums;
+  }
+}
+
+/* utilitários do tema */
+@utility pt-iata {
+  font-family: var(--font-mono);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-variant-numeric: tabular-nums;
+}
+@utility pt-meta {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  line-height: 16px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+@utility pt-flap {
+  font-family: var(--font-board);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-variant-numeric: tabular-nums;
+}
+@utility pt-board {
+  background-color: var(--board);
+  background-image: radial-gradient(oklch(1 0 0 / 6%) 0.8px, transparent 1.2px);
+  background-size: 6px 6px;
+}
+@utility pt-nodata {
+  background-image: repeating-linear-gradient(135deg, var(--border) 0 1px, transparent 1px 6px);
+}
+@utility pt-barcode {
+  background: repeating-linear-gradient(
+    90deg,
+    var(--foreground) 0 2px, transparent 2px 4px,
+    var(--foreground) 4px 5px, transparent 5px 8px,
+    var(--foreground) 8px 11px, transparent 11px 13px,
+    var(--foreground) 13px 14px, transparent 14px 17px
+  );
+  opacity: 0.85;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
