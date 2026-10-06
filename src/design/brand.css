@@ -1,0 +1,158 @@
+/* satolep-trips — camada de marca (direção Painel) sobre o tema shadcn/Pereira UI.
+   Aditiva: só cria tokens e utilities novos, não mexe nos semânticos do tema.
+   Fonte: docs/design/DESIGN.md §4.4 e canvas "Marca satolep-trips". */
+
+:root {
+  /* superfície do painel de embarque: a única superfície escura do tema claro */
+  --board: oklch(0.21 0.006 285.885);
+  --board-foreground: oklch(0.985 0 0);
+  --board-muted: oklch(0.75 0.012 286);
+  --board-border: oklch(1 0 0 / 14%);
+  --board-tile: oklch(0.17 0.006 285.885);
+  --board-amber: oklch(0.837 0.128 66.29); /* = orange-chart-1 */
+  --board-amber-foreground: oklch(0.17 0.006 285.885);
+  --board-row-selected: oklch(1 0 0 / 6%);
+  /* frescor */
+  --fresh: oklch(0.55 0.15 160);
+  --stale-opacity: 0.55;
+}
+
+.dark {
+  --board: oklch(0.17 0.006 285.885);
+  --board-muted: oklch(0.705 0.015 286.067);
+  --board-border: oklch(1 0 0 / 12%);
+  --board-tile: oklch(0.21 0.006 285.885);
+  --fresh: oklch(0.72 0.15 160);
+  --stale-opacity: 0.5;
+}
+
+@theme inline {
+  --font-board: 'Doto Variable', 'Doto', var(--font-mono, ui-monospace, monospace);
+  --font-mono: 'Geist Mono Variable', 'Geist Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  --color-board: var(--board);
+  --color-board-foreground: var(--board-foreground);
+  --color-board-muted: var(--board-muted);
+  --color-board-border: var(--board-border);
+  --color-board-tile: var(--board-tile);
+  --color-board-amber: var(--board-amber);
+  --color-board-amber-foreground: var(--board-amber-foreground);
+  --color-board-row-selected: var(--board-row-selected);
+  --color-fresh: var(--fresh);
+}
+
+/* códigos IATA: mono 600, caixa alta, +8% */
+@utility pt-iata {
+  font-family: var(--font-mono);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-variant-numeric: tabular-nums;
+}
+
+/* rótulos e metadados: mono 11px, caixa alta, +6% */
+@utility pt-meta {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  line-height: 16px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+/* títulos do painel: Doto 800, caixa alta, +5%. Só dentro de superfícies bg-board e nas placas. */
+@utility pt-flap {
+  font-family: var(--font-board);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-variant-numeric: tabular-nums;
+}
+
+/* superfície do painel com trama de pontos */
+@utility pt-board {
+  background-color: var(--board);
+  background-image: radial-gradient(oklch(1 0 0 / 6%) 0.8px, transparent 1.2px);
+  background-size: 6px 6px;
+  color: var(--board-foreground);
+}
+
+/* placa do BrandMark: altura em --tile; largura 0,75, raio 9%, glifo 62%, linha a 50% */
+@utility pt-tile {
+  position: relative;
+  overflow: hidden;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  box-sizing: border-box;
+  width: calc(var(--tile, 20px) * 0.75);
+  height: var(--tile, 20px);
+  border-radius: calc(var(--tile, 20px) * 0.09);
+  background-color: var(--board);
+  color: var(--board-amber);
+  font-family: var(--font-board);
+  font-weight: 800;
+  font-size: calc(var(--tile, 20px) * 0.62);
+  line-height: 1;
+  text-transform: uppercase;
+  &::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 50%;
+    height: 1px;
+    background: oklch(0 0 0 / 60%);
+    transform: translateY(-50%);
+  }
+  @variant dark {
+    background-color: var(--board-tile);
+  }
+}
+
+/* modificador: a placa do hífen, invertida */
+@utility pt-tile-hy {
+  background-color: var(--board-amber);
+  color: var(--board-amber-foreground);
+  &::after {
+    background: oklch(0 0 0 / 30%);
+  }
+  @variant dark {
+    background-color: var(--board-amber);
+  }
+}
+
+/* modificador: placa sobre a própria superfície do painel */
+@utility pt-tile-on-board {
+  background-color: var(--board-tile);
+}
+
+/* modificador: skeleton enquanto a Doto carrega */
+@utility pt-tile-skeleton {
+  background-color: var(--color-muted, oklch(0.967 0.001 286.375));
+  color: transparent;
+  &::after {
+    background: transparent;
+  }
+}
+
+/* a única animação da marca: as placas viram uma vez ao abrir a home */
+@keyframes pt-flip {
+  from {
+    transform: perspective(600px) rotateX(-90deg);
+    opacity: 0;
+  }
+  to {
+    transform: perspective(600px) rotateX(0);
+    opacity: 1;
+  }
+}
+@utility pt-tile-flip {
+  animation: pt-flip 320ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  animation-delay: calc(var(--tile-i, 0) * 30ms);
+  transform-origin: 50% 0;
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
