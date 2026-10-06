@@ -1,5 +1,5 @@
-/* pelotas-trips.app — theme sobre Pereira UI (shadcn/ui v4 · Tailwind v4)
-   Base: Zinc (light/dark). Accent: Blue na ação principal. Orange = marca + âmbar do painel.
+/* satolep-trips.app — theme sobre Pereira UI (shadcn/ui v4 · Tailwind v4)
+   Base: Zinc (light/dark). Accent: Blue na ação principal. Âmbar (board-amber) = marca + painel.
    Fonte: canvas "pelotas-trips.app — theme" (Claude Design), 2026-09-27.
    Substitui o bloco :root/.dark do src/index.css da v1 (que era HSL). Tudo aqui é OKLCH. */
 
@@ -231,6 +231,48 @@
   text-transform: uppercase;
   letter-spacing: 0.05em;
   font-variant-numeric: tabular-nums;
+}
+/* placa do BrandMark (DESIGN.md 4.4): altura em --tile; largura 0,75, raio 9%, glifo 62%, linha a 50% */
+@utility pt-tile {
+  position: relative;
+  overflow: hidden;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  width: calc(var(--tile, 20px) * 0.75);
+  height: var(--tile, 20px);
+  border-radius: calc(var(--tile, 20px) * 0.09);
+  background-color: var(--board);
+  color: var(--board-amber);
+  font-family: var(--font-board);
+  font-weight: 800;
+  font-size: calc(var(--tile, 20px) * 0.62);
+  line-height: 1;
+  text-transform: uppercase;
+  &::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 50%;
+    height: 1px;
+    background: oklch(0 0 0 / 60%);
+    transform: translateY(-50%);
+  }
+  @variant dark {
+    background-color: var(--card);
+  }
+}
+@utility pt-tile-hy {
+  background-color: var(--board-amber);
+  color: var(--board-amber-foreground);
+  &::after {
+    background: oklch(0 0 0 / 30%);
+  }
+  @variant dark {
+    background-color: var(--board-amber);
+  }
 }
 @utility pt-board {
   background-color: var(--board);

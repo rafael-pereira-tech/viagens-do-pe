@@ -1,6 +1,6 @@
-# pelotas-trips.app — spec de design (handoff v2)
+# satolep-trips.app — spec de design (handoff v2)
 
-Fonte: canvas "pelotas-trips.app — theme" no Claude Design (4 pranchas: theme sheet, rota em 390 / 834 / 1280).
+Fonte: canvas "pelotas-trips.app — theme" no Claude Design (4 pranchas: theme sheet, rota em 390 / 834 / 1280). Marca: canvas "Marca satolep-trips" (06/10/2026), direção Painel; a seção 4.4 vem de lá.
 Este arquivo é o contrato que o código deve seguir. Referências visuais em `reference/` (HTML das pranchas). PRD: "Viagens do PE — PRD v2.0".
 
 ## 1. Direção
@@ -9,7 +9,7 @@ Painel de embarque + cartão de embarque sobre o Pereira UI (shadcn/ui new-york-
 
 - Base **Zinc** (light padrão, dark por `[data-theme="zinc-dark"]` ou `.dark`).
 - Accent **Blue** (`data-accent="blue"` no `<html>`): a única coisa azul da tela é a ação principal ("Buscar na LATAM") e a escala de preço.
-- **Orange** aparece só como (a) a marca (roundel "PET" com `data-accent="orange"` escopado) e (b) o âmbar do painel (`--board-amber` = `orange-chart-1`).
+- **Âmbar** (`--board-amber` = `orange-chart-1`) é a cor da marca e do painel: glifos das placas do BrandMark, títulos `.pt-flap`, placa do hífen. `orange-primary` não tem mais papel na marca (o roundel "PET" com `data-accent="orange"` saiu, ver 4.4).
 - Nunca hex hard-coded em componente: sempre token semântico (`bg-primary`, `text-muted-foreground`, `bg-price-1`…). Tudo em OKLCH — `theme.css`.
 
 ## 2. Tipografia
@@ -18,7 +18,7 @@ Painel de embarque + cartão de embarque sobre o Pereira UI (shadcn/ui new-york-
 | --- | --- | --- |
 | Tudo (UI, corpo, títulos) | Geist (`font-sans`) | `tabular-nums` global. h1 36/40 800 −0.025em (preço-herói e título de página), h2 24/32 600, h4 20/28 600, body 14/20, caption 12/16. |
 | IATA, horários, metadados | Geist Mono (`font-mono`) | `.pt-iata` (600, caixa alta, +8% tracking) para códigos; `.pt-meta` (11px, 500, caixa alta, +6%) para "VISTO HÁ 3 H", rótulos de campo, cabeçalhos de coluna. Horários 500. |
-| Painel de embarque | Doto (`font-board`, `.pt-flap`) | 800, caixa alta, +5% tracking. **Só dentro do painel e na faixa preta do cartão de embarque.** Nunca em corpo de texto. Fallback: Geist Mono. |
+| Painel de embarque e marca | Doto (`font-board`, `.pt-flap`) | 800, caixa alta, +5% tracking. **Só dentro do painel, na faixa preta do cartão de embarque e nas placas do BrandMark.** Nunca em corpo de texto, nunca abaixo de 14px. Fallback: Geist Mono. |
 
 Fontes: `@fontsource-variable/geist`, `@fontsource-variable/geist-mono`, Doto via `@fontsource-variable/doto` (ou Google Fonts `Doto:wght@100..900` se preferir). Carregar com `font-display: swap`.
 
@@ -61,8 +61,18 @@ Fora do cartão, embaixo: outras ofertas do dia (linha por oferta, borda `border
 - > 7 dias → some (regra do PRD)
 `aria-label` da célula: "Qua 14, R$ 389". Legenda embaixo: barato / normal / caro / — sem voo / ▨ sem dado / esmaecido = > 48 h.
 
-### 4.4 Marca
-Roundel 28–30px: `border-[1.5px] border-primary text-primary` com "PET" em `font-mono` 8–9px 700, dentro de `data-accent="orange"`; wordmark "pelotas‑trips" 600 + ".app" `muted-foreground` 500. Rodapé: "Feito em Pelotas · preços de LATAM, GOL e Azul · não vendemos passagem." + coleta/status por fonte em `.pt-meta`.
+### 4.4 Marca (satolep-trips · direção Painel)
+`BrandMark` é o nome escrito como uma linha do painel de partidas: 13 placas ("SATOLEP-TRIPS"), a do hífen invertida. Tudo deriva da altura da placa (h).
+- Geometria: largura 0,75h; raio 9%; vão 9% (2px em 20 e 24); glifo Doto 800 a 62% de h, caixa alta; linha horizontal a 50% com 1px (2px acima de 48px) em preto 60% (30% na placa do hífen). Utilities `.pt-tile` (altura em `--tile`) e `.pt-tile-hy` no `theme.css`.
+- Cores: placas `bg-board text-board-amber`; placa do hífen `bg-board-amber text-board-amber-foreground`. No dark as placas usam `bg-card` para se separar do fundo; a placa do hífen não muda.
+- Tamanhos: h = 20px em 390 e 834 (conjunto com 199px), 24px em 1280 (240px). Com menos de 200px disponíveis: símbolo 24px (placa do hífen quadrada, raio 22%) + "satolep-trips" em Geist 600 16px.
+- Semântica: `<a href="/">` com `aria-label="satolep-trips, início"`; as placas são `aria-hidden`. Foco `ring-[3px] ring-ring/50 rounded-md` em volta do conjunto; sem efeito de hover; alvo ≥ 44px de altura (padding vertical).
+- Carregando: skeleton com a mesma geometria em `bg-muted`, sem glifo, até a Doto carregar (`font-display: swap` + `document.fonts`).
+- Movimento: ao abrir a home, as placas viram (rotateX) em 320ms, escalonadas 30ms, uma vez. Nada em hover. Desligado com `prefers-reduced-motion`.
+- Favicon `public/favicon.svg`: a placa do hífen em 32×32, raio 7 (#FDBA74, traço #121214, linha preta 30%). `apple-touch-icon` (180) e `icon-512` gerados desse SVG.
+- Rodapé (`BrandFooter`): "satolep-trips.app · Feito em Pelotas · preços de LATAM, GOL e Azul · não vendemos passagem." com o nome em Geist 700 e ".app" em `muted-foreground`; coleta/status por fonte em `.pt-meta` com ponto `fresh` ou `destructive` **e a palavra** ("Azul falhou"). Nunca placas no rodapé.
+- Em texto (e-mail, título da aba, meta): "satolep-trips", minúsculo, hífen normal. Título de página: "Voos PET → GRU · Pelotas para Guarulhos · satolep-trips".
+- Fora: o roundel "PET" e o `data-accent="orange"` escopado. O código PET segue em `.pt-iata` onde já aparece.
 
 ## 5. Layout por largura
 
