@@ -1,8 +1,10 @@
-# Sábado 18/10 · carrossel + story
+# Lançamento do "Aonde dá pra chegar" · carrossel + story
+
+Guardado para a semana do lançamento da página. Antes de publicar, rodar de novo `scripts/research/validate-gru-connections.ts` com uma data recente e atualizar `data.json` (preços, tempos e a linha `sample`): a amostra de 25/09 vai estar velha.
 
 ## Quando
 
-- **Feed (carrossel, 4 slides):** sábado 18/10, por volta das 09:30. Sábado de manhã é quando se planeja viagem; o post vive o fim de semana inteiro.
+- **Feed (carrossel, 4 slides):** no sábado da semana do lançamento, por volta das 09:30. Sábado de manhã é quando se planeja viagem; o post vive o fim de semana inteiro.
 - **Story:** junto com o post. Sticker de link para o perfil ou "post novo", e o sticker de enquete opcional: "Qual destino tu quer ver em milhas?" com as opções SCL / BOG / BSB / FOR.
 - Repostar o story no domingo de noite se o alcance cair.
 
