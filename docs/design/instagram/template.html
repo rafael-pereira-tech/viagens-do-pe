@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=1080" />
+<title>satolep-trips — templates de Instagram</title>
+<style>
+  /* fontes locais (fontsource), sem rede */
+  @font-face { font-family: 'Geist'; font-style: normal; font-weight: 100 900; font-display: block; src: url('../../../node_modules/@fontsource-variable/geist/files/geist-latin-wght-normal.woff2') format('woff2'); }
+  @font-face { font-family: 'Geist Mono'; font-style: normal; font-weight: 100 900; font-display: block; src: url('../../../node_modules/@fontsource-variable/geist-mono/files/geist-mono-latin-wght-normal.woff2') format('woff2'); }
+  @font-face { font-family: 'Doto'; font-style: normal; font-weight: 100 900; font-display: block; src: url('../../../node_modules/@fontsource-variable/doto/files/doto-latin-wght-normal.woff2') format('woff2'); }
+
+  :root {
+    --board: oklch(0.21 0.006 285.885);
+    --board-tile: oklch(0.17 0.006 285.885);
+    --board-amber: oklch(0.837 0.128 66.29);
+    --board-amber-fg: oklch(0.17 0.006 285.885);
+    --board-muted: oklch(0.75 0.012 286);
+    --board-border: oklch(1 0 0 / 14%);
+    --paper: oklch(1 0 0);
+    --ink: oklch(0.141 0.005 285.823);
+    --muted-fg: oklch(0.552 0.016 285.938);
+    --border: oklch(0.92 0.004 286.32);
+    --muted: oklch(0.967 0.001 286.375);
+    --action: oklch(0.488 0.243 264.376);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #333; font-family: 'Geist', system-ui, sans-serif; color: var(--ink); display: flex; flex-direction: column; gap: 40px; padding: 40px; align-items: flex-start; }
+
+  .slide { width: 1080px; height: 1080px; padding: 72px; display: flex; flex-direction: column; gap: 28px; position: relative; overflow: hidden; }
+  .story { width: 1080px; height: 1920px; padding: 220px 80px 260px; display: flex; flex-direction: column; gap: 48px; position: relative; overflow: hidden; }
+  .story > div:nth-child(2) { margin: auto 0; }
+  .story .foot { margin-top: 0; }
+  .dark { background-color: var(--board); background-image: radial-gradient(oklch(1 0 0 / 6%) 2px, transparent 3px); background-size: 18px 18px; color: oklch(0.985 0 0); }
+  .light { background: var(--paper); color: var(--ink); }
+
+  .mono { font-family: 'Geist Mono', ui-monospace, monospace; }
+  .meta { font-family: 'Geist Mono', ui-monospace, monospace; font-size: 22px; letter-spacing: 0.06em; text-transform: uppercase; }
+  .dark .meta { color: var(--board-muted); }
+  .light .meta { color: var(--muted-fg); }
+  .flap { font-family: 'Doto', 'Geist Mono', monospace; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase; color: var(--board-amber); font-variant-numeric: tabular-nums; }
+
+  .top { display: flex; align-items: center; justify-content: space-between; }
+  .mark { display: inline-flex; gap: 3px; }
+  .tile { position: relative; overflow: hidden; display: inline-flex; align-items: center; justify-content: center; flex: none; font-family: 'Doto', 'Geist Mono', monospace; font-weight: 800; line-height: 1; text-transform: uppercase; background: var(--board-tile); color: var(--board-amber); }
+  .light .tile { background: var(--board); }
+  .tile::after { content: ''; position: absolute; left: 0; right: 0; top: 50%; height: 2px; background: oklch(0 0 0 / 60%); transform: translateY(-50%); }
+  .tile.hy { background: var(--board-amber); color: var(--board-amber-fg); }
+  .tile.hy::after { background: oklch(0 0 0 / 30%); }
+
+  h1.title { font-size: 72px; line-height: 80px; }
+  h1.sans { font-size: 52px; line-height: 60px; font-weight: 800; letter-spacing: -0.03em; }
+  .lead { font-size: 30px; line-height: 40px; }
+  .dark .lead { color: var(--board-muted); }
+  .light .lead { color: var(--muted-fg); }
+
+  .groups { display: flex; flex-direction: column; gap: 22px; }
+  .group-label { margin-bottom: 10px; }
+  .codes { display: flex; gap: 20px; }
+  .codes .mark { gap: 5px; }
+
+  .table { display: flex; flex-direction: column; flex-grow: 1; }
+  .thead, .row { display: grid; grid-template-columns: 180px minmax(0, 1fr) 150px 200px; gap: 24px; align-items: center; padding: 0 12px; }
+  .thead { padding-bottom: 14px; border-bottom: 2px solid var(--board-border); }
+  .light .thead { border-color: var(--border); }
+  .row { padding-top: 12px; padding-bottom: 12px; border-bottom: 2px solid var(--board-border); }
+  .light .row { border-color: var(--border); }
+  .row .code { font-size: 44px; line-height: 48px; }
+  .light .row .code { color: var(--ink); }
+  .row .city { font-size: 30px; font-weight: 500; }
+  .row .time { font-size: 26px; }
+  .dark .row .time { color: var(--board-muted); }
+  .light .row .time { color: var(--muted-fg); }
+  .row .price { font-size: 32px; font-weight: 600; text-align: right; }
+  .thead span:last-child, .row .price { text-align: right; }
+
+  .more { display: flex; flex-wrap: wrap; align-items: baseline; gap: 10px 14px; font-size: 24px; }
+  .more .meta { font-size: 20px; }
+
+  .steps { display: flex; flex-direction: column; flex-grow: 1; }
+  .step { display: flex; gap: 28px; align-items: center; padding: 18px 0; border-top: 2px solid var(--border); }
+  .step .n { width: 96px; flex: none; font-size: 56px; line-height: 1; }
+  .light .step .n { color: var(--ink); }
+  .step .t { font-size: 32px; font-weight: 600; }
+  .step .d { font-size: 26px; line-height: 34px; color: var(--muted-fg); }
+
+  .cta-block { border-radius: 18px; padding: 30px 36px; display: flex; flex-direction: column; gap: 8px; }
+  .cta-block .big { font-size: 36px; line-height: 44px; font-weight: 700; letter-spacing: -0.02em; }
+  .cta-block .sub { font-size: 26px; line-height: 34px; color: var(--board-muted); }
+  .chip { align-self: flex-start; padding: 18px 28px; border-radius: 16px; background: var(--board-amber); color: var(--board-amber-fg); font-size: 30px; font-weight: 600; }
+
+  .foot { display: flex; align-items: center; justify-content: space-between; gap: 24px; margin-top: auto; font-size: 20px; }
+  .foot > span { white-space: nowrap; }
+</style>
+</head>
+<body>
+
+<!-- 1 · capa -->
+<section class="slide dark" data-slide="post-1-capa">
+  <div class="top"><span class="mark" data-mark="36"></span><span class="meta" data-text="handle"></span></div>
+  <div style="display: flex; flex-direction: column; gap: 14px;">
+    <span class="meta" data-text="cover.kicker"></span>
+    <h1 class="title flap" data-text="cover.title"></h1>
+    <p class="lead" data-text="cover.lead"></p>
+  </div>
+  <div class="groups" style="flex-grow: 1; justify-content: center;">
+    <div><div class="meta group-label" data-text="intl.title"></div><div class="codes" data-codes="intl.rows" data-size="64"></div></div>
+    <div><div class="meta group-label">Brasil · os 6 mais baratos</div><div class="codes" data-codes="br.rows" data-size="56"></div></div>
+  </div>
+  <div class="foot meta"><span data-text="anchor"></span><span>desliza → 1 / 4</span></div>
+</section>
+
+<!-- 2 · Brasil -->
+<section class="slide light" data-slide="post-2-brasil">
+  <div class="top"><span class="mark" data-mark="36"></span><span class="meta">Brasil · 2 / 4</span></div>
+  <div style="display: flex; flex-direction: column; gap: 12px;">
+    <h1 class="sans" data-text="br.title"></h1>
+    <p class="lead" data-text="br.lead"></p>
+  </div>
+  <div class="table">
+    <div class="thead meta"><span>Destino</span><span>Cidade</span><span>Tempo</span><span>A partir de</span></div>
+    <div data-rows="br.rows"></div>
+  </div>
+  <div class="more"><span class="meta">E mais 14:</span><span class="mono" data-join="br.more"></span></div>
+  <div class="foot meta"><span data-text="sample"></span><span data-text="site"></span></div>
+</section>
+
+<!-- 3 · Exterior -->
+<section class="slide dark" data-slide="post-3-exterior">
+  <div class="top"><span class="mark" data-mark="36"></span><span class="meta">Exterior · 3 / 4</span></div>
+  <div style="display: flex; flex-direction: column; gap: 12px;">
+    <h1 class="title flap" data-text="intl.title"></h1>
+    <p class="lead" data-text="intl.lead"></p>
+  </div>
+  <div class="table">
+    <div class="thead meta"><span>Destino</span><span>Cidade</span><span>Tempo</span><span>A partir de</span></div>
+    <div data-rows="intl.rows"></div>
+  </div>
+  <div class="foot meta"><span data-text="sample"></span><span data-text="site"></span></div>
+</section>
+
+<!-- 4 · Como funciona -->
+<section class="slide light" data-slide="post-4-como-funciona">
+  <div class="top"><span class="mark" data-mark="36"></span><span class="meta">Como funciona · 4 / 4</span></div>
+  <div style="display: flex; flex-direction: column; gap: 12px;">
+    <h1 class="sans" data-text="how.title"></h1>
+    <p class="lead" data-text="how.lead"></p>
+  </div>
+  <div class="steps" data-steps="how.steps"></div>
+  <div class="cta-block dark">
+    <span class="big" data-text="how.cta"></span>
+    <span class="sub" data-text="how.ctaText"></span>
+  </div>
+  <div class="foot meta"><span><span data-text="handle"></span> · aeroporto PET, não PE</span><span data-text="disclaimer"></span></div>
+</section>
+
+<!-- story -->
+<section class="story dark" data-slide="story-sabado">
+  <div class="top"><span class="mark" data-mark="36"></span><span class="meta" data-text="handle"></span></div>
+  <div style="display: flex; flex-direction: column; gap: 36px;">
+    <span class="flap" style="font-size: 44px; line-height: 52px;" data-text="story.kicker"></span>
+    <h1 style="font-size: 76px; line-height: 84px; font-weight: 800; letter-spacing: -0.03em;" data-text="story.title"></h1>
+    <div class="codes" data-codes="intl.rows" data-size="68"></div>
+    <p class="lead" style="font-size: 34px; line-height: 44px;" data-text="story.lead"></p>
+    <span class="chip" data-text="story.cta"></span>
+  </div>
+  <div class="foot meta"><span data-text="site"></span><span data-text="disclaimer"></span></div>
+</section>
+
+<script>
+  (function () {
+    var D = window.DATA || {};
+    var get = function (path) { return path.split('.').reduce(function (o, k) { return o == null ? o : o[k]; }, D); };
+    var tile = function (ch, size) {
+      var el = document.createElement('span');
+      el.className = 'tile' + (ch === '-' ? ' hy' : '');
+      el.textContent = ch;
+      el.style.width = Math.round(size * 0.75) + 'px';
+      el.style.height = size + 'px';
+      el.style.borderRadius = Math.max(2, Math.round(size * 0.09)) + 'px';
+      el.style.fontSize = Math.round(size * 0.62) + 'px';
+      return el;
+    };
+    var row = function (word, size) {
+      var wrap = document.createElement('span');
+      wrap.className = 'mark';
+      wrap.style.gap = Math.max(1, Math.round(size * 0.09)) + 'px';
+      Array.prototype.forEach.call(word, function (ch) { wrap.appendChild(tile(ch, size)); });
+      return wrap;
+    };
+    document.querySelectorAll('[data-mark]').forEach(function (el) { el.replaceWith(row('SATOLEP-TRIPS', +el.dataset.mark)); });
+    document.querySelectorAll('[data-text]').forEach(function (el) { el.textContent = get(el.dataset.text) || ''; });
+    document.querySelectorAll('[data-join]').forEach(function (el) { el.textContent = (get(el.dataset.join) || []).join(' · '); });
+    document.querySelectorAll('[data-codes]').forEach(function (el) {
+      var size = +el.dataset.size;
+      (get(el.dataset.codes) || []).forEach(function (r) { el.appendChild(row(r.code, size)); });
+    });
+    document.querySelectorAll('[data-rows]').forEach(function (el) {
+      (get(el.dataset.rows) || []).forEach(function (r) {
+        var div = document.createElement('div');
+        div.className = 'row';
+        div.innerHTML = '<span class="code flap"></span><span class="city"></span><span class="time mono"></span><span class="price mono"></span>';
+        div.children[0].textContent = r.code; div.children[1].textContent = r.city; div.children[2].textContent = r.time; div.children[3].textContent = r.price;
+        el.appendChild(div);
+      });
+    });
+    document.querySelectorAll('[data-steps]').forEach(function (el) {
+      (get(el.dataset.steps) || []).forEach(function (s) {
+        var div = document.createElement('div');
+        div.className = 'step';
+        div.innerHTML = '<span class="n flap"></span><span style="display:flex;flex-direction:column;gap:6px"><span class="t"></span><span class="d"></span></span>';
+        div.children[0].textContent = s.n; div.children[1].children[0].textContent = s.title; div.children[1].children[1].textContent = s.text;
+        el.appendChild(div);
+      });
+    });
+  })();
+</script>
+</body>
+</html>

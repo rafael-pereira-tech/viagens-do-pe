@@ -1,0 +1,54 @@
+{
+  "handle": "@satolep.trips",
+  "site": "satolep-trips.app",
+  "disclaimer": "não vendemos passagem",
+  "sample": "amostra LATAM de 25/09 · só ida · tarifa + taxas",
+  "anchor": "LA3251 · PET → GRU · 19:10 → 21:10",
+  "cover": {
+    "kicker": "sábado é dia de planejar",
+    "title": "Aonde dá pra chegar saindo de PET?",
+    "lead": "No mesmo bilhete, com a LATAM: Pelotas → Guarulhos no noturno e, de lá, Brasil e exterior com conexão de até 4 h."
+  },
+  "intl": {
+    "title": "Exterior",
+    "lead": "Cinco destinos validados com 1 parada em GRU. SCL e BOG chegam de madrugada; Londres e Frankfurt, na tarde do dia seguinte.",
+    "rows": [
+      { "code": "SCL", "city": "Santiago", "time": "8h40", "price": "R$ 1.489" },
+      { "code": "BOG", "city": "Bogotá", "time": "10h45", "price": "R$ 1.840" },
+      { "code": "LHR", "city": "Londres", "time": "15h55", "price": "R$ 4.279" },
+      { "code": "FRA", "city": "Frankfurt", "time": "16h15", "price": "R$ 5.440" },
+      { "code": "MIA", "city": "Miami", "time": "12h50", "price": "R$ 5.840" }
+    ]
+  },
+  "br": {
+    "title": "Brasil: 20 destinos no mesmo bilhete",
+    "lead": "Os seis mais baratos da amostra. Centro-Oeste e Nordeste saem bem; Rio e Vitória ficam caros com uma parada só.",
+    "rows": [
+      { "code": "CGB", "city": "Cuiabá", "time": "6h55", "price": "R$ 1.709" },
+      { "code": "BSB", "city": "Brasília", "time": "5h15", "price": "R$ 1.786" },
+      { "code": "CWB", "city": "Curitiba", "time": "4h55", "price": "R$ 1.798" },
+      { "code": "BEL", "city": "Belém", "time": "6h45", "price": "R$ 1.864" },
+      { "code": "FOR", "city": "Fortaleza", "time": "7h35", "price": "R$ 1.964" },
+      { "code": "CGR", "city": "Campo Grande", "time": "6h25", "price": "R$ 2.231" }
+    ],
+    "more": ["POA", "CNF", "MAO", "GYN", "SSA", "GIG", "FLN", "IGU", "VIX", "SLZ", "MCZ", "NAT", "AJU", "JPA"]
+  },
+  "how": {
+    "title": "Como funciona",
+    "lead": "Não é \"GRU separado\": é bilhete through PET → destino.",
+    "steps": [
+      { "n": "01", "title": "Sai de Pelotas", "text": "LA3251 às 19:10, chega em GRU às 21:10." },
+      { "n": "02", "title": "Conecta em até 4 h", "text": "Mesma noite, uma parada só, tudo no mesmo bilhete." },
+      { "n": "03", "title": "Brasil ou exterior", "text": "25 destinos validados nesta amostra, 20 no Brasil e 5 fora." },
+      { "n": "04", "title": "Preço é foto do momento", "text": "Oscila todo dia. Revalida perto da compra." }
+    ],
+    "cta": "Salva e marca quem mora em Pelotas.",
+    "ctaText": "Comenta o destino que tu quer ver em milhas na próxima."
+  },
+  "story": {
+    "kicker": "Sábado é dia de planejar",
+    "title": "Aonde dá pra chegar saindo de PET?",
+    "lead": "25 destinos no mesmo bilhete, com uma conexão em GRU.",
+    "cta": "Vê o carrossel no perfil"
+  }
+}
