@@ -228,11 +228,10 @@ const dia = (d: string): string =>
     .format(new Date(`${d}T12:00:00Z`))
     .replace('.', '')
 const mes = (m: string): string => {
-  const [y, mm] = m.split('-')
   const nome = new Intl.DateTimeFormat('pt-BR', { month: 'short', timeZone: 'UTC' })
     .format(new Date(`${m}-15T12:00:00Z`))
     .replace('.', '')
-  return `${nome}/${y.slice(2)}`
+  return `${nome}/${m.slice(2, 4)}`
 }
 
 function ago(iso: string | null, now: Date): string {
