@@ -52,7 +52,7 @@
   .rows { display: flex; flex-direction: column; }
   .row { display: grid; align-items: baseline; gap: 24px; border-bottom: 2px solid var(--line); }
   .row .code { font-family: 'Doto', monospace; font-weight: 800; color: var(--amber); letter-spacing: 0.04em; }
-  .row .time { text-align: right; font-variant-numeric: tabular-nums; color: var(--text-2); }
+  .row .time { white-space: nowrap; text-align: right; font-variant-numeric: tabular-nums; color: var(--text-2); }
   .colhead { font-family: 'Geist Mono', monospace; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-2); }
 </style>
 </head>
@@ -183,6 +183,50 @@
   <div class="foot"><span>LATAM · malha ANAC de 06/10</span><span>satolep-trips.app</span></div>
 </section>
 
+<section class="art post" data-slide="post-ja-pensou-nyc">
+  <span class="mark" data-mark="44"></span>
+  <div style="position: absolute; left: 72px; right: 72px; top: 164px; display: flex; flex-direction: column; gap: 26px;">
+    <span class="flap" style="font-size: 40px;">Já pensou?</span>
+    <h1 style="font-size: 56px; line-height: 62px; font-weight: 800; letter-spacing: -0.03em;">Sair de PET depois do expediente e tomar café da manhã em Nova&nbsp;York.</h1>
+    <div class="rows" data-rows="nyc" data-cols="130px minmax(0,1fr) 300px" data-code="44" data-text="40" data-pad="10"></div>
+    <p class="t2" style="font-size: 40px; line-height: 50px;">Uma troca de avião em Guarulhos, 13h30 ao todo. Sem trocar de aeroporto, sem trocar de companhia.</p>
+  </div>
+  <div class="foot"><span>LATAM · horários publicados, vistos em 21/10</span></div>
+</section>
+
+<section class="art story" data-slide="story-ja-pensou-nyc">
+  <span class="mark" data-mark="52"></span>
+  <div style="position: absolute; left: 72px; right: 72px; top: 330px; display: flex; flex-direction: column; gap: 44px;">
+    <span class="flap" style="font-size: 64px;">Já pensou?</span>
+    <h1 style="font-size: 80px; line-height: 86px; font-weight: 800; letter-spacing: -0.03em;">Sair de PET depois do expediente e tomar café da manhã em Nova&nbsp;York.</h1>
+    <div class="rows" data-rows="nyc" data-cols="140px minmax(0,1fr) 400px" data-code="60" data-text="56" data-pad="16"></div>
+    <p class="t2" style="font-size: 56px; line-height: 68px;">Uma troca em Guarulhos. Nada de dormir em São&nbsp;Paulo no meio do caminho.</p>
+  </div>
+  <div class="foot"><span>LATAM · horários publicados, vistos em 21/10</span></div>
+</section>
+
+<section class="art post" data-slide="post-ja-pensou-jnb">
+  <span class="mark" data-mark="44"></span>
+  <div style="position: absolute; left: 72px; right: 72px; top: 164px; display: flex; flex-direction: column; gap: 26px;">
+    <span class="flap" style="font-size: 40px;">Já pensou?</span>
+    <h1 style="font-size: 56px; line-height: 62px; font-weight: 800; letter-spacing: -0.03em;">Sair de PET de noite e almoçar em Joanesburgo.</h1>
+    <div class="rows" data-rows="jnb" data-cols="130px minmax(0,1fr) 300px" data-code="44" data-text="40" data-pad="10"></div>
+    <p class="t2" style="font-size: 40px; line-height: 50px;">Do Laranjal pra África do Sul com uma troca só, em Guarulhos. 12h05 ao todo.</p>
+  </div>
+  <div class="foot"><span>LATAM · horários publicados, vistos em 21/10</span></div>
+</section>
+
+<section class="art story" data-slide="story-ja-pensou-jnb">
+  <span class="mark" data-mark="52"></span>
+  <div style="position: absolute; left: 72px; right: 72px; top: 330px; display: flex; flex-direction: column; gap: 44px;">
+    <span class="flap" style="font-size: 64px;">Já pensou?</span>
+    <h1 style="font-size: 80px; line-height: 86px; font-weight: 800; letter-spacing: -0.03em;">Sair de PET de noite e almoçar em Joanesburgo.</h1>
+    <div class="rows" data-rows="jnb" data-cols="140px minmax(0,1fr) 400px" data-code="60" data-text="56" data-pad="16"></div>
+    <p class="t2" style="font-size: 56px; line-height: 68px;">Do Laranjal pra África do Sul com uma troca só. Mesma companhia do começo ao&nbsp;fim.</p>
+  </div>
+  <div class="foot"><span>LATAM · horários publicados, vistos em 21/10</span></div>
+</section>
+
 <script>
 (function () {
   var ROWS = {
@@ -190,6 +234,8 @@
     gol: [['SDU', 'Rio (Santos Dumont)', '4h10'], ['BSB', 'Brasília', '4h40'], ['SSA', 'Salvador', '7h20']],
     azulvcp: [['BSB', 'Brasília', '5h05'], ['SSA', 'Salvador', '5h10'], ['CWB', 'Curitiba', '5h15']],
     azulpoa: [['CWB', 'Curitiba', '3h30']],
+    nyc: [['PET', 'Pelotas', '19:10'], ['GRU', 'conexão', '21:10 › 22:50'], ['JFK', 'Nova York', '07:40 +1']],
+    jnb: [['PET', 'Pelotas', '19:10'], ['GRU', 'conexão', '21:10 › 22:45'], ['JNB', 'Joanesburgo', '12:15 +1']],
     longe: [['LHR', 'Londres', '15h55'], ['FRA', 'Frankfurt', '16h15'], ['MIA', 'Miami', '12h50']]
   };
   var HOW = [
