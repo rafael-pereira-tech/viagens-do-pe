@@ -1,0 +1,251 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=1080" />
+<title>satolep-trips — D0 do Aonde dá pra chegar</title>
+<style>
+  @font-face { font-family: 'Geist'; font-weight: 100 900; font-display: block; src: url('../../../../node_modules/@fontsource-variable/geist/files/geist-latin-wght-normal.woff2') format('woff2'); }
+  @font-face { font-family: 'Geist Mono'; font-weight: 100 900; font-display: block; src: url('../../../../node_modules/@fontsource-variable/geist-mono/files/geist-mono-latin-wght-normal.woff2') format('woff2'); }
+  @font-face { font-family: 'Doto'; font-weight: 100 900; font-display: block; src: url('../../../../node_modules/@fontsource-variable/doto/files/doto-latin-wght-normal.woff2') format('woff2'); }
+
+  :root {
+    --page: #09090b;
+    --panel: #18181b;
+    --text: #fafafa;
+    --text-2: #adadb5;
+    --amber: #ffb86a;
+    --on-amber: #0f0f12;
+    --line: rgb(255 255 255 / 14%);
+    --tile: #0f0f12;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #333; font-family: 'Geist', system-ui, sans-serif; color: var(--text); display: flex; flex-direction: column; gap: 40px; padding: 40px; align-items: flex-start; }
+
+  .art { position: relative; overflow: hidden; background-color: var(--panel); background-image: radial-gradient(rgb(255 255 255 / 6%) 2px, transparent 3px); background-size: 18px 18px; }
+  .post { width: 1080px; height: 1080px; }
+  .story { width: 1080px; height: 1920px; }
+
+  .flap { font-family: 'Doto', 'Geist Mono', monospace; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em; color: var(--amber); line-height: 1.08; }
+  .geist { font-family: 'Geist', sans-serif; }
+  .t2 { color: var(--text-2); }
+  .foot { position: absolute; left: 72px; right: 72px; display: flex; align-items: baseline; justify-content: space-between; gap: 24px; color: var(--text-2); }
+  .post .foot { bottom: 60px; font-size: 30px; }
+  .story .foot { bottom: 200px; font-size: 40px; }
+  .num { font-family: 'Doto', monospace; font-weight: 800; color: var(--amber); font-size: 40px; letter-spacing: 0.04em; white-space: nowrap; }
+
+  .mark { position: absolute; left: 72px; display: inline-flex; }
+  .post .mark { top: 64px; }
+  .story .mark { top: 200px; }
+  .tile { position: relative; overflow: hidden; display: inline-flex; align-items: center; justify-content: center; flex: none; font-family: 'Doto', monospace; font-weight: 800; line-height: 1; background: var(--tile); color: var(--amber); }
+  .tile::after { content: ''; position: absolute; left: 0; right: 0; top: 50%; height: 2px; background: rgb(0 0 0 / 60%); transform: translateY(-50%); }
+  .tile.hy, .tile.amber { background: var(--amber); color: var(--on-amber); }
+  .tile.hy::after, .tile.amber::after { background: rgb(0 0 0 / 28%); }
+
+  /* moldura de celular */
+  .phone { position: absolute; background: #0f0f12; border: 2px solid var(--line); box-shadow: 0 30px 80px rgb(0 0 0 / 45%); overflow: hidden; }
+  .phone .screen { position: absolute; overflow: hidden; background: var(--page); }
+  .phone .screen img { width: 100%; height: 100%; object-fit: cover; object-position: top center; display: block; }
+  .missing { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; padding: 24px; text-align: center; border: 3px dashed rgb(255 184 106 / 60%); color: var(--amber); font-family: 'Geist Mono', monospace; font-size: 26px; letter-spacing: 0.04em; }
+
+  /* linhas de painel */
+  .rows { display: flex; flex-direction: column; }
+  .row { display: grid; align-items: baseline; gap: 24px; border-bottom: 2px solid var(--line); }
+  .row .code { font-family: 'Doto', monospace; font-weight: 800; color: var(--amber); letter-spacing: 0.04em; }
+  .row .time { text-align: right; font-variant-numeric: tabular-nums; color: var(--text-2); }
+  .colhead { font-family: 'Geist Mono', monospace; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-2); }
+</style>
+</head>
+<body>
+
+<!-- ============ STORIES ============ -->
+
+<!-- Story 1 · tem página nova -->
+<section class="art story" data-slide="story-1-pagina-nova">
+  <span class="mark" data-mark="52"></span>
+  <h1 class="flap" style="position: absolute; left: 72px; right: 72px; top: 296px; font-size: 84px;">Tem página nova</h1>
+  <div class="phone" style="left: 305px; top: 440px; width: 470px; height: 960px; border-radius: 64px; transform: rotate(-4deg);">
+    <div class="screen" style="inset: 14px; border-radius: 50px;"><img data-shot="phone-dark-mapa-tudo.png" alt=""></div>
+  </div>
+  <p class="geist" style="position: absolute; left: 72px; right: 72px; top: 1470px; font-size: 56px; line-height: 68px; font-weight: 600; letter-spacing: -0.015em;">Aonde dá pra chegar saindo de PET, com uma conexão só.</p>
+  <div class="foot"><span>satolep-trips.app</span></div>
+</section>
+
+<!-- Story 2 · 63 aeroportos -->
+<section class="art story" data-slide="story-2-63-aeroportos">
+  <span class="mark" data-mark="52"></span>
+  <div style="position: absolute; left: 72px; right: 72px; top: 420px; display: flex; flex-direction: column; gap: 56px;">
+    <div style="display: flex; align-items: center; gap: 36px;">
+      <span data-tiles="63" data-size="300" data-amber="1"></span>
+      <span class="flap" style="font-size: 64px;">Aeroportos</span>
+    </div>
+    <p style="font-size: 72px; line-height: 80px; font-weight: 700; letter-spacing: -0.02em;">44 no Brasil · 19 fora</p>
+    <p class="t2" style="font-size: 56px; line-height: 70px;">Uma troca de avião em Guarulhos, Congonhas, Campinas ou Porto Alegre. Mesma companhia, espera de 1&nbsp;h a 4&nbsp;h.</p>
+  </div>
+  <!-- área livre de 220 px para o sticker de link: 1500 → 1720 -->
+  <div class="foot"><span>malha ANAC de 06/10</span><span>satolep-trips.app</span></div>
+</section>
+
+<!-- Story 3 · caixa de perguntas -->
+<section class="art story" data-slide="story-3-perguntas">
+  <span class="mark" data-mark="52"></span>
+  <div class="phone" style="right: 72px; top: 196px; width: 300px; height: 612px; border-radius: 44px; transform: rotate(4deg);">
+    <div class="screen" style="inset: 10px; border-radius: 34px;"><img data-shot="phone-dark-popup-scl.png" alt=""></div>
+  </div>
+  <h1 class="flap" style="position: absolute; left: 72px; width: 600px; top: 380px; font-size: 84px;">Que destino tu quer ver?</h1>
+  <p class="geist" style="position: absolute; left: 72px; right: 72px; top: 860px; font-size: 56px; line-height: 68px; font-weight: 500;">A gente responde se dá com uma conexão só saindo de PET.</p>
+  <!-- área livre central de 400 px para a caixa de perguntas: 1080 → 1480 -->
+  <div class="foot"><span>malha ANAC de 06/10</span><span>satolep-trips.app</span></div>
+</section>
+
+<!-- ============ CARROSSEL ============ -->
+
+<!-- 1 / 5 · capa -->
+<section class="art post" data-slide="post-1-capa">
+  <div id="cover-map" style="position: absolute; inset: 0; opacity: 0.6;">
+    <img data-shot="desktop-dark-mapa-tudo.png" data-fallback="map" alt="" style="width: 100%; height: 100%; object-fit: cover; object-position: 60% 40%; display: block;">
+  </div>
+  <span class="mark" data-mark="44"></span>
+  <div style="position: absolute; left: 72px; right: 140px; top: 330px; display: flex; flex-direction: column; gap: 28px;">
+    <h1 class="flap" style="font-size: 104px;">Aonde dá pra chegar</h1>
+    <p style="font-size: 44px; line-height: 54px; font-weight: 500;">saindo de PET · uma conexão · mesma&nbsp;companhia</p>
+  </div>
+  <svg style="position: absolute; right: 56px; top: 510px;" width="40" height="60" viewBox="0 0 40 60" fill="none" stroke="#ffb86a" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 8 32 30 10 52"/></svg>
+  <div class="foot"><span>malha ANAC de 06/10</span><span class="num">1 / 5</span></div>
+</section>
+
+<!-- 2 / 5 · o número -->
+<section class="art post" data-slide="post-2-numero">
+  <span class="mark" data-mark="44"></span>
+  <div style="position: absolute; left: 72px; right: 72px; top: 230px; display: flex; flex-direction: column; gap: 44px;">
+    <div style="display: flex; align-items: center; gap: 36px;">
+      <span data-tiles="63" data-size="300" data-amber="1"></span>
+      <span class="flap" style="font-size: 64px;">Aeroportos</span>
+    </div>
+    <p style="font-size: 56px; line-height: 64px; font-weight: 700; letter-spacing: -0.02em;">44 no Brasil · 19 fora</p>
+    <p class="t2" style="font-size: 40px; line-height: 52px;">com uma conexão de 1&nbsp;h a 4&nbsp;h em Guarulhos, Congonhas, Campinas ou Porto Alegre</p>
+  </div>
+  <div class="foot"><span>malha ANAC de 06/10</span><span class="num">2 / 5</span></div>
+</section>
+
+<!-- 3 / 5 · internacional -->
+<section class="art post" data-slide="post-3-internacional">
+  <span class="mark" data-mark="44"></span>
+  <div style="position: absolute; left: 72px; right: 72px; top: 170px; display: flex; flex-direction: column; gap: 30px;">
+    <h1 class="flap" style="font-size: 52px;">Pela LATAM, via Guarulhos</h1>
+    <div class="rows" data-rows="intl" data-cols="150px minmax(0,1fr) 190px" data-code="56" data-text="40" data-pad="20"></div>
+  </div>
+  <div class="foot"><span>tempo total saindo de PET · malha ANAC de 06/10</span><span class="num">3 / 5</span></div>
+</section>
+
+<!-- 4 / 5 · Brasil -->
+<section class="art post" data-slide="post-4-brasil">
+  <span class="mark" data-mark="44"></span>
+  <div style="position: absolute; left: 72px; right: 72px; top: 156px; display: flex; flex-direction: column; gap: 26px;">
+    <div><h2 class="flap" style="font-size: 40px; margin-bottom: 4px;">GOL via Congonhas</h2><div class="rows" data-rows="gol" data-cols="130px minmax(0,1fr) 170px" data-code="40" data-text="40" data-pad="9"></div></div>
+    <div><h2 class="flap" style="font-size: 40px; margin-bottom: 4px;">Azul via Campinas</h2><div class="rows" data-rows="azulvcp" data-cols="130px minmax(0,1fr) 170px" data-code="40" data-text="40" data-pad="9"></div></div>
+    <div><h2 class="flap" style="font-size: 40px; margin-bottom: 4px;">Azul via Porto Alegre</h2><div class="rows" data-rows="azulpoa" data-cols="130px minmax(0,1fr) 170px" data-code="40" data-text="40" data-pad="9"></div></div>
+  </div>
+  <div class="foot"><span>tempo total saindo de PET · malha ANAC de 06/10</span><span class="num">4 / 5</span></div>
+</section>
+
+<!-- 5 / 5 · como funciona -->
+<section class="art post" data-slide="post-5-como-montou">
+  <span class="mark" data-mark="44"></span>
+  <div style="position: absolute; left: 72px; right: 72px; top: 170px; display: flex; flex-direction: column; gap: 22px;">
+    <h1 class="flap" style="font-size: 64px; margin-bottom: 8px;">Como a gente montou</h1>
+    <div data-lines="how"></div>
+  </div>
+  <div class="foot"><span>satolep-trips.app · link na bio</span><span class="num">5 / 5</span></div>
+</section>
+
+<script>
+(function () {
+  var ROWS = {
+    intl: [['SCL', 'Santiago', '8h40'], ['BOG', 'Bogotá', '10h45'], ['MIA', 'Miami', '12h50'], ['LHR', 'Londres', '15h55'], ['FRA', 'Frankfurt', '16h15']],
+    gol: [['SDU', 'Rio (Santos Dumont)', '4h10'], ['BSB', 'Brasília', '4h40'], ['SSA', 'Salvador', '7h20']],
+    azulvcp: [['BSB', 'Brasília', '5h05'], ['SSA', 'Salvador', '5h10'], ['CWB', 'Curitiba', '5h15']],
+    azulpoa: [['CWB', 'Curitiba', '3h30']]
+  };
+  var HOW = [
+    'Cruzamos a malha registrada na ANAC com os voos de PET.',
+    'Só entra conexão da mesma companhia, de 1\u00a0h a 4\u00a0h, sem virar a noite.',
+    'Confirmamos as mais curtas no site da companhia.',
+    'Preço das conexões ainda não tem: por enquanto é pra onde e em quanto tempo.'
+  ];
+
+  function tile(ch, size, amber) {
+    var el = document.createElement('span');
+    el.className = 'tile' + (ch === '-' ? ' hy' : '') + (amber ? ' amber' : '');
+    el.textContent = ch;
+    el.style.width = Math.round(size * 0.75) + 'px';
+    el.style.height = size + 'px';
+    el.style.borderRadius = Math.max(2, Math.round(size * 0.09)) + 'px';
+    el.style.fontSize = Math.round(size * 0.62) + 'px';
+    if (size > 120) el.style.setProperty('--line', '4px');
+    return el;
+  }
+  function row(word, size, amber) {
+    var wrap = document.createElement('span');
+    wrap.style.display = 'inline-flex';
+    wrap.style.gap = Math.max(2, Math.round(size * 0.07)) + 'px';
+    Array.prototype.forEach.call(word, function (ch) { wrap.appendChild(tile(ch, size, amber)); });
+    return wrap;
+  }
+  document.querySelectorAll('[data-mark]').forEach(function (el) {
+    var r = row('SATOLEP-TRIPS', +el.dataset.mark, false);
+    el.appendChild(r);
+  });
+  document.querySelectorAll('[data-tiles]').forEach(function (el) {
+    el.appendChild(row(el.dataset.tiles, +el.dataset.size, el.dataset.amber === '1'));
+  });
+  document.querySelectorAll('[data-rows]').forEach(function (el) {
+    var code = +el.dataset.code, text = +el.dataset.text, pad = +el.dataset.pad;
+    ROWS[el.dataset.rows].forEach(function (r) {
+      var d = document.createElement('div');
+      d.className = 'row';
+      d.style.gridTemplateColumns = el.dataset.cols;
+      d.style.padding = pad + 'px 0';
+      d.innerHTML = '<span class="code"></span><span class="city"></span><span class="time"></span>';
+      d.children[0].textContent = r[0]; d.children[0].style.fontSize = code + 'px';
+      d.children[1].textContent = r[1]; d.children[1].style.fontSize = text + 'px'; d.children[1].style.fontWeight = '500';
+      d.children[2].textContent = r[2]; d.children[2].style.fontSize = text + 'px';
+      el.appendChild(d);
+    });
+  });
+  document.querySelectorAll('[data-lines]').forEach(function (el) {
+    HOW.forEach(function (t) {
+      var p = document.createElement('p');
+      p.textContent = t;
+      p.style.cssText = 'font-size: 40px; line-height: 50px; padding: 18px 0; border-top: 2px solid rgb(255 255 255 / 14%);';
+      el.appendChild(p);
+    });
+  });
+
+  // prints: carregam de ../assets/; sem o arquivo, a peça mostra um aviso no lugar
+  function mapFallback(host) {
+    var P = { PET: [-31.72, -52.33], GRU: [-23.43, -46.47], CGH: [-23.63, -46.66], VCP: [-23.01, -47.13], POA: [-29.99, -51.17],
+      SCL: [-33.39, -70.79], BOG: [4.7, -74.15], MIA: [25.79, -80.29], LHR: [51.47, -0.46], FRA: [50.03, 8.57],
+      SDU: [-22.91, -43.16], BSB: [-15.87, -47.92], SSA: [-12.91, -38.33], CWB: [-25.53, -49.18] };
+    var L = [['PET','GRU'],['PET','CGH'],['PET','VCP'],['PET','POA'],['GRU','SCL'],['GRU','BOG'],['GRU','MIA'],['GRU','LHR'],['GRU','FRA'],['CGH','SDU'],['CGH','BSB'],['CGH','SSA'],['VCP','BSB'],['VCP','SSA'],['VCP','CWB'],['POA','CWB']];
+    var W = 1080, H = 1080, lon0 = -95, lon1 = 25, lat0 = 60, lat1 = -60;
+    var xy = function (p) { return [(p[1] - lon0) / (lon1 - lon0) * W, (lat0 - p[0]) / (lat0 - lat1) * H]; };
+    var s = '<svg width="1080" height="1080" viewBox="0 0 1080 1080" xmlns="http://www.w3.org/2000/svg">';
+    L.forEach(function (l) { var a = xy(P[l[0]]), b = xy(P[l[1]]); s += '<line x1="' + a[0] + '" y1="' + a[1] + '" x2="' + b[0] + '" y2="' + b[1] + '" stroke="#ffb86a" stroke-opacity="0.55" stroke-width="2"/>'; });
+    Object.keys(P).forEach(function (k) { var a = xy(P[k]); var r = k === 'PET' ? 9 : (['GRU','CGH','VCP','POA'].indexOf(k) >= 0 ? 6 : 4.5); s += '<circle cx="' + a[0] + '" cy="' + a[1] + '" r="' + r + '" fill="#ffb86a"/>'; });
+    host.innerHTML = s + '</svg>';
+  }
+  document.querySelectorAll('img[data-shot]').forEach(function (img) {
+    img.onerror = function () {
+      if (img.dataset.fallback === 'map') { mapFallback(img.parentNode); return; }
+      var box = document.createElement('div');
+      box.className = 'missing';
+      box.textContent = 'falta assets/' + img.dataset.shot;
+      img.replaceWith(box);
+    };
+    img.src = '../assets/' + img.dataset.shot;
+  });
+})();
+</script>
+</body>
+</html>

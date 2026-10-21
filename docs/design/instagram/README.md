@@ -17,3 +17,13 @@ node docs/design/instagram/render.mjs --data=outro.json --out=out-outro
 | `out/` | PNGs prontos para subir. |
 
 Regras da marca que valem aqui: Doto só nas placas e em títulos sobre o painel; preço sempre com data da amostra; "não vendemos passagem" em toda peça; o @ é o único lugar com ponto no nome (o Instagram não aceita hífen).
+
+## D0 do "Aonde dá pra chegar" (`d0/`)
+
+Três stories e o carrossel de 5 pranchas do lançamento, na paleta nova (painel `#18181b`, âmbar `#ffb86a`).
+
+```bash
+node docs/design/instagram/render.mjs --template=d0/template.html   # escreve d0/out/*.png
+```
+
+Os prints entram por `assets/` com estes nomes: `phone-dark-mapa-tudo.png` (story 1), `phone-dark-popup-scl.png` (story 3) e `desktop-dark-mapa-tudo.png` (capa do carrossel, a 60 %). Sem o arquivo, os stories mostram um aviso no lugar do celular e a capa usa um mapa desenhado com as rotas citadas no carrossel.

@@ -1,13 +1,14 @@
 // Renderiza template.html (com data.json) em PNGs 2x para o Instagram.
-// Uso: node docs/design/instagram/render.mjs [--data=outro.json] [--out=pasta]
+// Uso: node docs/design/instagram/render.mjs [--template=pasta/template.html] [--data=outro.json] [--out=pasta]
 import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const here = path.dirname(fileURLToPath(import.meta.url))
 const args = Object.fromEntries(process.argv.slice(2).map((a) => a.replace(/^--/, '').split('=')))
-const dataFile = path.resolve(here, args.data ?? 'data.json')
-const outDir = path.resolve(here, args.out ?? 'out')
+const templateFile = path.resolve(here, args.template ?? 'template.html')
+const dataFile = path.resolve(path.dirname(templateFile), args.data ?? 'data.json')
+const outDir = path.resolve(path.dirname(templateFile), args.out ?? 'out')
 
 async function loadChromium() {
   for (const mod of ['playwright', '@playwright/test', 'playwright-core']) {
@@ -21,7 +22,7 @@ async function loadChromium() {
 }
 
 const chromium = await loadChromium()
-const data = JSON.parse(fs.readFileSync(dataFile, 'utf8'))
+const data = fs.existsSync(dataFile) ? JSON.parse(fs.readFileSync(dataFile, 'utf8')) : {}
 fs.mkdirSync(outDir, { recursive: true })
 
 // Em ambientes com Chromium pré-instalado (CHROMIUM_PATH ou /opt/pw-browsers/chromium),
@@ -42,7 +43,7 @@ const page = await browser.newPage({ viewport: { width: 1200, height: 2000 }, de
 await page.addInitScript((d) => {
   window.DATA = d
 }, data)
-await page.goto('file://' + path.join(here, 'template.html'), { waitUntil: 'load' })
+await page.goto('file://' + templateFile, { waitUntil: 'load' })
 await page.evaluate(() => document.fonts.ready)
 await page.waitForTimeout(300)
 
